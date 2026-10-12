@@ -4,6 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DALEPLAY1</title>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
+<script>/* ADSTERRA SOCIAL BAR 6106981 - pega aqui tu codigo exacto */</script>
 <style>
 body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff}
 .header{background:#7fff00;color:#000;padding:14px;font-weight:900;font-size:20px}
@@ -11,17 +12,21 @@ body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff}
 .grid{width:95%;max-width:360px;margin:10px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .box{height:60px;background:#152e18;border:2px solid #7fff00;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900}
 .box.intentos-box{background:#b8860b;border-color:#ffcc00;font-size:11px;line-height:1}
-#btn{margin:15px auto;background:#333;color:#fff;border:0;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;display:none}
-#btn.activo{background:#7fff00;color:#000}
+.btn{margin:8px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;display:none;cursor:pointer}
+#btnAnuncio{background:#333;color:#fff}
+#btnAnuncio.activo{background:#7fff00;color:#000}
+#btnCompartir{background:#25D366;color:#000;display:block}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:99}
 .caja{background:#112d18;border:3px solid #7fff00;padding:22px;border-radius:18px;margin:20px}
 </style>
 </head>
 <body>
 <div class="header">GANA CON DALEPLAY1<small>6 OPORTUNIDADES POR HORA</small></div>
-<div class="cont" id="ci">Cargando...</div>
+<div class="cont" id="ci"></div>
 <div class="grid" id="g"></div>
-<button id="btn"></button>
+<button id="btnAnuncio" class="btn"></button>
+<button id="btnCompartir" class="btn" onclick="compartirParaGanar()">📤 COMPARTE PARA 2 POSIBILIDADES DE GANAR</button>
+
 <div id="modal"><div class="caja">
 <h1 style="color:#7fff00;margin:0" id="tituloM"></h1>
 <h2 style="color:#fff" id="premioTxt"></h2>
@@ -30,152 +35,66 @@ body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff}
 </div></div>
 
 <script>
-const BOT_TOKEN = "8892598385:AAEe41lVBI57SttwkfbQTdFdA0DsIBrtsMY";
-const TU_CHAT_ID = "6277586169";
-const ADSTERRA_LINK = "https://auctionr.org/4/78daf4a997a4fba4301f10f56752d9b3";
+const BOT_TOKEN="8892598385:AAEe41lVBI57SttwkfbQTdFdA0DsIBrtsMY"; const TU_CHAT_ID="6277586169";
+const ADSTERRA_LINK="https://auctionr.org/4/78daf4a997a4fba4301f10f56752d9b3";
 show_12010449({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
 
-let intentos=2, intentosUsados=0, ganadora=null, intentosPos=[], adUsado=false, bonosRecogidos=0, timer=null;
+let intentos=2,intentosUsados=0,ganadora=null,intentosPos=[],adUsado=false,compartidoUsado=false,bonosRecogidos=0,timer=null;
 let g=document.getElementById('g');
 
 function checkHora(){
-  let data = JSON.parse(localStorage.getItem('daleplay1_hora')||'{}');
-  let ahora = Date.now();
-  // Si no existe o pasó 1 hora (3600000 ms) -> reset
-  if(!data.time || (ahora - data.time) > 3600000){
-    localStorage.setItem('daleplay1_hora', JSON.stringify({time:ahora, usados:0, ad:false}));
-    return {usados:0, ad:false, reset:true};
+  let data=JSON.parse(localStorage.getItem('daleplay1_hora')||'{}'); let ahora=Date.now();
+  if(!data.time || (ahora-data.time)>3600000){
+    localStorage.setItem('daleplay1_hora',JSON.stringify({time:ahora,usados:0,ad:false,compartido:false}));
+    return {usados:0,ad:false,compartido:false,reset:true};
   }
-  return {usados:data.usados||0, ad:data.ad||false, reset:false, time:data.time};
+  return {usados:data.usados||0,ad:data.ad||false,compartido:data.compartido||false,time:data.time};
 }
 function guardarProgreso(){
-  let data = JSON.parse(localStorage.getItem('daleplay1_hora')||'{}');
-  data.usados = intentosUsados;
-  data.ad = adUsado;
-  if(!data.time) data.time = Date.now();
-  localStorage.setItem('daleplay1_hora', JSON.stringify(data));
-  // mostrar tiempo restante
-  let restante = 3600000 - (Date.now() - data.time);
-  if(restante>0) return restante;
-  return 0;
-}
-function enviar(monto,codigo){
-  let tg = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  let username = tg ? '@'+(tg.username||tg.first_name) : 'Usuario Web';
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:TU_CHAT_ID, text:`💎 GANADOR\n👤 ${username}\n💰 ${monto}\n🔑 ${codigo}\n⏰ ${new Date().toLocaleString()}`})});
+  let data=JSON.parse(localStorage.getItem('daleplay1_hora')||'{}');
+  data.usados=intentosUsados; data.ad=adUsado; data.compartido=compartidoUsado;
+  if(!data.time) data.time=Date.now();
+  localStorage.setItem('daleplay1_hora',JSON.stringify(data));
 }
 function crear(){
-  g.innerHTML='';
-  let estado = checkHora();
-  intentosUsados = estado.usados;
-  adUsado = estado.ad;
-
-  // Si ya gastó 6, no crear
-  if(intentosUsados>=6){
-    finPorHora(estado.time);
-    return;
-  }
-  // aleatorio total cada apertura
-  let todos = [...Array(25).keys()].sort(()=>Math.random()-0.5);
-  ganadora = todos[0];
-  intentosPos = todos.slice(1,3);
-  bonosRecogidos=0;
-  intentos = Math.max(0, 2 + bonosRecogidos*0 + (adUsado?2:0) - intentosUsados + (intentosUsados<2?0:0));
-  // simplificado: si es nuevo, 2 intentos
-  if(estado.reset) intentos=2; else intentos = 2 - Math.min(intentosUsados,2) + (adUsado?0:0);
-  if(intentosUsados<2) intentos=2-intentosUsados;
-  else if(intentosUsados>=2 && intentosUsados<4) intentos = bonosRecogidos>0?1:0; // lo manejamos con lógica de bonos
-  // lógica simple: 2 iniciales, luego bonos
-  if(estado.reset) intentos=2;
-  else if(intentosUsados>=2 && !adUsado && intentos<=0) intentos=0;
-  else if(intentosUsados>=4 && adUsado) intentos=0;
-
-  // Para evitar bug, si es primera vez: 2
+  g.innerHTML=''; let estado=checkHora(); intentosUsados=estado.usados; adUsado=estado.ad; compartidoUsado=estado.compartido;
+  if(intentosUsados>=6){ finPorHora(); return; }
+  let todos=[...Array(25).keys()].sort(()=>Math.random()-0.5); ganadora=todos[0]; intentosPos=todos.slice(1,3); bonosRecogidos=0;
+  if(estado.reset) intentos=2; else intentos=Math.max(0,2 - (intentosUsados>2?2:intentosUsados));
   if(estado.usados===0) intentos=2;
-  else if(intentosUsados>=2 && intentosUsados<4 && bonosRecogidos===0) intentos=0;
-
   for(let i=0;i<25;i++){
     let d=document.createElement('div'); d.className='box';
-    if(intentosPos.includes(i)){
-      d.classList.add('intentos-box'); d.innerHTML='+1<br>INTENTO';
-      d.onclick=()=>jugarIntento(d);
-    }else{
-      d.innerText='?'; d.onclick=()=>jugar(i,d);
-    }
+    if(intentosPos.includes(i)){ d.classList.add('intentos-box'); d.innerHTML='+1<br>INTENTO'; d.onclick=()=>jugarIntento(d); }
+    else{ d.innerText='?'; d.onclick=()=>jugar(i,d); }
     g.appendChild(d);
   }
+  document.getElementById('btnCompartir').style.display = compartidoUsado? 'none' : 'block';
   actualizar();
 }
 function actualizar(){
   if(intentosUsados>=6){ finPorHora(); return; }
-  document.getElementById('ci').innerText=`Oportunidades: ${intentosUsados}/6 | Intentos ahora: ${intentos}`;
-  let btn=document.getElementById('btn');
-  if(intentos<=0 && !adUsado && intentosUsados<6){
-    iniciarEspera15();
-  }else if(intentos<=0 && adUsado){
-    btn.style.display='none';
-  }else{
-    btn.style.display='none';
-  }
+  document.getElementById('ci').innerText=`Oportunidades: ${intentosUsados}/6 | Intentos: ${intentos}`;
+  if(intentos<=0 &&!adUsado && intentosUsados<6) iniciarEspera15(); else document.getElementById('btnAnuncio').style.display='none';
   guardarProgreso();
 }
-function jugarIntento(d){
-  if(d.dataset.used) return;
-  if(bonosRecogidos>=2) return;
-  if(intentosUsados>=6) return;
-  d.dataset.used=1; bonosRecogidos++; intentos++; intentosUsados++;
-  guardarProgreso();
-  if(intentosUsados>=6){ finPorHora(); return; }
-  actualizar();
-  show_12010449(); window.open(ADSTERRA_LINK, '_blank');
-  d.innerText='✅'; d.style.opacity='0.3'; d.onclick=null;
+function jugarIntento(d){ if(d.dataset.used) return; if(intentosUsados>=6) return; d.dataset.used=1; bonosRecogidos++; intentos++; intentosUsados++; guardarProgreso(); if(intentosUsados>=6){finPorHora();return;} actualizar(); show_12010449(); window.open(ADSTERRA_LINK,'_blank'); d.innerText='✅'; d.style.opacity='0.3'; d.onclick=null; }
+function jugar(i,d){ if(intentos<=0) return; if(d.dataset.ok) return; if(intentosUsados>=6) return; intentos--; intentosUsados++; guardarProgreso(); if(intentosUsados>=6 && i!==ganadora){d.innerText='💣'; finPorHora(); return;} actualizar(); show_12010449(); if(i===ganadora){d.innerText='💎'; d.style.background='#7fff00'; let monto=[2000,2000,5000,10000][Math.floor(Math.random()*4)]; let codigo='DP-'+Math.floor(Math.random()*90000+10000); document.getElementById('tituloM').innerText='FELICIDADES'; document.getElementById('premioTxt').innerText='GANASTE '+monto+' COP'; document.getElementById('cod').innerText=codigo; document.getElementById('codigoP').style.display='block'; document.getElementById('modal').style.display='flex'; }else{ d.innerText='💣'; setTimeout(()=>{ if(!d.dataset.ok) d.innerText='?'; },500);} }
+function iniciarEspera15(){ let btn=document.getElementById('btnAnuncio'); btn.style.display='block'; btn.classList.remove('activo'); let seg=15; btn.innerText='ESPERA '+seg+'s PARA +2 INTENTOS'; btn.onclick=null; if(timer) clearInterval(timer); timer=setInterval(()=>{ seg--; if(seg>0) btn.innerText='ESPERA '+seg+'s PARA +2 INTENTOS'; else{ clearInterval(timer); btn.innerText='▶ VER ANUNCIO PARA +2 INTENTOS'; btn.classList.add('activo'); btn.onclick=verAnuncioRecarga; } },1000); }
+function verAnuncioRecarga(){ if(adUsado) return; show_12010449('pop'); window.open(ADSTERRA_LINK,'_blank'); let btn=document.getElementById('btnAnuncio'); let s=15; btn.innerText=`VIENDO ANUNCIO... ${s}s`; let t=setInterval(()=>{ s--; btn.innerText=`VIENDO ANUNCIO... ${s}s`; if(s<=0){ clearInterval(t); adUsado=true; intentos=2; guardarProgreso(); actualizar(); } },1000); }
+function compartirParaGanar(){
+  if(compartidoUsado) return;
+  let texto = `🔥 Estoy ganando dinero en DALEPLAY1 💰 ¡Juega tus 6 oportunidades por hora! 👉 https://t.me/tu_bot`;
+  if(navigator.share){ navigator.share({title:'DALEPLAY1', text:texto, url:'https://t.me/tu_bot'}).then(()=>darPremioCompartir()).catch(()=>darPremioCompartir()); }
+  else{ window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`,'_blank'); setTimeout(darPremioCompartir,2000); }
 }
-function jugar(i,d){
- if(intentos<=0) return; if(d.dataset.ok) return; if(intentosUsados>=6) return;
- intentos--; intentosUsados++; guardarProgreso();
- if(intentosUsados>=6 && i!==ganadora){ d.innerText='💣'; finPorHora(); return; }
- actualizar(); show_12010449();
- if(i===ganadora){
-  d.innerText='💎'; d.style.background='#7fff00'; d.style.color='#000'; d.dataset.ok=1;
-  let monto = [2000,2000,5000,10000][Math.floor(Math.random()*4)];
-  let codigo = 'DP-'+Math.floor(Math.random()*90000+10000);
-  document.getElementById('tituloM').innerText='FELICIDADES';
-  document.getElementById('premioTxt').innerText='GANASTE '+monto+' COP';
-  document.getElementById('cod').innerText=codigo;
-  document.getElementById('codigoP').style.display='block';
-  document.getElementById('modal').style.display='flex';
-  enviar(monto,codigo);
- }else{ d.innerText='💣'; setTimeout(()=>{ if(!d.dataset.ok) d.innerText='?'; },500); }
+function darPremioCompartir(){
+  if(compartidoUsado) return;
+  compartidoUsado=true; intentos+=2; guardarProgreso(); actualizar();
+  document.getElementById('btnCompartir').style.display='none';
+  show_12010449('pop'); window.open(ADSTERRA_LINK,'_blank');
 }
-function iniciarEspera15(){
- let btn=document.getElementById('btn'); btn.style.display='block'; btn.classList.remove('activo');
- let seg=15; btn.innerText='ESPERA '+seg+'s PARA +2 INTENTOS'; btn.onclick=null;
- if(timer) clearInterval(timer);
- timer=setInterval(()=>{ seg--; if(seg>0){ btn.innerText='ESPERA '+seg+'s PARA +2 INTENTOS'; }else{ clearInterval(timer); btn.innerText='▶ VER ANUNCIO PARA +2 INTENTOS (2/2)'; btn.classList.add('activo'); btn.onclick=verAnuncioRecarga; } },1000);
-}
-function verAnuncioRecarga(){
-  if(adUsado) return;
-  show_12010449('pop').then(()=>{ adUsado=true; intentos=2; guardarProgreso(); actualizar(); }).catch(()=>{ adUsado=true; intentos=2; guardarProgreso(); actualizar(); });
-  window.open(ADSTERRA_LINK, '_blank');
-}
-function finPorHora(timeAnterior){
-  let data = JSON.parse(localStorage.getItem('daleplay1_hora')||'{}');
-  let restante = data.time ? 3600000 - (Date.now() - data.time) : 0;
-  let min = Math.ceil(restante/60000);
-  document.getElementById('ci').innerText=`¡Gastaste tus 6 oportunidades! Vuelve en ${min} min`;
-  document.getElementById('tituloM').innerText='SE ACABARON TUS 6 TIROS';
-  document.getElementById('premioTxt').innerText=`Vuelve en ${min} minutos para jugar de nuevo`;
-  document.getElementById('codigoP').style.display='none';
-  document.getElementById('btnModal').innerText='ENTENDIDO';
-  document.getElementById('btnModal').onclick=()=>document.getElementById('modal').style.display='none';
-  document.getElementById('modal').style.display='flex';
-  document.getElementById('btn').style.display='none';
-  g.innerHTML='';
-}
-function reclamarFinal(){
-  show_12010449('pop').then(()=>{ document.getElementById('modal').style.display='none'; intentosUsados=6; guardarProgreso(); finPorHora(); }).catch(()=>{ document.getElementById('modal').style.display='none'; intentosUsados=6; guardarProgreso(); finPorHora(); });
-  window.open(ADSTERRA_LINK, '_blank');
-}
+function finPorHora(){ let data=JSON.parse(localStorage.getItem('daleplay1_hora')||'{}'); let restante=data.time?3600000-(Date.now()-data.time):0; let min=Math.ceil(restante/60000); document.getElementById('ci').innerText=`¡Gastaste tus 6 oportunidades! Vuelve en ${min} min`; document.getElementById('tituloM').innerText='SE ACABARON TUS 6 TIROS'; document.getElementById('premioTxt').innerText=`Vuelve en ${min} minutos para jugar de nuevo`; document.getElementById('codigoP').style.display='none'; document.getElementById('btnModal').innerText='ENTENDIDO'; document.getElementById('btnModal').onclick=()=>document.getElementById('modal').style.display='none'; document.getElementById('modal').style.display='flex'; document.getElementById('btnAnuncio').style.display='none'; g.innerHTML=''; }
+function reclamarFinal(){ show_12010449('pop'); window.open(ADSTERRA_LINK,'_blank'); document.getElementById('modal').style.display='none'; intentosUsados=6; guardarProgreso(); finPorHora(); }
 crear();
 </script>
 </body>
