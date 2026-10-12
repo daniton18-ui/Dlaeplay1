@@ -1,86 +1,31 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DalePlay - Pago Triple</title>
-
-<!-- 1. MONETAG - PAGA POR SOLO VER (sin click) -->
-<script src='//libtl.com/sdk.js' data-zone='12010449' data-sdk='show_12010449'></script>
-
-<!-- 2. ADSTERRA SOCIAL BAR - PAGA POR SOLO VER (ID 31686426) -->
-<script>
-  // Adsterra Social Bar - tu ID
-  (function(){
-    var s = document.createElement('script');
-    s.src = 'https://www.profitablecpmgate.com/31686426/invoke.js';
-    s.async = true;
-    document.head.appendChild(s);
-  })();
-</script>
-
+<title>DALEPLAY1 - GANA PREMIOS</title>
+<script src="//libtl.com/sdk.js" data-zone="3528410" data-sdk="show_3528410"></script>
+<script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
-body{margin:0;background:#000;font-family:Arial;overflow:hidden}
-video{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000}
-#box{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:85%;max-width:320px;background:rgba(15,15,15,0.98);border:2px solid #00ff66;border-radius:15px;padding:15px;z-index:999;display:none}
-#top{display:flex;justify-content:space-between;align-items:center;color:#00ff66;font-weight:bold}
-#x{background:red;color:white;border:none;width:30px;height:30px;border-radius:50%;font-weight:bold;cursor:pointer;font-size:16px}
-#msg{color:white;font-size:13px;margin:10px 0}
-#bar{height:4px;background:#333;border-radius:10px;overflow:hidden}
-#fill{height:100%;background:#00ff66;width:0%;transition:width .1s}
+body{background:#051a0a;color:white;text-align:center;font-family:Arial;margin:0}
+.letrero{background:linear-gradient(90deg,#7fff00,#00ff88);color:black;padding:15px;font-weight:900;font-size:20px;position:sticky;top:0;z-index:10}
+.letrero span{font-size:13px;display:block;font-weight:bold}
+.tablero{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:350px;margin:15px auto;padding:0 10px}
+.casilla{background:#0a2a12;border:2px solid #7fff00;height:65px;border-radius:12px;font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:bold}
+.intentos{background:#112d18;border:2px solid #7fff00;margin:10px auto;padding:10px;border-radius:10px;max-width:350px;color:#7fff00;font-weight:bold}
+.btnRecarga{background:#7fff00;color:black;border:none;padding:14px;width:90%;max-width:350px;border-radius:12px;font-weight:900;font-size:16px;margin:10px;display:none}
+#modalPremio{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:100;align-items:center;justify-content:center}
+.cajaPremio{background:#112d18;border:3px solid #7fff00;padding:25px;border-radius:20px;margin:20px}
+@keyframes temblor{0%{transform:translateX(0)}25%{transform:translateX(3px)}50%{transform:translateX(-3px)}100%{transform:translateX(0)}}
+.barajando{animation:temblor 0.3s}
 </style>
 </head>
 <body>
 
-<video autoplay controls playsinline loop id="vid">
-<source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
-</video>
-
-<div id="box">
-  <div id="top">
-    <span>🎁 RECLAMA BONO</span>
-    <button id="x" onclick="cerrarConPago()">X</button>
-  </div>
-  <div id="msg">Cierra para seguir viendo y ganar</div>
-  <div id="bar"><div id="fill"></div></div>
+<div class="letrero">
+GANA CON DALEPLAY1
+<span>PREMIOS DESDE 2000 PESOS COP HASTA 10000 PESOS COP</span>
 </div>
 
-<script>
-// Links que pagan al dar click en la X
-const directLinks = [
-  "https://auctionr.org/4/78daf4a997a4fba4301f10f56752d9b3",
-  "https://uplcm.com/4/12009180"
-];
-let li = 0;
-let prog = 0;
-
-function mostrarBox(){
-  document.getElementById('box').style.display = 'block';
-  prog = 0;
-  // PAGO 1 y 2: POR VISTA AUTOMÁTICO
-  if(typeof show_12010449 === 'function') show_12010449();
-  // El Social Bar 31686426 ya se muestra solo
-}
-
-function cerrarConPago(){
-  // PAGO 3: POR CLICK EN LA X
-  window.open(directLinks[li % directLinks.length], '_blank');
-  li++;
-  document.getElementById('box').style.display = 'none';
-}
-
-// Modo historia - cada 22 seg
-setInterval(()=>{
-  prog += 1.5;
-  document.getElementById('fill').style.width = prog + '%';
-  if(prog >= 100){
-    mostrarBox();
-    prog = 0;
-  }
-}, 200);
-
-setTimeout(mostrarBox, 4000); // primer anuncio a los 4 seg
-</script>
-
-</body>
-</html>
+<div class="intentos" id="intentosTxt">Intentos gratis: 2/2</div>
+<div style="color:#aaa;font-size:12
