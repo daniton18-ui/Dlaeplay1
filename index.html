@@ -19,10 +19,10 @@ body{margin:0;background:#071a0a;font-family:Arial;text-align:center}
 </style>
 </head>
 <body>
-<div class="header">GANA CON DALEPLAY1<small>PREMIOS DESDE 2000 PESOS COP HASTA 10000 PESOS COP TERMINA EL ANUNCIO PARA LA OTRA OPRTUNIDAD</small></div>
+<div class="header">GANA CON DALEPLAY1<small>PREMIOS DESDE 2000 PESOS COP HASTA 10000 PESOS COP</small></div>
 <div class="cont" id="ci">Intentos gratis: 2/2</div>
 <div class="grid" id="g"></div>
-<button id="btn" onclick="verAnuncioRecarga()">ESPERA 15s PARA 2DA OPORTUNIDAD</button>
+<button id="btn">ESPERA 15s PARA 2DA OPORTUNIDAD</button>
 
 <div id="modal"><div class="caja">
 <h1 style="color:#7fff00;margin:0">FELICIDADES</h1>
@@ -32,71 +32,52 @@ body{margin:0;background:#071a0a;font-family:Arial;text-align:center}
 </div></div>
 
 <script>
+const BOT_TOKEN = "8892598385:AAHXSHNKaLYH5nDE4t1uNjZ-1WX1ItoMftU";
+const TU_CHAT_ID = "@Daleplay1bot";
+// =========================================
+
 let intentos=2, encontrados=0, ganadoras=[], timer=null;
 let g=document.getElementById('g');
 
-function crear(){
- g.innerHTML='';
- for(let i=0;i<25;i++){
-  let d=document.createElement('div');
-  d.className='box'; d.innerText='?';
-  d.onclick=()=>jugar(i,d);
-  g.appendChild(d);
- }
- barajar();
+function enviarNotificacion(monto, codigo){
+  let tg = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  let username = tg ? '@'+(tg.username || tg.first_name) : 'Anonimo';
+  let nombre = tg ? tg.first_name : '';
+  let mensaje = `💎 NUEVO GANADOR DALEPLAY1\n\n👤 Usuario: ${username}\n📛 Nombre: ${nombre}\n💰 Premio: ${monto} COP\n🔑 Código: ${codigo}`;
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:TU_CHAT_ID, text:mensaje})
+  });
 }
+
+function crear(){ g.innerHTML=''; for(let i=0;i<25;i++){ let d=document.createElement('div'); d.className='box'; d.innerText='?'; d.onclick=()=>jugar(i,d); g.appendChild(d); } barajar(); }
 function barajar(){ ganadoras=[]; while(ganadoras.length<2){let r=Math.floor(Math.random()*25); if(!ganadoras.includes(r)) ganadoras.push(r);} }
 function actualizar(){ document.getElementById('ci').innerText='Intentos gratis: '+intentos+'/2'; if(intentos<=0) iniciarEspera15(); else document.getElementById('btn').style.display='none'; }
-
 function jugar(i,d){
- if(intentos<=0) return;
- if(d.dataset.ok) return;
- intentos--; actualizar();
- show_12010449();
+ if(intentos<=0) return; if(d.dataset.ok) return;
+ intentos--; actualizar(); show_12010449();
  if(ganadoras.includes(i)){
   d.innerText='💎'; d.style.background='#7fff00'; d.style.color='#000'; d.dataset.ok=1; encontrados++;
   if(encontrados==2){
    let montos=[2000,2000,2000,5000,10000];
-   document.getElementById('premioTxt').innerText='GANASTE '+montos[Math.floor(Math.random()*montos.length)]+' PESOS COP';
-   document.getElementById('cod').innerText='DP-'+Math.floor(Math.random()*90000+10000);
+   let montoElegido = montos[Math.floor(Math.random()*montos.length)];
+   let codigo = 'DP-'+Math.floor(Math.random()*90000+10000);
+   document.getElementById('premioTxt').innerText='GANASTE '+montoElegido+' PESOS COP';
+   document.getElementById('cod').innerText=codigo;
    document.getElementById('modal').style.display='flex';
+   enviarNotificacion(montoElegido, codigo);
   }
  }else{ d.innerText='💣'; setTimeout(()=>{ if(!d.dataset.ok) d.innerText='?'; },600); }
 }
-
 function iniciarEspera15(){
- let btn=document.getElementById('btn');
- btn.style.display='block';
- btn.classList.remove('activo');
- let seg=15;
- btn.innerText='ESPERA '+seg+'s PARA 2DA OPORTUNIDAD';
- btn.onclick=null;
+ let btn=document.getElementById('btn'); btn.style.display='block'; btn.classList.remove('activo');
+ let seg=15; btn.innerText='ESPERA '+seg+'s PARA 2DA OPORTUNIDAD'; btn.onclick=null;
  if(timer) clearInterval(timer);
- timer=setInterval(()=>{
-  seg--;
-  if(seg>0){
-   btn.innerText='ESPERA '+seg+'s PARA 2DA OPORTUNIDAD';
-  }else{
-   clearInterval(timer);
-   btn.innerText='▶ VER ANUNCIO PARA +2 INTENTOS';
-   btn.classList.add('activo');
-   btn.onclick=verAnuncioRecarga;
-  }
- },1000);
+ timer=setInterval(()=>{ seg--; if(seg>0){ btn.innerText='ESPERA '+seg+'s PARA 2DA OPORTUNIDAD'; }else{ clearInterval(timer); btn.innerText='▶ VER ANUNCIO PARA +2 INTENTOS'; btn.classList.add('activo'); btn.onclick=verAnuncioRecarga; } },1000);
 }
-
-function verAnuncioRecarga(){
- show_12010449().then(() => {
-    intentos=2; encontrados=0; crear(); actualizar();
- });
-}
-
-function reclamarFinal(){
- show_12010449().then(() => {
-    document.getElementById('modal').style.display='none';
-    intentos=0; actualizar();
- });
-}
+function verAnuncioRecarga(){ show_12010449().then(() => { intentos=2; encontrados=0; crear(); actualizar(); }); }
+function reclamarFinal(){ show_12010449().then(() => { document.getElementById('modal').style.display='none'; intentos=0; actualizar(); }); }
 crear(); actualizar();
 setInterval(()=>{if(intentos>0) barajar();},3000);
 </script>
