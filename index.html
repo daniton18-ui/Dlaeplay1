@@ -4,42 +4,95 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DALEPLAY1</title>
-<script src="//libtl.com/sdk.js" data-zone="3528410" data-sdk="show_3528410"></script>
+<script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
-body{background:#071a0a;color:white;text-align:center;font-family:Arial;margin:0}
-.letrero{background:#7fff00;color:black;padding:12px;font-weight:900;font-size:19px}
-.letrero span{display:block;font-size:12px}
-.box-intentos{border:2px solid #7fff00;border-radius:12px;padding:10px;margin:10px;color:#7fff00;font-weight:bold;background:#0f2a12}
-#tablero{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px;max-width:360px;margin:0 auto}
-.casilla{background:#0f2a12;border:2px solid #7fff00;height:62px;border-radius:10px;font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white}
-.casilla:active{transform:scale(0.92)}
-#btnRecarga{background:#7fff00;color:black;border:none;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;font-size:16px;margin:12px;display:none}
-#modalPremio{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:99;align-items:center;justify-content:center}
-.caja{background:#112d18;border:3px solid #7fff00;padding:20px;border-radius:18px;margin:20px}
+body{margin:0;background:#071a0a;font-family:Arial;text-align:center}
+.header{background:#7fff00;color:#000;padding:14px;font-weight:900;font-size:20px}
+.header small{display:block;font-size:12px}
+.cont{color:#7fff00;border:2px solid #7fff00;border-radius:12px;margin:12px;padding:10px;font-weight:bold}
+.grid{width:95%;max-width:360px;margin:10px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.box{height:60px;background:#152e18;border:2px solid #7fff00;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;cursor:pointer}
+#btn{margin:15px auto;background:#7fff00;color:#000;border:0;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;display:none}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:99}
+.caja{background:#112d18;border:3px solid #7fff00;padding:22px;border-radius:18px;margin:20px}
 </style>
 </head>
 <body>
+<div class="header">GANA CON DALEPLAY1<small>PREMIOS DESDE 2000 PESOS COP HASTA 10000 PESOS COP</small></div>
+<div class="cont" id="ci">Intentos gratis: 2/2</div>
+<div class="grid" id="g"></div>
+<button id="btn" onclick="verAnuncioRecarga()">▶ VER ANUNCIO PARA +2 INTENTOS</button>
 
-<div class="letrero">GANA CON DALEPLAY1<span>PREMIOS DESDE 2000 PESOS COP HASTA 10000 PESOS COP</span></div>
-<div class="box-intentos" id="txtIntentos">Intentos gratis: 2/2</div>
+<div id="modal"><div class="caja">
+<h1 style="color:#7fff00;margin:0">FELICIDADES</h1>
+<h2 style="color:#fff" id="premioTxt">GANASTE 2000 PESOS COP</h2>
+<p>Código: <b id="cod" style="color:#7fff00"></b></p>
+<button onclick="reclamarFinal()" style="background:#7fff00;color:#000;border:0;padding:14px;width:100%;border-radius:10px;font-weight:900">RECLAMAR 2000 COP</button>
+</div></div>
 
-<div id="tablero">
-<div class="casilla" onclick="jugar(0)">?</div>
-<div class="casilla" onclick="jugar(1)">?</div>
-<div class="casilla" onclick="jugar(2)">?</div>
-<div class="casilla" onclick="jugar(3)">?</div>
-<div class="casilla" onclick="jugar(4)">?</div>
-<div class="casilla" onclick="jugar(5)">?</div>
-<div class="casilla" onclick="jugar(6)">?</div>
-<div class="casilla" onclick="jugar(7)">?</div>
-<div class="casilla" onclick="jugar(8)">?</div>
-<div class="casilla" onclick="jugar(9)">?</div>
-<div class="casilla" onclick="jugar(10)">?</div>
-<div class="casilla" onclick="jugar(11)">?</div>
-<div class="casilla" onclick="jugar(12)">?</div>
-<div class="casilla" onclick="jugar(13)">?</div>
-<div class="casilla" onclick="jugar(14)">?</div>
-<div class="casilla" onclick="jugar(15)">?</div>
-<div class="casilla" onclick="jugar(16)">?</div>
-<div class="casilla" onclick="jugar(17)">?</div>
-<div
+<script>
+let intentos=2, encontrados=0, ganadoras=[];
+let g=document.getElementById('g');
+
+function crear(){
+ g.innerHTML='';
+ for(let i=0;i<25;i++){
+  let d=document.createElement('div');
+  d.className='box'; d.innerText='?';
+  d.onclick=()=>jugar(i,d);
+  g.appendChild(d);
+ }
+ barajar();
+}
+function barajar(){
+ ganadoras=[];
+ while(ganadoras.length<2){let r=Math.floor(Math.random()*25); if(!ganadoras.includes(r)) ganadoras.push(r);}
+}
+function actualizar(){document.getElementById('ci').innerText='Intentos gratis: '+intentos+'/2'; document.getElementById('btn').style.display=intentos<=0?'block':'none';}
+
+function jugar(i,d){
+ if(intentos<=0){ actualizar(); return; }
+ if(d.dataset.ok) return;
+ intentos--; actualizar();
+
+ // ANUNCIO POR CADA CLICK - FORMATO QUE ME MANDASTE
+ show_12010449().then(() => {
+    // Recompensa después del anuncio
+    console.log('Anuncio visto');
+ });
+
+ if(ganadoras.includes(i)){
+  d.innerText='💎'; d.style.background='#7fff00'; d.style.color='#000'; d.dataset.ok=1; encontrados++;
+  if(encontrados==2){
+   let montos=[2000,2000,2000,5000,10000];
+   document.getElementById('premioTxt').innerText='GANASTE '+montos[Math.floor(Math.random()*montos.length)]+' PESOS COP';
+   document.getElementById('cod').innerText='DP-'+Math.floor(Math.random()*90000+10000);
+   document.getElementById('modal').style.display='flex';
+  }
+ }else{
+  d.innerText='💣'; setTimeout(()=>{ if(!d.dataset.ok) d.innerText='?'; },600);
+ }
+}
+
+function verAnuncioRecarga(){
+ // AQUÍ ESTÁ TU CÓDIGO EXACTO
+ show_12010449().then(() => {
+    // Recompensa: +2 intentos
+    intentos=2; encontrados=0; crear(); actualizar();
+    alert('¡+2 intentos recargados!');
+ });
+}
+
+function reclamarFinal(){
+ show_12010449().then(() => {
+    alert('¡Código '+document.getElementById('cod').innerText+' reclamado! Envía a @Daleplay1bot');
+    document.getElementById('modal').style.display='none';
+    intentos=0; encontrados=0; actualizar();
+ });
+}
+
+crear(); actualizar();
+setInterval(()=>{if(intentos>0) barajar();},3000);
+</script>
+</body>
+</html>
