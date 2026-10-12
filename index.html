@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>DalePlay</title>
+<style>
+body{margin:0;background:#0f9d58;font-family:Arial,sans-serif;color:#fff}
+.head{padding:18px;text-align:center}
+.head h1{margin:0;color:#ffeb3b;font-size:26px}
+.card{background:#fff;color:#222;margin:12px 15px;padding:14px;border-radius:14px;display:flex;justify-content:space-between;align-items:center}
+.card b{font-size:15px}
+.btn{background:#ff0055;color:#fff;border:0;padding:10px 16px;border-radius:10px;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="head"><h1>DalePlay COLOMBIA</h1><p>INGRESOS PASIVOS</p></div>
+<div id="app"></div>
+<script>
+const bonos=[["Bono 1 peso col","🎁"],["Oferta 1 peso col","🔥"],["Gana +1 peso col","💰"],["Extra 1 peso col","⭐"],["Premio 1 peso col","🚀"],["Gana 1 peso col","❤️"]];
+const link="https://affectionatestorage.com/kFCaTy";
+document.getElementById("app").innerHTML=bonos.map(b=>`<div class="card"><b>${b[1]} ${b[0]}</b><button class="btn" onclick="Telegram.WebApp.openLink('${link}')">VER</button></div>`).join("");
+Telegram.WebApp.ready();Telegram.WebApp.expand();
+</script>
+</body>
+</html>
