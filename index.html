@@ -3,29 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DALEPLAY1 - GANA PREMIOS</title>
+<title>DALEPLAY1</title>
 <script src="//libtl.com/sdk.js" data-zone="3528410" data-sdk="show_3528410"></script>
-<script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
-body{background:#051a0a;color:white;text-align:center;font-family:Arial;margin:0}
-.letrero{background:linear-gradient(90deg,#7fff00,#00ff88);color:black;padding:15px;font-weight:900;font-size:20px;position:sticky;top:0;z-index:10}
-.letrero span{font-size:13px;display:block;font-weight:bold}
-.tablero{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:350px;margin:15px auto;padding:0 10px}
-.casilla{background:#0a2a12;border:2px solid #7fff00;height:65px;border-radius:12px;font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:bold}
-.intentos{background:#112d18;border:2px solid #7fff00;margin:10px auto;padding:10px;border-radius:10px;max-width:350px;color:#7fff00;font-weight:bold}
-.btnRecarga{background:#7fff00;color:black;border:none;padding:14px;width:90%;max-width:350px;border-radius:12px;font-weight:900;font-size:16px;margin:10px;display:none}
-#modalPremio{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:100;align-items:center;justify-content:center}
-.cajaPremio{background:#112d18;border:3px solid #7fff00;padding:25px;border-radius:20px;margin:20px}
-@keyframes temblor{0%{transform:translateX(0)}25%{transform:translateX(3px)}50%{transform:translateX(-3px)}100%{transform:translateX(0)}}
-.barajando{animation:temblor 0.3s}
+body{background:#071a0a;color:white;text-align:center;font-family:Arial;margin:0}
+.letrero{background:#7fff00;color:black;padding:12px;font-weight:900;font-size:19px}
+.letrero span{display:block;font-size:12px}
+.box-intentos{border:2px solid #7fff00;border-radius:12px;padding:10px;margin:10px;color:#7fff00;font-weight:bold;background:#0f2a12}
+#tablero{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px;max-width:360px;margin:0 auto}
+.casilla{background:#0f2a12;border:2px solid #7fff00;height:62px;border-radius:10px;font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white}
+.casilla:active{transform:scale(0.92)}
+#btnRecarga{background:#7fff00;color:black;border:none;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;font-size:16px;margin:12px;display:none}
+#modalPremio{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:99;align-items:center;justify-content:center}
+.caja{background:#112d18;border:3px solid #7fff00;padding:20px;border-radius:18px;margin:20px}
 </style>
 </head>
 <body>
 
-<div class="letrero">
-GANA CON DALEPLAY1
-<span>PREMIOS DESDE 2000 PESOS COP HASTA 10000 PESOS COP</span>
-</div>
+<div class="letrero">GANA CON DALEPLAY1<span>PREMIOS DESDE 2000 PESOS COP HASTA 10000 PESOS COP</span></div>
+<div class="box-intentos" id="txtIntentos">Intentos gratis: 2/2</div>
 
-<div class="intentos" id="intentosTxt">Intentos gratis: 2/2</div>
-<div style="color:#aaa;font-size:12
+<div id="tablero">
+<div class="casilla" onclick="jugar(0)">?</div>
+<div class="casilla" onclick="jugar(1)">?</div>
+<div class="casilla" onclick="jugar(2)">?</div>
+<div class="casilla" onclick="jugar(3)">?</div>
+<div class="casilla" onclick="jugar(4)">?</div>
+<div class="casilla" onclick="jugar(5)">?</div>
+<div class="casilla" onclick="jugar(6)">?</div>
+<div class="casilla" onclick="jugar(7)">?</div>
+<div class="casilla" onclick="jugar(8)">?</div>
+<div class="casilla" onclick="jugar(9)">?</div>
+<div class="casilla" onclick="jugar(10)">?</div>
+<div class="casilla" onclick="jugar(11)">?</div>
+<div class="casilla" onclick="jugar(12)">?</div>
+<div class="casilla" onclick="jugar(13)">?</div>
+<div class="casilla" onclick="jugar(14)">?</div>
+<div class="casilla" onclick="jugar(15)">?</div>
+<div class="casilla" onclick="jugar(16)">?</div>
+<div class="casilla" onclick="jugar(17)">?</div>
+<div
