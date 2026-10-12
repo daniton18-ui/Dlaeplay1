@@ -3,54 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DalePlay COLOMBIA</title>
+<title>DalePlay</title>
+
+<!-- PAGO POR VISTA 1 - MONETAG -->
+<script src='//libtl.com/sdk.js' data-zone='12010449' data-sdk='show_12010449'></script>
+
+<!-- PAGO POR VISTA 2 - ADSTERRA SOCIAL BAR 31686426 -->
+<script src='https://www.profitablecpmgate.com/31686426/invoke.js'></script>
+
 <style>
-body{margin:0;font-family:Arial;background:#0a0a0a;color:white;text-align:center}
-.header{background:#00ff66;color:black;padding:15px;font-weight:bold;font-size:22px}
-.card{background:#1a1a1a;margin:15px;border-radius:15px;padding:15px;border:1px solid #333}
-.card h3{color:#00ff66;margin:5px}
-.btn{display:block;background:#00ff66;color:black;padding:12px;border-radius:10px;text-decoration:none;font-weight:bold;margin-top:10px}
-.tag{background:#333;padding:3px 8px;border-radius:5px;font-size:12px}
+body{margin:0;background:#000;color:white;font-family:Arial;overflow:hidden}
+video{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+#story{position:fixed;top:0;left:0;width:100%;height:4px;background:rgba(255,255,255,0.2);z-index:10}
+#fill{height:100%;background:#00ff66;width:0%}
+#box{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:88%;max-width:330px;background:#111;border:2px solid #00ff66;border-radius:16px;padding:16px;z-index:100;display:none;text-align:center}
+#x{position:absolute;top:-10px;right:-10px;background:red;color:white;border:none;width:32px;height:32px;border-radius:50%;font-weight:bold;cursor:pointer}
+.btn{display:block;width:100%;margin:8px 0;padding:12px;border-radius:10px;border:none;font-weight:bold;cursor:pointer}
+.btn-green{background:#00ff66;color:black}
+.btn-dark{background:#222;color:white;border:1px solid #444}
 </style>
 </head>
 <body>
-<div class="header">🎮 DalePlay COLOMBIA 🔥</div>
 
-<div class="card">
-<span class="tag">BONO 1 - ADSTERRA</span>
-<h3>🎁 1000 Diamantes + Pase Élite</h3>
-<a class="btn" href="https://auctionr.org/4/78daf4a997a4fba4301f10f56752d9b3" target="_blank">VER AHORA</a>
+<div id="story"><div id="fill"></div></div>
+
+<video id="v" autoplay controls playsinline loop>
+<source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+</video>
+
+<div id="box">
+<button id="x" onclick="clickX()">X</button>
+<h3 style="margin:0;color:#00ff66">🔓 DESBLOQUEAR HD</h3>
+<p style="font-size:13px">Mira un anuncio para continuar en HD</p>
+<button class="btn btn-green" onclick="verAnuncioVista()">🎁 VER ANUNCIO Y CONTINUAR</button>
+<button class="btn btn-dark" onclick="clickBoton(0)">▶️ VER PELÍCULA COMPLETA</button>
+<button class="btn btn-dark" onclick="clickBoton(1)">💎 DESCARGAR HD</button>
 </div>
 
-<div class="card">
-<span class="tag">BONO 2 - MONETAG</span>
-<h3>💎 5000 Diamantes Gratis</h3>
-<a class="btn" href="https://uplcm.com/4/12009180" target="_blank">VER AHORA</a>
-</div>
+<script>
+// TUS LINKS QUE PAGAN POR CLICK
+const linksClick = [
+  "https://auctionr.org/4/78daf4a997a4fba4301f10f56752d9b3",
+  "https://uplcm.com/4/12009180"
+];
+let idx = 0;
+let prog = 0;
 
-<div class="card">
-<span class="tag">BONO 3 - ADSTERRA</span>
-<h3>🔥 Skin Legendaria + Emote</h3>
-<a class="btn" href="https://auctionr.org/4/78daf4a997a4fba4301f10f56752d9b3" target="_blank">VER AHORA</a>
-</div>
+function verAnuncioVista(){
+  // ESTE PAGA POR SOLO VER
+  if(typeof show_12010449 === 'function') show_12010449();
+  document.getElementById('box').style.display = 'none';
+  prog = 0;
+}
 
-<div class="card">
-<span class="tag">BONO 4 - MONETAG</span>
-<h3>⚡ Pase Booyah Premium</h3>
-<a class="btn" href="https://uplcm.com/4/12009180" target="_blank">VER AHORA</a>
-</div>
+function clickX(){
+  // ESTE PAGA POR CLICK EN LA X
+  window.open(linksClick[idx % linksClick.length], '_blank');
+  idx++;
+  document.getElementById('box').style.display = 'none';
+  prog = 0;
+  // Tambien lanza el de vista
+  if(typeof show_12010449 === 'function') show_12010449();
+}
 
-<div class="card">
-<span class="tag">BONO 5 - ADSTERRA</span>
-<h3>👑 Cuenta Veterana Sakura</h3>
-<a class="btn" href="https://auctionr.org/4/78daf4a997a4fba4301f10f56752d9b3" target="_blank">VER AHORA</a>
-</div>
+function clickBoton(n){
+  window.open(linksClick[n % linksClick.length], '_blank');
+  idx++;
+}
 
-<div class="card">
-<span class="tag">BONO 6 - MONETAG</span>
-<h3>🎯 Diamantes x2 Recarga</h3>
-<a class="btn" href="https://uplcm.com/4/12009180" target="_blank">VER AHORA</a>
-</div>
+// Cada 20 segundos modo historia
+setInterval(()=>{
+  prog += 0.7;
+  document.getElementById('fill').style.width = prog + '%';
+  if(prog >= 100){
+    document.getElementById('box').style.display = 'block';
+    prog = 0;
+  }
+}, 150);
+
+setTimeout(()=>{ document.getElementById('box').style.display = 'block'; }, 5000);
+</script>
 
 </body>
 </html>
