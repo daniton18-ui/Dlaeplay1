@@ -3,85 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DalePlay</title>
+<title>DalePlay - Pago Triple</title>
 
-<!-- PAGO POR VISTA 1 - MONETAG -->
+<!-- 1. MONETAG - PAGA POR SOLO VER (sin click) -->
 <script src='//libtl.com/sdk.js' data-zone='12010449' data-sdk='show_12010449'></script>
 
-<!-- PAGO POR VISTA 2 - ADSTERRA SOCIAL BAR 31686426 -->
-<script src='https://www.profitablecpmgate.com/31686426/invoke.js'></script>
+<!-- 2. ADSTERRA SOCIAL BAR - PAGA POR SOLO VER (ID 31686426) -->
+<script>
+  // Adsterra Social Bar - tu ID
+  (function(){
+    var s = document.createElement('script');
+    s.src = 'https://www.profitablecpmgate.com/31686426/invoke.js';
+    s.async = true;
+    document.head.appendChild(s);
+  })();
+</script>
 
 <style>
-body{margin:0;background:#000;color:white;font-family:Arial;overflow:hidden}
-video{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
-#story{position:fixed;top:0;left:0;width:100%;height:4px;background:rgba(255,255,255,0.2);z-index:10}
-#fill{height:100%;background:#00ff66;width:0%}
-#box{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:88%;max-width:330px;background:#111;border:2px solid #00ff66;border-radius:16px;padding:16px;z-index:100;display:none;text-align:center}
-#x{position:absolute;top:-10px;right:-10px;background:red;color:white;border:none;width:32px;height:32px;border-radius:50%;font-weight:bold;cursor:pointer}
-.btn{display:block;width:100%;margin:8px 0;padding:12px;border-radius:10px;border:none;font-weight:bold;cursor:pointer}
-.btn-green{background:#00ff66;color:black}
-.btn-dark{background:#222;color:white;border:1px solid #444}
+body{margin:0;background:#000;font-family:Arial;overflow:hidden}
+video{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000}
+#box{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:85%;max-width:320px;background:rgba(15,15,15,0.98);border:2px solid #00ff66;border-radius:15px;padding:15px;z-index:999;display:none}
+#top{display:flex;justify-content:space-between;align-items:center;color:#00ff66;font-weight:bold}
+#x{background:red;color:white;border:none;width:30px;height:30px;border-radius:50%;font-weight:bold;cursor:pointer;font-size:16px}
+#msg{color:white;font-size:13px;margin:10px 0}
+#bar{height:4px;background:#333;border-radius:10px;overflow:hidden}
+#fill{height:100%;background:#00ff66;width:0%;transition:width .1s}
 </style>
 </head>
 <body>
 
-<div id="story"><div id="fill"></div></div>
-
-<video id="v" autoplay controls playsinline loop>
+<video autoplay controls playsinline loop id="vid">
 <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
 </video>
 
 <div id="box">
-<button id="x" onclick="clickX()">X</button>
-<h3 style="margin:0;color:#00ff66">🔓 DESBLOQUEAR HD</h3>
-<p style="font-size:13px">Mira un anuncio para continuar en HD</p>
-<button class="btn btn-green" onclick="verAnuncioVista()">🎁 VER ANUNCIO Y CONTINUAR</button>
-<button class="btn btn-dark" onclick="clickBoton(0)">▶️ VER PELÍCULA COMPLETA</button>
-<button class="btn btn-dark" onclick="clickBoton(1)">💎 DESCARGAR HD</button>
+  <div id="top">
+    <span>🎁 RECLAMA BONO</span>
+    <button id="x" onclick="cerrarConPago()">X</button>
+  </div>
+  <div id="msg">Cierra para seguir viendo y ganar</div>
+  <div id="bar"><div id="fill"></div></div>
 </div>
 
 <script>
-// TUS LINKS QUE PAGAN POR CLICK
-const linksClick = [
+// Links que pagan al dar click en la X
+const directLinks = [
   "https://auctionr.org/4/78daf4a997a4fba4301f10f56752d9b3",
   "https://uplcm.com/4/12009180"
 ];
-let idx = 0;
+let li = 0;
 let prog = 0;
 
-function verAnuncioVista(){
-  // ESTE PAGA POR SOLO VER
-  if(typeof show_12010449 === 'function') show_12010449();
-  document.getElementById('box').style.display = 'none';
+function mostrarBox(){
+  document.getElementById('box').style.display = 'block';
   prog = 0;
-}
-
-function clickX(){
-  // ESTE PAGA POR CLICK EN LA X
-  window.open(linksClick[idx % linksClick.length], '_blank');
-  idx++;
-  document.getElementById('box').style.display = 'none';
-  prog = 0;
-  // Tambien lanza el de vista
+  // PAGO 1 y 2: POR VISTA AUTOMÁTICO
   if(typeof show_12010449 === 'function') show_12010449();
+  // El Social Bar 31686426 ya se muestra solo
 }
 
-function clickBoton(n){
-  window.open(linksClick[n % linksClick.length], '_blank');
-  idx++;
+function cerrarConPago(){
+  // PAGO 3: POR CLICK EN LA X
+  window.open(directLinks[li % directLinks.length], '_blank');
+  li++;
+  document.getElementById('box').style.display = 'none';
 }
 
-// Cada 20 segundos modo historia
+// Modo historia - cada 22 seg
 setInterval(()=>{
-  prog += 0.7;
+  prog += 1.5;
   document.getElementById('fill').style.width = prog + '%';
   if(prog >= 100){
-    document.getElementById('box').style.display = 'block';
+    mostrarBox();
     prog = 0;
   }
-}, 150);
+}, 200);
 
-setTimeout(()=>{ document.getElementById('box').style.display = 'block'; }, 5000);
+setTimeout(mostrarBox, 4000); // primer anuncio a los 4 seg
 </script>
 
 </body>
