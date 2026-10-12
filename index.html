@@ -12,7 +12,8 @@ body{margin:0;background:#071a0a;font-family:Arial;text-align:center}
 .cont{color:#7fff00;border:2px solid #7fff00;border-radius:12px;margin:12px;padding:10px;font-weight:bold}
 .grid{width:95%;max-width:360px;margin:10px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .box{height:60px;background:#152e18;border:2px solid #7fff00;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;cursor:pointer}
-#btn{margin:15px auto;background:#7fff00;color:#000;border:0;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;display:none}
+#btn{margin:15px auto;background:#333;color:#fff;border:0;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;display:none}
+#btn.activo{background:#7fff00;color:#000}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:99}
 .caja{background:#112d18;border:3px solid #7fff00;padding:22px;border-radius:18px;margin:20px}
 </style>
@@ -21,17 +22,17 @@ body{margin:0;background:#071a0a;font-family:Arial;text-align:center}
 <div class="header">GANA CON DALEPLAY1<small>PREMIOS DESDE 2000 PESOS COP HASTA 10000 PESOS COP</small></div>
 <div class="cont" id="ci">Intentos gratis: 2/2</div>
 <div class="grid" id="g"></div>
-<button id="btn" onclick="verAnuncioRecarga()">▶ VER ANUNCIO PARA +2 INTENTOS</button>
+<button id="btn" onclick="verAnuncioRecarga()">ESPERA 15s PARA 2DA OPORTUNIDAD</button>
 
 <div id="modal"><div class="caja">
 <h1 style="color:#7fff00;margin:0">FELICIDADES</h1>
 <h2 style="color:#fff" id="premioTxt">GANASTE 2000 PESOS COP</h2>
 <p>Código: <b id="cod" style="color:#7fff00"></b></p>
-<button onclick="reclamarFinal()" style="background:#7fff00;color:#000;border:0;padding:14px;width:100%;border-radius:10px;font-weight:900">RECLAMAR 2000 COP</button>
+<button onclick="reclamarFinal()" style="background:#7fff00;color:#000;border:0;padding:14px;width:100%;border-radius:10px;font-weight:900">RECLAMAR</button>
 </div></div>
 
 <script>
-let intentos=2, encontrados=0, ganadoras=[];
+let intentos=2, encontrados=0, ganadoras=[], timer=null;
 let g=document.getElementById('g');
 
 function crear(){
@@ -44,23 +45,14 @@ function crear(){
  }
  barajar();
 }
-function barajar(){
- ganadoras=[];
- while(ganadoras.length<2){let r=Math.floor(Math.random()*25); if(!ganadoras.includes(r)) ganadoras.push(r);}
-}
-function actualizar(){document.getElementById('ci').innerText='Intentos gratis: '+intentos+'/2'; document.getElementById('btn').style.display=intentos<=0?'block':'none';}
+function barajar(){ ganadoras=[]; while(ganadoras.length<2){let r=Math.floor(Math.random()*25); if(!ganadoras.includes(r)) ganadoras.push(r);} }
+function actualizar(){ document.getElementById('ci').innerText='Intentos gratis: '+intentos+'/2'; if(intentos<=0) iniciarEspera15(); else document.getElementById('btn').style.display='none'; }
 
 function jugar(i,d){
- if(intentos<=0){ actualizar(); return; }
+ if(intentos<=0) return;
  if(d.dataset.ok) return;
  intentos--; actualizar();
-
- // ANUNCIO POR CADA CLICK - FORMATO QUE ME MANDASTE
- show_12010449().then(() => {
-    // Recompensa después del anuncio
-    console.log('Anuncio visto');
- });
-
+ show_12010449();
  if(ganadoras.includes(i)){
   d.innerText='💎'; d.style.background='#7fff00'; d.style.color='#000'; d.dataset.ok=1; encontrados++;
   if(encontrados==2){
@@ -69,28 +61,42 @@ function jugar(i,d){
    document.getElementById('cod').innerText='DP-'+Math.floor(Math.random()*90000+10000);
    document.getElementById('modal').style.display='flex';
   }
- }else{
-  d.innerText='💣'; setTimeout(()=>{ if(!d.dataset.ok) d.innerText='?'; },600);
- }
+ }else{ d.innerText='💣'; setTimeout(()=>{ if(!d.dataset.ok) d.innerText='?'; },600); }
+}
+
+function iniciarEspera15(){
+ let btn=document.getElementById('btn');
+ btn.style.display='block';
+ btn.classList.remove('activo');
+ let seg=15;
+ btn.innerText='ESPERA '+seg+'s PARA 2DA OPORTUNIDAD';
+ btn.onclick=null;
+ if(timer) clearInterval(timer);
+ timer=setInterval(()=>{
+  seg--;
+  if(seg>0){
+   btn.innerText='ESPERA '+seg+'s PARA 2DA OPORTUNIDAD';
+  }else{
+   clearInterval(timer);
+   btn.innerText='▶ VER ANUNCIO PARA +2 INTENTOS';
+   btn.classList.add('activo');
+   btn.onclick=verAnuncioRecarga;
+  }
+ },1000);
 }
 
 function verAnuncioRecarga(){
- // AQUÍ ESTÁ TU CÓDIGO EXACTO
  show_12010449().then(() => {
-    // Recompensa: +2 intentos
     intentos=2; encontrados=0; crear(); actualizar();
-    alert('¡+2 intentos recargados!');
  });
 }
 
 function reclamarFinal(){
  show_12010449().then(() => {
-    alert('¡Código '+document.getElementById('cod').innerText+' reclamado! Envía a @Daleplay1bot');
     document.getElementById('modal').style.display='none';
-    intentos=0; encontrados=0; actualizar();
+    intentos=0; actualizar();
  });
 }
-
 crear(); actualizar();
 setInterval(()=>{if(intentos>0) barajar();},3000);
 </script>
