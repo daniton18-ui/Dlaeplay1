@@ -9,6 +9,7 @@
 body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff}
 .header{background:#7fff00;color:#000;padding:14px;font-weight:900;font-size:20px}
 .cont{color:#7fff00;border:2px solid #7fff00;border-radius:12px;margin:12px;padding:10px;font-weight:bold}
+#timer{color:#fff;background:#152e18;border:1px dashed #7fff00;border-radius:10px;margin:0 12px;padding:8px;font-size:13px}
 .grid{width:95%;max-width:360px;margin:10px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .box{height:60px;background:#152e18;border:2px solid #7fff00;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900}
 .box.abierto{background:#222;color:#888;border-color:#555}
@@ -21,24 +22,31 @@ body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff}
 <body>
 <div class="header">GANA CON DALEPLAY1</div>
 <div class="cont" id="ci">Intentos: 2</div>
+<div id="timer">⏳ Reinicio en: 60:00</div>
 <div class="grid" id="g"></div>
 <button id="btnCompartir" class="btn" onclick="compartir()">📤 COMPARTE 0/3 PARA 2 INTENTOS</button>
 <div id="modal"><div class="caja"><h1 style="color:#7fff00">GANASTE</h1><p>Código: <b id="cod"></b></p><button onclick="location.reload()" style="background:#7fff00;padding:14px;width:100%;border-radius:10px;font-weight:900">RECLAMAR Y JUGAR DE NUEVO</button></div></div>
 <script>
 show_12010449({type:'inApp',inAppSettings:{frequency:2,capping:0.1,interval:30,timeout:5,everyPage:false}});
 
-// --- CORRECCION DE 1 HORA ---
 let UNA_HORA = 60*60*1000;
-let ahora = Date.now();
 let horaGuardada = parseInt(localStorage.getItem('dale_hora')||'0');
+if(!horaGuardada){ horaGuardada = Date.now(); localStorage.setItem('dale_hora',horaGuardada); }
 
-if(horaGuardada && (ahora - horaGuardada) > UNA_HORA){
-  // Pasó 1 hora, reiniciamos todo
-  localStorage.removeItem('dale_intentos');
-  localStorage.removeItem('dale_compartidos');
-  localStorage.removeItem('dale_descubiertas');
-  localStorage.removeItem('dale_ganadora');
+function checkReset(){
+  let ahora = Date.now();
+  if(ahora - horaGuardada > UNA_HORA){
+    localStorage.removeItem('dale_intentos');
+    localStorage.removeItem('dale_compartidos');
+    localStorage.removeItem('dale_descubiertas');
+    localStorage.removeItem('dale_ganadora');
+    localStorage.setItem('dale_hora',Date.now());
+    location.reload();
+    return true;
+  }
+  return false;
 }
+if(checkReset()){}
 
 let g=document.getElementById('g');
 let intentos = parseInt(localStorage.getItem('dale_intentos'));
@@ -51,64 +59,4 @@ let descubiertas = JSON.parse(localStorage.getItem('dale_descubiertas')||'[]');
 function guardar(){
  localStorage.setItem('dale_intentos',intentos);
  localStorage.setItem('dale_compartidos',compartidos);
- localStorage.setItem('dale_descubiertas',JSON.stringify(descubiertas));
- if(!localStorage.getItem('dale_hora')) localStorage.setItem('dale_hora',Date.now());
-}
-
-function crear(){
- g.innerHTML='';
- for(let i=0;i<25;i++){
-  let d=document.createElement('div');d.className='box';
-  if(descubiertas.includes(i)){
-    d.innerText=(i===ganadora?'💎':'💣'); d.classList.add('abierto');
-  }else{
-    d.innerText='?'; d.onclick=()=>jugar(i,d);
-  }
-  g.appendChild(d);
- }
- document.getElementById('ci').innerText='Intentos: '+intentos;
- document.getElementById('btnCompartir').innerText='📤 COMPARTE '+compartidos+'/3 PARA 2 INTENTOS';
- if(compartidos>=3) document.getElementById('btnCompartir').style.display='none';
-}
-
-function jugar(i,d){
- if(intentos<=0) return;
- if(descubiertas.includes(i)) return;
- intentos--;
- descubiertas.push(i);
- guardar();
- show_12010449();
- if(i===ganadora){
-  d.innerText='💎';
-  document.getElementById('cod').innerText='DP-'+Math.floor(Math.random()*90000+10000);
-  document.getElementById('modal').style.display='flex';
-  localStorage.setItem('dale_hora',Date.now()); // reinicia conteo al ganar
-  localStorage.removeItem('dale_ganadora');
-  localStorage.removeItem('dale_descubiertas');
- }else{
-  d.innerText='💣'; d.classList.add('abierto');
- }
- document.getElementById('ci').innerText='Intentos: '+intentos;
- if(intentos<=0 && compartidos<3){
-   document.getElementById('ci').innerText='Sin intentos - Comparte para más';
- }
-}
-
-function compartir(){
- window.open('https://wa.me/?text='+encodeURIComponent('🔥 Estoy ganando en DALEPLAY1 https://t.me/Daleplay1bot/daleplay1'),'_blank');
- compartidos++; 
- if(compartidos<3){
-  document.getElementById('btnCompartir').innerText='📤 COMPARTE '+compartidos+'/3 PARA 2 INTENTOS';
-  show_12010449();
- }else{
-  intentos+=2; compartidos=0;
-  show_12010449('pop');
-  document.getElementById('btnCompartir').innerText='✅ GANASTE 2 INTENTOS!';
-  setTimeout(()=>{document.getElementById('btnCompartir').style.display='none';},2000);
- }
- guardar();
-}
-crear();
-</script>
-</body>
-</html>
+ local
