@@ -7,14 +7,14 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
-body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff}
+body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff;min-height:100vh}
 .header{background:#7fff00;color:#000;padding:14px;font-weight:900;font-size:20px}
 .cont{color:#7fff00;border:2px solid #7fff00;border-radius:12px;margin:10px;padding:10px;font-weight:bold}
 #timer{color:#fff;background:#152e18;border:1px dashed #7fff00;border-radius:10px;margin:8px 12px;padding:8px;font-size:14px}
-.grid{width:95%;max-width:360px;margin:10px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.box{height:60px;background:#152e18;border:2px solid #7fff00;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900}
+.grid{width:95%;max-width:360px;margin:15px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;min-height:320px}
+.box{height:60px;background:#152e18;border:2px solid #7fff00;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900;color:#7fff00}
 .box.abierto{background:#222;color:#888;border-color:#555}
-.btn{margin:8px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;display:block;cursor:pointer}
+.btn{margin:15px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;display:block;cursor:pointer}
 #btnAnuncio{background:#7fff00;color:#000;font-size:16px}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:99}
 .caja{background:#112d18;border:3px solid #7fff00;padding:22px;border-radius:18px;margin:20px}
@@ -23,30 +23,97 @@ body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff}
 <body>
 <div class="header">🍟 DALEPLAY1 - SALVAJADA DEL SABADO</div>
 <div class="cont" id="ci">Intentos: 2 | Puntos: 0</div>
-<div id="userInfo" style="font-size:12px;color:#7fff00;margin:4px"></div>
 <div id="timer">⏳ Reinicio en: 60:00</div>
 <div class="grid" id="g"></div>
 <button id="btnAnuncio" class="btn">📺 VER ANUNCIO 0/2 PARA +1 INTENTO</button>
-<div id="modal"><div class="caja"><h1 style="color:#7fff00">¡GANASTE LA SALVAJADA DEL SABADO! 🍟</h1><p>Eres el UNICO ganador</p><p>Código: <b id="cod"></b></p><p style="font-size:12px" id="idTxt"></p><button onclick="location.reload()" style="background:#7fff00;padding:14px;width:100%;border-radius:10px;font-weight:900">RECLAMAR</button></div></div>
+
+<div id="modal"><div class="caja"><h1 style="color:#7fff00">¡GANASTE! 🍟</h1><p>Código: <b id="cod"></b></p><p id="idTxt"></p><button onclick="location.reload()" style="background:#7fff00;padding:14px;width:100%;border-radius:10px;font-weight:900">RECLAMAR</button></div></div>
+
 <script>
 let tg = window.Telegram ? window.Telegram.WebApp : null;
 let USER_ID = 'anon'; let USER_NAME = 'Jugador';
 if(tg?.initDataUnsafe?.user){ USER_ID = tg.initDataUnsafe.user.id.toString(); USER_NAME = tg.initDataUnsafe.user.first_name||'Jugador'; try{tg.expand();tg.ready();}catch(e){}}
-document.getElementById('userInfo').innerText = '👤 '+USER_NAME+' | ID:'+USER_ID;
 function k(n){return 'dale_'+USER_ID+'_'+n;}
-function safeShow(t){try{if(typeof show_12010449!=='undefined') return show_12010449(t);}catch(e){} return Promise.resolve();}
+function safeShow(){try{if(typeof show_12010449!=='undefined') return show_12010449();}catch(e){} return Promise.resolve();}
+
 const API_BASE = 'https://abacus.jasoncameron.dev';
 async function getCounter(name){try{let r=await fetch(`${API_BASE}/get/daleplay1-${name}`);let d=await r.json();return d.value;}catch(e){return null;}}
 async function hitCounter(name){try{let r=await fetch(`${API_BASE}/hit/daleplay1-${name}`);let d=await r.json();return d.value;}catch(e){return null;}}
+
 let hoyKey = new Date().toLocaleDateString('es-CO',{timeZone:'America/Bogota'}).replace(/\//g,'-');
 let hayGanadorGlobal = false;
 function esSabadoHoy(){let d=new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',weekday:'long'}).toLowerCase();return d.includes('sábado')||d.includes('sabado');}
-async function initGlobal(){let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0;await hitCounter('views-total');}
-initGlobal();
-let UNA_HORA=60*60*1000; let timerEl=document.getElementById('timer');
+(async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0;await hitCounter('views-total');})();
+
+let UNA_HORA=60*60*1000;
 let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
 if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
-setInterval(()=>{let diff=(horaGuardada+UNA_HORA)-Date.now(); if(diff<=0){localStorage.setItem(k('intentos'),'2');localStorage.setItem(k('descubiertas'),'[]');localStorage.removeItem(k('ganadora'));localStorage.setItem(k('anuncios'),'0');localStorage.setItem(k('hora'),Date.now().toString());location.reload();return;}let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);timerEl.innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;},1000);
+setInterval(()=>{
+  let diff=(horaGuardada+UNA_HORA)-Date.now();
+  if(diff<=0){localStorage.setItem(k('intentos'),'2');localStorage.setItem(k('descubiertas'),'[]');localStorage.removeItem(k('ganadora'));localStorage.setItem(k('anuncios'),'0');localStorage.setItem(k('hora'),Date.now().toString());location.reload();return;}
+  let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
+  document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
+},1000);
+
 let g=document.getElementById('g'); let ci=document.getElementById('ci'); let btnAnuncio=document.getElementById('btnAnuncio');
 let intentos=parseInt(localStorage.getItem(k('intentos'))||'2');
-let puntos=
+let puntos=parseInt(localStorage.getItem(k('puntos'))||'0');
+let anuncios=parseInt(localStorage.getItem(k('anuncios'))||'0');
+let ganadora=parseInt(localStorage.getItem(k('ganadora'))||'');
+if(isNaN(ganadora)){ganadora=Math.floor(Math.random()*25);localStorage.setItem(k('ganadora'),ganadora.toString());}
+let descubiertas=JSON.parse(localStorage.getItem(k('descubiertas'))||'[]');
+// FIX: si descubiertas está corrupto o lleno, lo reseteamos
+if(!Array.isArray(descubiertas) || descubiertas.length>=25){descubiertas=[];localStorage.setItem(k('descubiertas'),'[]');}
+
+function crear(){
+  g.innerHTML='';
+  for(let i=0;i<25;i++){
+    let d=document.createElement('div');d.className='box';
+    if(descubiertas.includes(i)){d.innerText=(i===ganadora?'💎':'💣');d.classList.add('abierto');}
+    else{d.innerText='?';d.onclick=()=>jugar(i,d);}
+    g.appendChild(d);
+  }
+  ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;
+  if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS';btnAnuncio.disabled=true;btnAnuncio.style.opacity='0.6';}
+  else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
+}
+function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toString());ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;}
+
+async function jugar(i,d){
+  if(intentos<=0 || descubiertas.includes(i)) return;
+  if(!esSabadoHoy()){
+    intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
+    await safeShow(); d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);
+    if(i===ganadora){localStorage.removeItem(k('ganadora')); ganadora=Math.floor(Math.random()*25); localStorage.setItem(k('ganadora'),ganadora.toString()); localStorage.setItem(k('descubiertas'),'[]'); setTimeout(crear,800);}
+    return;
+  }
+  if(hayGanadorGlobal){alert('¡YA HAY GANADOR HOY SÁBADO!');return;}
+  intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas)); await safeShow();
+  if(i===ganadora){
+    let check=await getCounter('winner-'+hoyKey);
+    if(check&&check>0){alert('Te ganaron por segundos.'); hayGanadorGlobal=true; location.reload(); return;}
+    await hitCounter('winner-'+hoyKey); hayGanadorGlobal=true; d.innerText='💎';
+    let codigo='SABADO-'+Math.floor(Math.random()*90000+10000);
+    document.getElementById('cod').innerText=codigo; document.getElementById('idTxt').innerText='ID:'+USER_ID;
+    document.getElementById('modal').style.display='flex'; sumarPuntos(500);
+    try{tg.sendData(`GANADOR|ID:${USER_ID}|COD:${codigo}`);}catch(e){}
+  }else{d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);}
+}
+
+btnAnuncio.onclick=async()=>{
+  if(anuncios>=2) return;
+  btnAnuncio.innerText='⏳ CARGANDO ANUNCIO...'; btnAnuncio.disabled=true;
+  await safeShow();
+  anuncios++; intentos++;
+  localStorage.setItem(k('anuncios'),anuncios.toString());
+  localStorage.setItem(k('intentos'),intentos.toString());
+  ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;
+  if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS'; btnAnuncio.disabled=true; btnAnuncio.style.opacity='0.6';}
+  else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`; btnAnuncio.disabled=false;}
+}
+
+document.addEventListener('DOMContentLoaded', crear);
+crear();
+</script>
+</body>
+</html>
