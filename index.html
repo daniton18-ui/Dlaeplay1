@@ -7,23 +7,24 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
-body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff;min-height:100vh}
-.header{background:#7fff00;color:#000;padding:14px;font-weight:900;font-size:20px}
-.cont{color:#7fff00;border:2px solid #7fff00;border-radius:12px;margin:10px;padding:10px;font-weight:bold}
-#timer{color:#fff;background:#152e18;border:1px dashed #7fff00;border-radius:10px;margin:8px 12px;padding:8px;font-size:14px}
+body{margin:0;background:#0f1419;font-family:Arial;text-align:center;color:#fff;min-height:100vh}
+.header{background:#2AABEE;color:#fff;padding:14px;font-weight:900;font-size:20px}
+.cont{color:#2AABEE;background:#fff;border:2px solid #2AABEE;border-radius:12px;margin:10px;padding:10px;font-weight:bold}
+#timer{color:#333;background:#fff;border:1px dashed #2AABEE;border-radius:10px;margin:8px 12px;padding:8px;font-size:14px}
 .grid{width:95%;max-width:360px;margin:15px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;min-height:320px}
-.box{height:60px;background:#152e18;border:2px solid #7fff00;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900;color:#7fff00}
-.box.abierto{background:#222;color:#888;border-color:#555}
-.btn{margin:10px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;display:block;cursor:pointer}
-#btnAnuncio{background:#7fff00;color:#000;font-size:16px}
-#btnMensajePersonal{background:#fff;color:#000;border:2px solid #7fff00}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:99}
-.caja{background:#112d18;border:3px solid #7fff00;padding:22px;border-radius:18px;margin:20px}
-#modalUsuario{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:100}
+.box{height:60px;background:#fff;border:2px solid #2AABEE;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900;color:#2AABEE;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
+.box.abierto{background:#e3f2fd;color:#888;border-color:#ccc}
+.btn{margin:8px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:25px;font-weight:900;display:block;cursor:pointer}
+#btnAnuncio{background:#2AABEE;color:#fff;font-size:16px}
+#btnLike{background:#1877F2;color:#fff;border:0;font-size:15px;box-shadow:0 3px 10px rgba(24,119,242,0.4)}
+#btnMensajePersonal{background:#fff;color:#0f1419;border:2px solid #2AABEE}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:99}
+.caja{background:#fff;border:3px solid #2AABEE;padding:22px;border-radius:18px;margin:20px;color:#000}
+#modalUsuario{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:100}
 #modalUsuario .caja{width:85%;max-width:320px}
-#modalUsuario input{width:90%;padding:12px;border-radius:10px;border:2px solid #7fff00;background:#071a0a;color:#fff;font-weight:700;text-align:center;margin:12px 0}
-.boxMensaje{width:90%;max-width:360px;margin:20px auto;background:#152e18;border:2px solid #7fff00;border-radius:12px;padding:12px}
-.boxMensaje textarea{width:92%;height:70px;border-radius:8px;padding:10px;background:#071a0a;color:#fff;border:1px solid #7fff00;resize:none;font-family:Arial}
+#modalUsuario input{width:90%;padding:12px;border-radius:10px;border:2px solid #2AABEE;background:#f5f5f5;color:#000;font-weight:700;text-align:center;margin:12px 0}
+.boxMensaje{width:90%;max-width:360px;margin:20px auto;background:#fff;border:2px solid #2AABEE;border-radius:16px;padding:12px}
+.boxMensaje textarea{width:92%;height:70px;border-radius:10px;padding:10px;background:#f5f5f5;color:#000;border:1px solid #2AABEE;resize:none;font-family:Arial}
 </style>
 </head>
 <body>
@@ -31,22 +32,23 @@ body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff;
 <div class="cont" id="ci">Intentos: 2 | Puntos: 0</div>
 <div id="timer">⏳ Reinicio en: 60:00</div>
 <div class="grid" id="g"></div>
-<button id="btnAnuncio" class="btn">📺 VER ANUNCIO 0/2 PARA +1 INTENTO</button>
 
-<!-- BOTON MENSAJE PERSONAL -->
+<button id="btnAnuncio" class="btn">📺 VER ANUNCIO 0/2 PARA +1 INTENTO</button>
+<button id="btnLike" class="btn">👍 ME GUSTA AZUL <span id="likeCount">0</span></button>
+
 <div class="boxMensaje">
-  <p style="color:#7fff00;font-weight:900;margin:5px">💬 ¿QUIERES HABLAR CONMIGO?</p>
+  <p style="color:#2AABEE;font-weight:900;margin:5px">💬 ¿QUIERES HABLAR CONMIGO?</p>
   <textarea id="txtPersonal" placeholder="Hola amigo cómo estás quiero comunicarme contigo..."></textarea>
   <button id="btnMensajePersonal" class="btn">✉️ ENVIAR MENSAJE</button>
 </div>
 
-<div id="modal"><div class="caja"><h1 style="color:#7fff00">¡GANASTE! 🍟</h1><p>Código: <b id="cod"></b></p><p id="idTxt"></p><button onclick="location.reload()" style="background:#7fff00;padding:14px;width:100%;border-radius:10px;font-weight:900">RECLAMAR</button></div></div>
+<div id="modal"><div class="caja"><h1 style="color:#2AABEE">¡GANASTE! 🍟</h1><p>Código: <b id="cod"></b></p><p id="idTxt"></p><button onclick="location.reload()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">RECLAMAR</button></div></div>
 
 <div id="modalUsuario"><div class="caja">
-  <h2 style="color:#7fff00;margin:0">¡CASI LISTO!</h2>
+  <h2 style="color:#2AABEE;margin:0">¡CASI LISTO!</h2>
   <p style="font-size:14px">Escribe tu @usuario para darte el intento</p>
   <input id="inputUsuario" type="text" placeholder="@tu_usuario">
-  <button onclick="guardarUsuario()" style="background:#7fff00;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0;cursor:pointer">GUARDAR +1 INTENTO</button>
+  <button onclick="guardarUsuario()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0;cursor:pointer">GUARDAR +1 INTENTO</button>
 </div></div>
 
 <script>
@@ -144,14 +146,12 @@ function guardarUsuario(){
   try{tg.sendData(`NUEVO_USER|ID:${USER_ID}|USER:${usuario}`);}catch(e){}
 }
 
-// MENSAJE PERSONAL - ANUNCIO QUE MAS PAGA
 document.getElementById('btnMensajePersonal').onclick = async () => {
   let txt = document.getElementById('txtPersonal').value.trim();
   if(txt.length < 4){ alert("Escribe tu mensaje primero"); return; }
   let btn = document.getElementById('btnMensajePersonal');
   btn.innerText='⏳ CARGANDO ANUNCIO...'; btn.disabled=true;
-  await safeShow();
-  await safeShow(); // 2 anuncios = el que mas paga
+  await safeShow(); await safeShow();
   let userFinal = localStorage.getItem(k('usuario_tg')) || USER_NAME;
   let mensajeCorto = txt.substring(0,400);
   try{
@@ -160,6 +160,36 @@ document.getElementById('btnMensajePersonal').onclick = async () => {
     document.getElementById('txtPersonal').value="";
   }catch(e){ alert("Abre la app dentro de Telegram"); }
   btn.innerText='✉️ ENVIAR MENSAJE'; btn.disabled=false;
+}
+
+// === LIKE AZUL CON ANUNCIO QUE MAS PAGA ===
+let btnLike = document.getElementById('btnLike');
+let likeCountEl = document.getElementById('likeCount');
+async function cargarLikes(){
+  let total = await getCounter('likes-total');
+  if(total!==null) likeCountEl.innerText = total;
+  if(localStorage.getItem(k('like'))==='1'){
+    btnLike.innerHTML = `💙 TE GUSTA 👍 <span id="likeCount">${total||0}</span>`;
+    btnLike.style.background='#2AABEE';
+  }
+}
+cargarLikes();
+
+btnLike.onclick = async () => {
+  if(localStorage.getItem(k('like'))==='1'){
+    alert("Ya le diste like bro 💙");
+    return;
+  }
+  btnLike.innerText='⏳ CARGANDO ANUNCIO...'; btnLike.disabled=true;
+  // ANUNCIO QUE MAS PAGA - DOBLE
+  await safeShow();
+  await safeShow();
+  let nuevo = await hitCounter('likes-total');
+  localStorage.setItem(k('like'),'1');
+  btnLike.innerHTML = `💙 TE GUSTA 👍 <span id="likeCount">${nuevo||0}</span>`;
+  btnLike.style.background='#2AABEE';
+  btnLike.disabled=false;
+  try{ tg.sendData(`LIKE|ID:${USER_ID}|USER:${localStorage.getItem(k('usuario_tg'))||USER_NAME}`);}catch(e){}
 }
 
 document.addEventListener('DOMContentLoaded', crear);
