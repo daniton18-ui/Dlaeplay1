@@ -1,206 +1,182 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DALEPLAY1</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
-<style>
-body{margin:0;background:#0f1419;font-family:Arial;text-align:center;color:#fff;min-height:100vh}
-.header{background:#2AABEE;color:#fff;padding:14px;font-weight:900;font-size:20px}
-.cont{color:#2AABEE;background:#fff;border:2px solid #2AABEE;border-radius:12px;margin:10px;padding:10px;font-weight:bold}
-#timer{color:#333;background:#fff;border:1px dashed #2AABEE;border-radius:10px;margin:8px 12px;padding:8px;font-size:14px}
-.grid{width:95%;max-width:360px;margin:15px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;min-height:320px}
-.box{height:60px;background:#fff;border:2px solid #2AABEE;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900;color:#2AABEE;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
-.box.abierto{background:#e3f2fd;color:#888;border-color:#ccc}
-.btn{margin:8px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:25px;font-weight:900;display:block;cursor:pointer}
-#btnAnuncio{background:#2AABEE;color:#fff;font-size:16px}
-#btnLike{background:#1877F2;color:#fff;border:0;font-size:15px;box-shadow:0 3px 10px rgba(24,119,242,0.4)}
-#btnMensajePersonal{background:#fff;color:#0f1419;border:2px solid #2AABEE}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:99}
-.caja{background:#fff;border:3px solid #2AABEE;padding:22px;border-radius:18px;margin:20px;color:#000}
-#modalUsuario{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:100}
-#modalUsuario .caja{width:85%;max-width:320px}
-#modalUsuario input{width:90%;padding:12px;border-radius:10px;border:2px solid #2AABEE;background:#f5f5f5;color:#000;font-weight:700;text-align:center;margin:12px 0}
-.boxMensaje{width:90%;max-width:360px;margin:20px auto;background:#fff;border:2px solid #2AABEE;border-radius:16px;padding:12px}
-.boxMensaje textarea{width:92%;height:70px;border-radius:10px;padding:10px;background:#f5f5f5;color:#000;border:1px solid #2AABEE;resize:none;font-family:Arial}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ninja Road: Street Fighter</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.js"></script>
+    <style>
+        body{font-family:'Courier New',monospace;background:#1a1a1a;color:#fff;text-align:center;margin:0;overflow:hidden}
+        #menu-screen{padding:10px;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;overflow-y:auto}
+        .stats-container{background:#2d2d2d;border:2px solid #ff4757;padding:10px;border-radius:10px;margin-bottom:15px;width:85%;max-width:320px}
+        .btn{background:#ff4757;color:#fff;border:none;padding:12px 25px;font-size:16px;font-weight:bold;border-radius:5px;cursor:pointer;margin:5px;width:85%;max-width:320px}
+        .btn-ad{background:#ffa502}
+        .selection-title{margin-top:12px;font-size:15px;color:#ffa502}
+        .grid-container{display:flex;gap:10px;justify-content:center;margin-bottom:10px}
+        .card-box{border:2px dashed #555;padding:8px;background:#2d2d2d;border-radius:5px;cursor:pointer;font-size:12px;width:90px}
+        .selected{border-color:#ff4757!important;background:#4a151b!important}
+        .unlocked{border-color:#2ed573!important;background:#1e3d2f!important}
+        #game-container{display:none;width:100vw;height:100vh}
+    </style>
 </head>
 <body>
-<div class="header">🍟 DALEPLAY1 - GANA DE 1$ A 5$ TODO LOS DIAS</div>
-<div class="cont" id="ci">Intentos: 2 | Puntos: 0</div>
-<div id="timer">⏳ Reinicio en: 60:00</div>
-<div class="grid" id="g"></div>
-<button id="btnAnuncio" class="btn">📺 VER ANUNCIO 0/2 PARA +1 INTENTO</button>
-<button id="btnLike" class="btn">👍 ME GUSTA <span id="likeCount">0</span></button>
-<div class="boxMensaje">
-<p style="color:#2AABEE;font-weight:900;margin:5px">💬 ¿QUIERES HABLAR CONMIGO?</p>
-<textarea id="txtPersonal" placeholder="Hola amigo cómo estás quiero comunicarme contigo..."></textarea>
-<button id="btnMensajePersonal" class="btn">✉️ ENVIAR MENSAJE</button>
+
+<div id="menu-screen">
+    <h1>🥷 NINJA ROAD 🥷</h1>
+    <div class="stats-container">
+        <h3>Ninja: <span id="ninja-name">Ninja</span></h3>
+        <p>⭐ Nivel: <span id="ninja-level">1</span> (<span id="ninja-xp">0</span>/100)</p>
+        <p>🪙 Monedas: <span id="ninja-coins">20</span></p>
+    </div>
+    <div class="selection-title">🥋 ELIGE GUERRERO 🥋</div>
+    <div class="grid-container" id="characters-grid">
+        <div id="char-shadow" class="card-box selected" onclick="selectCharacter('shadow')">🟠 NARANJA<br>Base</div>
+        <div id="char-blaze" class="card-box" onclick="unlockOrSelectCharacter('blaze',50)">🔵 AZUL<br>🪙 50</div>
+        <div id="char-storm" class="card-box" onclick="unlockOrSelectCharacter('storm',150)">🩷 ROSADO<br>🪙 150</div>
+    </div>
+    <div class="selection-title">🏯 DOJO 🏯</div>
+    <div class="grid-container" id="stages-grid">
+        <div id="stage-0" class="card-box selected" onclick="selectStage(0)">🏯 Templo<br>Libre</div>
+        <div id="stage-1" class="card-box" onclick="unlockOrSelectStage(1,100)">🌋 Volcán<br>🪙 100</div>
+    </div>
+    <button class="btn" onclick="startFight()">🥊 PELEAR</button>
+    <button class="btn btn-ad" onclick="watchAdForCoins()">📺 +50 Monedas</button>
 </div>
-<div id="modal"><div class="caja"><h1 style="color:#2AABEE">¡GANASTE! 🍟</h1><p>Código: <b id="cod"></b></p><p id="idTxt"></p><button onclick="location.reload()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">RECLAMAR</button></div></div>
-<div id="modalUsuario"><div class="caja">
-<h2 style="color:#2AABEE;margin:0">¡CASI LISTO!</h2>
-<p style="font-size:14px">Escribe tu @usuario para darte el intento</p>
-<input id="inputUsuario" type="text" placeholder="@tu_usuario">
-<button onclick="guardarUsuario()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0;cursor:pointer">GUARDAR +1 INTENTO</button>
-</div></div>
+
+<div id="game-container"></div>
+
 <script>
-let tg = window.Telegram ? window.Telegram.WebApp : null;
-let USER_ID = 'anon'; let USER_NAME = 'Jugador';
-if(tg?.initDataUnsafe?.user){ USER_ID = tg.initDataUnsafe.user.id.toString(); USER_NAME = tg.initDataUnsafe.user.first_name||'Jugador'; try{tg.expand();tg.ready();}catch(e){}}
-function k(n){return 'dale_'+USER_ID+'_'+n;}
-function safeShow(){return new Promise(r=>{try{if(typeof show_12010449!=='undefined'){show_12010449().then(()=>r()).catch(()=>r());}else{r();}}catch(e){r();}});}
-const API_BASE = 'https://abacus.jasoncameron.dev';
-async function getCounter(name){try{let res=await fetch(`${API_BASE}/get/daleplay1-${name}`);let d=await res.json();return d.value;}catch(e){return null;}}
-async function hitCounter(name){try{let res=await fetch(`${API_BASE}/hit/daleplay1-${name}`);let d=await res.json();return d.value;}catch(e){return null;}}
-let hoyKey = new Date().toLocaleDateString('es-CO',{timeZone:'America/Bogota'}).replace(/\//g,'-');
-let hayGanadorGlobal = false;
-function esSabadoHoy(){let d=new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',weekday:'long'}).toLowerCase();return d.includes('sábado')||d.includes('sabado');}
-(async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0;await hitCounter('views-total');})();
-let UNA_HORA=60*60*1000;
-let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
-if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
-setInterval(()=>{
-let diff=(horaGuardada+UNA_HORA)-Date.now();
-if(diff<=0){localStorage.setItem(k('intentos'),'2');localStorage.setItem(k('descubiertas'),'[]');localStorage.removeItem(k('ganadora'));localStorage.setItem(k('anuncios'),'0');localStorage.setItem(k('hora'),Date.now().toString());location.reload();return;}
-let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
-document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
-},1000);
-let g=document.getElementById('g'); let ci=document.getElementById('ci'); let btnAnuncio=document.getElementById('btnAnuncio');
-let intentos=parseInt(localStorage.getItem(k('intentos'))||'2');
-let puntos=parseInt(localStorage.getItem(k('puntos'))||'0');
-let anuncios=parseInt(localStorage.getItem(k('anuncios'))||'0');
-let ganadora=parseInt(localStorage.getItem(k('ganadora'))||'');
-if(isNaN(ganadora)){ganadora=Math.floor(Math.random()*25);localStorage.setItem(k('ganadora'),ganadora.toString());}
-let descubiertas=JSON.parse(localStorage.getItem(k('descubiertas'))||'[]');
-if(!Array.isArray(descubiertas) || descubiertas.length>=25){descubiertas=[];localStorage.setItem(k('descubiertas'),'[]');}
-function crear(){
-g.innerHTML='';
-for(let i=0;i<25;i++){
-let d=document.createElement('div');d.className='box';
-if(descubiertas.includes(i)){d.innerText=(i===ganadora?'💎':'💣');d.classList.add('abierto');}
-else{d.innerText='?';d.onclick=()=>jugar(i,d);}
-g.appendChild(d);
-}
-ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;
-if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS';btnAnuncio.disabled=true;btnAnuncio.style.opacity='0.6';}
-else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
-let u=localStorage.getItem(k('usuario_tg')); if(u) document.getElementById('inputUsuario').value=u;
-}
-function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toString());ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;}
-async function jugar(i,d){
-if(intentos<=0 || descubiertas.includes(i)) return;
-if(!esSabadoHoy()){
-intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
-await safeShow(); d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);
-if(i===ganadora){localStorage.removeItem(k('ganadora')); ganadora=Math.floor(Math.random()*25); localStorage.setItem(k('ganadora'),ganadora.toString()); localStorage.setItem(k('descubiertas'),'[]'); setTimeout(crear,800);}
-return;
-}
-if(hayGanadorGlobal){alert('¡YA HAY GANADOR HOY SÁBADO!');return;}
-intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas)); await safeShow();
-if(i===ganadora){
-let check=await getCounter('winner-'+hoyKey);
-if(check&&check>0){alert('Te ganaron por segundos.'); hayGanadorGlobal=true; location.reload(); return;}
-await hitCounter('winner-'+hoyKey); hayGanadorGlobal=true; d.innerText='💎';
-let codigo='SABADO-'+Math.floor(Math.random()*90000+10000);
-let userFinal = localStorage.getItem(k('usuario_tg')) || USER_NAME;
-document.getElementById('cod').innerText=codigo; document.getElementById('idTxt').innerText='ID:'+USER_ID+' | USER:'+userFinal;
-document.getElementById('modal').style.display='flex'; sumarPuntos(500);
-try{tg.sendData(`GANADOR|ID:${USER_ID}|USER:${userFinal}|COD:${codigo}`);}catch(e){}
-}else{d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);}
-}
-btnAnuncio.onclick=async()=>{
-if(anuncios>=2) return;
-btnAnuncio.innerText='⏳ CARGANDO ANUNCIO...'; btnAnuncio.disabled=true;
-await safeShow();
-document.getElementById('modalUsuario').style.display='flex';
-btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`; btnAnuncio.disabled=false;
-}
-function guardarUsuario(){
-let usuario = document.getElementById('inputUsuario').value.trim();
-if(usuario.length<3){alert("Escribe tu usuario");return;}
-if(!usuario.startsWith('@')) usuario='@'+usuario;
-localStorage.setItem(k('usuario_tg'), usuario);
-anuncios++; intentos++;
-localStorage.setItem(k('anuncios'),anuncios.toString());
-localStorage.setItem(k('intentos'),intentos.toString());
-ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;
-document.getElementById('modalUsuario').style.display='none';
-if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS';btnAnuncio.disabled=true;btnAnuncio.style.opacity='0.6';}
-else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
-try{tg.sendData(`NUEVO_USER|ID:${USER_ID}|USER:${usuario}`);}catch(e){}
-}
-document.getElementById('btnMensajePersonal').onclick = async () => {
-let txt = document.getElementById('txtPersonal').value.trim();
-if(txt.length < 4){ alert("Escribe tu mensaje primero"); return; }
-let btn = document.getElementById('btnMensajePersonal');
-btn.innerText='⏳ CARGANDO ANUNCIO...'; btn.disabled=true;
-await safeShow();
-let userFinal = localStorage.getItem(k('usuario_tg')) || USER_NAME;
-let mensajeCorto = txt.substring(0,400);
-try{
-tg.sendData(`MENSAJE_PERSONAL|ID:${USER_ID}|USER:${userFinal}|MSG:${mensajeCorto}`);
-alert("✅ Mensaje enviado! Te respondo por Telegram");
-document.getElementById('txtPersonal').value="";
-}catch(e){ alert("Abre la app dentro de Telegram"); }
-btn.innerText='✉️ ENVIAR MENSAJE'; btn.disabled=false;
-}
-let btnLike = document.getElementById('btnLike');
-function actualizarLikeUI(total, yaDioLike){
-if(yaDioLike){btnLike.innerHTML=`💙 TE GUSTA 👍 <span id="likeCount">${total ?? 0}</span>`;btnLike.style.background='#2AABEE';}else{btnLike.innerHTML=`👍 ME GUSTA <span id="likeCount">${total ?? 0}</span>`;btnLike.style.background='#1877F2';}
-}
-async function cargarLikes(){
-let total = await getCounter('likes-total');
-if(total === null) total = parseInt(localStorage.getItem('likes-local')||'0');
-let yaDioLike = localStorage.getItem(k('like'))==='1';
-actualizarLikeUI(total, yaDioLike);
-}
-cargarLikes();
-btnLike.onclick = async () => {
-if(localStorage.getItem(k('like'))==='1'){ alert("Ya le diste like bro 💙"); return; }
-btnLike.innerText='⏳ CARGANDO ANUNCIO...'; btnLike.disabled=true;
-await safeShow();
-let nuevo = await hitCounter('likes-total');
-if(nuevo === null){let localLikes = parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local', localLikes.toString());nuevo = localLikes;}
-localStorage.setItem(k('like'),'1');
-actualizarLikeUI(nuevo, true);
-btnLike.disabled=false;
-try{ tg.sendData(`LIKE|ID:${USER_ID}|USER:${localStorage.getItem(k('usuario_tg'))||USER_NAME}`);}catch(e){}
-}
-document.addEventListener('DOMContentLoaded', crear);
-crear();
+const tg = window.Telegram?.WebApp; if(tg){tg.expand(); tg.ready();}
+let playerState={name:tg?.initDataUnsafe?.user?.first_name||"Ninja",level:1,xp:0,coins:20,selectedCharacter:'shadow',unlockedCharacters:['shadow'],selectedStage:0,unlockedStages:[0]};
+const charRow={shadow:0, blaze:1, storm:2, green:3};
+const stageColors={0:0x2c3e50,1:0x5a1a1a};
 
-// 1. ANUNCIO A LOS 4 SEGUNDOS
-setTimeout(()=>{ safeShow(); }, 4000);
+function updateUI(){
+    document.getElementById('ninja-name').innerText=playerState.name;
+    document.getElementById('ninja-level').innerText=playerState.level;
+    document.getElementById('ninja-xp').innerText=playerState.xp;
+    document.getElementById('ninja-coins').innerText=playerState.coins;
+}
+updateUI();
 
-// 2. VERSION SEGURA - CUENTA DE 10s EN BOTON CONTINUAR (NO BANEABLE)
-let observador = new MutationObserver(()=>{
-  let botones = document.querySelectorAll('button');
-  botones.forEach(b=>{
-    if(b.innerText.toLowerCase().includes('continuar') && !b.dataset.cuenta){
-      b.dataset.cuenta = '1';
-      let seg = 10;
-      let textoOriginal = 'Continuar';
-      b.disabled = true;
-      b.style.opacity = '0.6';
-      let timer = setInterval(()=>{
-        if(seg > 0){
-          b.innerText = `Continuar en ${seg}s`;
-          seg--;
-        } else {
-          b.innerText = textoOriginal;
-          b.disabled = false;
-          b.style.opacity = '1';
-          clearInterval(timer);
-        }
-      },1000);
+function selectCharacter(id){
+    if(!playerState.unlockedCharacters.includes(id)) return;
+    playerState.selectedCharacter=id;
+    document.querySelectorAll('#characters-grid .card-box').forEach(e=>e.classList.remove('selected'));
+    document.getElementById('char-'+id).classList.add('selected');
+}
+function unlockOrSelectCharacter(id,cost){
+    if(playerState.unlockedCharacters.includes(id)){selectCharacter(id);return;}
+    if(playerState.coins>=cost){playerState.coins-=cost;playerState.unlockedCharacters.push(id);selectCharacter(id);updateUI();}
+    else alert("Sin monedas");
+}
+function selectStage(id){
+    if(!playerState.unlockedStages.includes(id)) return;
+    playerState.selectedStage=id;
+    document.querySelectorAll('#stages-grid .card-box').forEach(e=>e.classList.remove('selected'));
+    document.getElementById('stage-'+id).classList.add('selected');
+}
+function unlockOrSelectStage(id,cost){
+    if(playerState.unlockedStages.includes(id)){selectStage(id);return;}
+    if(playerState.coins>=cost){playerState.coins-=cost;playerState.unlockedStages.push(id);selectStage(id);updateUI();}
+    else alert("Sin monedas");
+}
+function watchAdForCoins(){playerState.coins+=50;updateUI();}
+function startFight(){
+    document.getElementById('menu-screen').style.display='none';
+    document.getElementById('game-container').style.display='block';
+    initPhaserGame();
+}
+
+function initPhaserGame(){
+    const config={type:Phaser.AUTO,width:window.innerWidth,height:window.innerHeight,parent:'game-container',physics:{default:'arcade',arcade:{gravity:{y:800},debug:false}},scene:{preload,create,update}};
+    const game=new Phaser.Game(config);
+    let player,enemy,ground,playerBar,enemyBar;
+    let playerHealth=100,enemyHealth=100;
+    let moveLeft=false,moveRight=false,isAttacking=false,cursors;
+
+    function preload(){
+        // TU SPRITESHEET DE 4 PERSONAJES x 4 FRAMES
+        this.load.spritesheet('ninjas_anim','./ninjas_anim.png',{frameWidth:128,frameHeight:128});
     }
-  });
-});
-observador.observe(document.body, {childList:true, subtree:true});
 
+    function create(){
+        const w=this.cameras.main.width,h=this.cameras.main.height;
+        this.add.rectangle(w/2,h/2,w,h,stageColors[playerState.selectedStage]);
+        ground=this.add.rectangle(w/2,h-35,w,70,0x0f0f0f); this.physics.add.existing(ground,true);
+
+        let sel=playerState.selectedCharacter;
+        let row=charRow[sel]||0; let base=row*4;
+
+        // Crear animaciones para tu personaje
+        this.anims.create({key:'idle_'+sel,frames:[{key:'ninjas_anim',frame:base}],frameRate:5});
+        this.anims.create({key:'walk_'+sel,frames:this.anims.generateFrameNumbers('ninjas_anim',{start:base,start:base,end:base+1}),frameRate:8,repeat:-1});
+        this.anims.create({key:'jump_'+sel,frames:[{key:'ninjas_anim',frame:base+2}]});
+        this.anims.create({key:'punch_'+sel,frames:[{key:'ninjas_anim',frame:base+3}]});
+
+        player=this.physics.add.sprite(w*0.25,h-120,'ninjas_anim',base);
+        player.setScale(0.7).setCollideWorldBounds(true).setSize(60,80);
+        player.play('idle_'+sel);
+
+        let enemyChar=sel==='shadow'?'blaze':'shadow';
+        let eRow=charRow[enemyChar]; let eBase=eRow*4;
+        if(!this.anims.exists('idle_'+enemyChar)){
+            this.anims.create({key:'idle_'+enemyChar,frames:[{key:'ninjas_anim',frame:eBase}]});
+            this.anims.create({key:'walk_'+enemyChar,frames:this.anims.generateFrameNumbers('ninjas_anim',{start:eBase,end:eBase+1}),frameRate:8,repeat:-1});
+            this.anims.create({key:'punch_'+enemyChar,frames:[{key:'ninjas_anim',frame:eBase+3}]});
+        }
+        enemy=this.physics.add.sprite(w*0.75,h-120,'ninjas_anim',eBase);
+        enemy.setScale(0.7).setCollideWorldBounds(true).setSize(60,80);
+        enemy.play('idle_'+enemyChar); enemy.flipX=true;
+
+        this.physics.add.collider(player,ground); this.physics.add.collider(enemy,ground);
+        playerBar=this.add.graphics(); enemyBar=this.add.graphics();
+
+        let bL=this.add.text(25,h-70,'◀',{font:'48px Arial'}).setInteractive();
+        bL.on('pointerdown',()=>moveLeft=true); bL.on('pointerup',()=>{moveLeft=false;}); bL.on('pointerout',()=>{moveLeft=false;});
+        let bR=this.add.text(115,h-70,'▶',{font:'48px Arial'}).setInteractive();
+        bR.on('pointerdown',()=>moveRight=true); bR.on('pointerup',()=>{moveRight=false;}); bR.on('pointerout',()=>{moveRight=false;});
+        let bP=this.add.text(w-90,h-70,'🥊',{font:'44px Arial'}).setInteractive();
+        bP.on('pointerdown',()=>doPunch.call(this,sel,eBase,enemyChar));
+
+        cursors=this.input.keyboard.createCursorKeys();
+        this.input.keyboard.on('keydown-SPACE',()=>doPunch.call(this,sel,eBase,enemyChar));
+        this.input.keyboard.on('keydown-UP',()=>{if(player.body.onFloor()) player.body.setVelocityY(-380);});
+    }
+
+    function doPunch(sel,eBase,enemyChar){
+        if(isAttacking) return; isAttacking=true;
+        player.play('punch_'+sel);
+        let d=Phaser.Math.Distance.Between(player.x,player.y,enemy.x,enemy.y);
+        if(d<90){enemyHealth-=18; enemy.play('punch_'+enemyChar); enemy.x+=(enemy.x>player.x?20:-20);}
+        this.time.delayedCall(300,()=>{isAttacking=false;});
+    }
+
+    function update(){
+        if(playerHealth<=0||enemyHealth<=0) return;
+        let sel=playerState.selectedCharacter;
+        if(moveLeft||cursors.left.isDown){player.body.setVelocityX(-200); player.flipX=true; if(player.body.onFloor()&&!isAttacking) player.play('walk_'+sel,true);}
+        else if(moveRight||cursors.right.isDown){player.body.setVelocityX(200); player.flipX=false; if(player.body.onFloor()&&!isAttacking) player.play('walk_'+sel,true);}
+        else {player.body.setVelocityX(0); if(player.body.onFloor()&&!isAttacking) player.play('idle_'+sel,true);}
+        if(!player.body.onFloor()) player.play('jump_'+sel,true);
+
+        if(enemyHealth>0){
+            if(enemy.x>player.x+70){enemy.body.setVelocityX(-90); enemy.flipX=false; enemy.play('walk_'+(sel==='shadow'?'blaze':'shadow'),true);}
+            else if(enemy.x<player.x-70){enemy.body.setVelocityX(90); enemy.flipX=true; enemy.play('walk_'+(sel==='shadow'?'blaze':'shadow'),true);}
+            else {enemy.body.setVelocityX(0); if(Phaser.Math.Between(1,40)===5){playerHealth-=10;}}
+        }
+        playerBar.clear(); playerBar.fillStyle(0x2ed573,1); playerBar.fillRect(20,45,Math.max(0,playerHealth)*1.4,14);
+        enemyBar.clear(); enemyBar.fillStyle(0xff4757,1); enemyBar.fillRect(window.innerWidth-160,45,Math.max(0,enemyHealth)*1.4,14);
+
+        if(enemyHealth<=0||playerHealth<=0){
+            this.physics.pause(); let won=enemyHealth<=0;
+            if(won){playerState.xp+=35;playerState.coins+=15;if(playerState.xp>=100){playerState.level++;playerState.xp=0;}}
+            this.add.text(this.cameras.main.width/2-90,this.cameras.main.height/2,won?"¡VICTORIA!":"K.O.",{font:'bold 32px Arial',backgroundColor:'#000',padding:{x:12,y:8}});
+            this.time.delayedCall(2500,()=>{game.destroy(true);document.getElementById('game-container').style.display='none';document.getElementById('menu-screen').style.display='flex';updateUI();});
+        }
+    }
+}
 </script>
 </body>
 </html>
