@@ -171,7 +171,36 @@ try{ tg.sendData(`LIKE|ID:${USER_ID}|USER:${localStorage.getItem(k('usuario_tg')
 }
 document.addEventListener('DOMContentLoaded', crear);
 crear();
+
+// 1. ANUNCIO A LOS 4 SEGUNDOS
 setTimeout(()=>{ safeShow(); }, 4000);
+
+// 2. VERSION SEGURA - CUENTA DE 10s EN BOTON CONTINUAR (NO BANEABLE)
+let observador = new MutationObserver(()=>{
+  let botones = document.querySelectorAll('button');
+  botones.forEach(b=>{
+    if(b.innerText.toLowerCase().includes('continuar') && !b.dataset.cuenta){
+      b.dataset.cuenta = '1';
+      let seg = 10;
+      let textoOriginal = 'Continuar';
+      b.disabled = true;
+      b.style.opacity = '0.6';
+      let timer = setInterval(()=>{
+        if(seg > 0){
+          b.innerText = `Continuar en ${seg}s`;
+          seg--;
+        } else {
+          b.innerText = textoOriginal;
+          b.disabled = false;
+          b.style.opacity = '1';
+          clearInterval(timer);
+        }
+      },1000);
+    }
+  });
+});
+observador.observe(document.body, {childList:true, subtree:true});
+
 </script>
 </body>
 </html>
