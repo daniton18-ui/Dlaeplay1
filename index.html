@@ -42,24 +42,19 @@ body{margin:0;background:#0f1419;font-family:Arial;text-align:center;color:#fff;
 <textarea id="txtPersonal" placeholder="Hola amigo cómo estás..."></textarea>
 <button id="btnMensajePersonal" class="btn">✉️ ENVIAR MENSAJE</button>
 </div>
-
 <div id="modal"><div class="caja"><h1 style="color:#2AABEE">¡GANASTE! 🌭🔥</h1><p>Te ganaste una SALCHIPAPA SALVAJADA</p><p>Código: <b id="cod"></b></p><p id="idTxt"></p><button onclick="location.reload()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">RECLAMAR</button></div></div>
-
 <div id="modalGanadorGlobal"><div class="caja" style="border-color:#FF5722"><h1 style="color:#FF5722">¡YA TENEMOS GANADOR! 🌭</h1><p style="font-weight:900">Hoy sábado ya hay un ganador de la SALCHIPAPA SALVAJADA.</p><p>De 1 millón solo 1 puede ganar.</p><p style="background:#FFF3E0;padding:10px;border-radius:8px">Vuelve el próximo sábado por tu oportunidad.</p><button onclick="document.getElementById('modalGanadorGlobal').style.display='none'" style="background:#FF5722;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0;margin-top:10px">ENTENDIDO</button></div></div>
-
 <div id="modalUsuario"><div class="caja">
 <h2 style="color:#2AABEE;margin:0">¡CASI LISTO!</h2>
 <p style="font-size:14px">Escribe tu @usuario</p>
 <input id="inputUsuario" type="text" placeholder="@tu_usuario">
 <button onclick="guardarUsuario()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0;cursor:pointer">GUARDAR +1 INTENTO</button>
 </div></div>
-
 <script>
 let tg = window.Telegram ? window.Telegram.WebApp : null;
 let USER_ID = 'anon'; let USER_NAME = 'Jugador';
 if(tg?.initDataUnsafe?.user){ USER_ID = tg.initDataUnsafe.user.id.toString(); USER_NAME = tg.initDataUnsafe.user.first_name||'Jugador'; try{tg.expand();tg.ready();}catch(e){}}
 function k(n){return 'dale_'+USER_ID+'_'+n;}
-// ESTE ES EL ANUNCIO QUE MAS PAGA - VA EN LOS CUADRITOS
 function safeShow(){return new Promise(r=>{try{if(typeof show_12010449!=='undefined'){show_12010449().then(()=>r()).catch(()=>r());}else{r();}}catch(e){r();}});}
 const API_BASE = 'https://abacus.jasoncameron.dev';
 async function getCounter(name){try{let res=await fetch(`${API_BASE}/get/daleplay1-${name}`);let d=await res.json();return d.value;}catch(e){return null;}}
@@ -76,10 +71,10 @@ function actualizarDiaInfo(){
     return;
   }
   if(esSabadoHoy()){
-    el.innerText='🔥 ¡HOY ES SÁBADO! 1 DE 1 MILLÓN GANARÁ LA SALCHIPAPA 🌭';
+    el.innerText='🔥 ¡MODO YA TU SABES ';
     el.style.background='#4CAF50';
   }else{
-    el.innerText=' VARIAS OPCIONES DE GARANAR, LA SALCHIPAPA SE ENTREGA EL SABADO';
+    el.innerText='VARIAS OPCIONES DE GANAR, JUEGA Y COMOARTE CON TUS AMIGOS  ';
     el.style.background='#FF5722';
   }
 }
@@ -120,18 +115,16 @@ let u=localStorage.getItem(k('usuario_tg')); if(u) document.getElementById('inpu
 }
 async function jugar(i,d){
 if(intentos<=0 || descubiertas.includes(i)) return;
-// CANDADO GLOBAL: SOLO 1 GANADOR EL SABADO
 if(esSabadoHoy() && hayGanadorGlobal){
   document.getElementById('modalGanadorGlobal').style.display='flex';
   return;
 }
-// LUNES A VIERNES: SOLO BOMBITAS
 if(!esSabadoHoy()){
   intentos--; descubiertas.push(i); 
   localStorage.setItem(k('intentos'),intentos.toString()); 
   localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
   ci.innerText=`Intentos: ${intentos}`;
-  await safeShow(); // ANUNCIO QUE MAS PAGA AQUI
+  await safeShow();
   d.innerText='💣'; d.classList.add('abierto');
   if(i===ganadora){
     localStorage.removeItem(k('ganadora')); 
@@ -143,14 +136,12 @@ if(!esSabadoHoy()){
   if(intentos<=0){setTimeout(()=>alert('❌ PERDISTE. El que perdió perdió. Vuelve en 60 min.'),300);}
   return;
 }
-// SABADO: AQUI SI GANA O PIERDE - SOLO 1 EN EL MUNDO
 intentos--; descubiertas.push(i); 
 localStorage.setItem(k('intentos'),intentos.toString()); 
 localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
 ci.innerText=`Intentos: ${intentos}`;
-await safeShow(); // ANUNCIO QUE MAS PAGA AQUI
+await safeShow();
 if(i===ganadora){
-  // DOBLE CHEQUEO ANTES DE DAR EL PREMIO - 1 DE 1 MILLON
   let check=await getCounter('winner-'+hoyKey);
   if(check&&check>0){
     alert('😱 ¡TE GANARON POR SEGUNDOS! Ya hay ganador hoy. Solo 1 por sábado.');
@@ -160,7 +151,7 @@ if(i===ganadora){
     return;
   }
   let resultado = await hitCounter('winner-'+hoyKey);
-  if(resultado > 1){ // Si alguien mas marcó al mismo tiempo
+  if(resultado > 1){
     alert('😱 ¡TE GANARON POR MILISEGUNDOS! Solo 1 por sábado.');
     hayGanadorGlobal=true;
     actualizarDiaInfo();
@@ -175,7 +166,7 @@ if(i===ganadora){
   try{tg.sendData(`GANADOR_SALCHI_UNICO|ID:${USER_ID}|USER:${userFinal}|COD:${codigo}`);}catch(e){}
 }else{
   d.innerText='💣'; d.classList.add('abierto');
-  if(intentos<=0){setTimeout(()=>alert('❌ PERDISTE HOY. El que perdió perdió. Había 1 salchipapa entre 1 millón y no la encontraste.'),300);}
+  if(intentos<=0){setTimeout(()=>alert('❌ PERDISTE HOY. El que perdió perdió.'),300);}
 }
 }
 btnAnuncio.onclick=async()=>{
@@ -236,8 +227,22 @@ actualizarLikeUI(nuevo, true);
 btnLike.disabled=false;
 try{ tg.sendData(`LIKE|ID:${USER_ID}|USER:${localStorage.getItem(k('usuario_tg'))||USER_NAME}`);}catch(e){}
 }
+// INICIALIZAR JUEGO
 document.addEventListener('DOMContentLoaded', crear);
 crear();
+
+// === ANUNCIO AUTOMATICO APENAS ABREN EL LINK ===
+setTimeout(async () => {
+  console.log("Anuncio al abrir - intento 1");
+  await safeShow();
+}, 1500);
+
+window.addEventListener('load', async () => {
+  setTimeout(async () => {
+    console.log("Anuncio al abrir - intento 2 (load)");
+    await safeShow();
+  }, 2000);
+});
 </script>
 </body>
 </html>
