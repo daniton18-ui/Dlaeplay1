@@ -1,165 +1,206 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Ninja Road - Cuerpo Movible</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALEPLAY1</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.js"></script>
+<script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0a;overflow:hidden;user-select:none;font-family:Arial}
-#game-container{width:100vw;height:100vh}
-.ctrl{position:absolute;z-index:10;width:58px;height:58px;border-radius:16px;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.25);display:flex;justify-content:center;align-items:center;font-size:28px}
-.ctrl:active{background:rgba(255,71,87,0.7);transform:scale(0.9)}
-#up{left:75px;bottom:150px} #down{left:75px;bottom:20px}
-#left{left:10px;bottom:85px} #right{left:140px;bottom:85px}
-#tri{right:75px;bottom:150px;border-color:#2ed573;background:rgba(46,213,115,0.2)}
-#sqr{right:140px;bottom:85px;border-color:#3498db;background:rgba(52,152,219,0.2)}
-#cir{right:10px;bottom:85px;border-color:#ff4757;background:rgba(255,71,87,0.2)}
-#xis{right:75px;bottom:20px;border-color:#a480ff;background:rgba(164,128,255,0.2)}
-#label{position:absolute;top:10px;left:50%;transform:translateX(-50%);color:#fff;font-size:12px;opacity:0.6}
+body{margin:0;background:#0f1419;font-family:Arial;text-align:center;color:#fff;min-height:100vh}
+.header{background:#2AABEE;color:#fff;padding:14px;font-weight:900;font-size:20px}
+.cont{color:#2AABEE;background:#fff;border:2px solid #2AABEE;border-radius:12px;margin:10px;padding:10px;font-weight:bold}
+#timer{color:#333;background:#fff;border:1px dashed #2AABEE;border-radius:10px;margin:8px 12px;padding:8px;font-size:14px}
+.grid{width:95%;max-width:360px;margin:15px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;min-height:320px}
+.box{height:60px;background:#fff;border:2px solid #2AABEE;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900;color:#2AABEE;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
+.box.abierto{background:#e3f2fd;color:#888;border-color:#ccc}
+.btn{margin:8px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:25px;font-weight:900;display:block;cursor:pointer}
+#btnAnuncio{background:#2AABEE;color:#fff;font-size:16px}
+#btnLike{background:#1877F2;color:#fff;border:0;font-size:15px;box-shadow:0 3px 10px rgba(24,119,242,0.4)}
+#btnMensajePersonal{background:#fff;color:#0f1419;border:2px solid #2AABEE}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:99}
+.caja{background:#fff;border:3px solid #2AABEE;padding:22px;border-radius:18px;margin:20px;color:#000}
+#modalUsuario{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:100}
+#modalUsuario .caja{width:85%;max-width:320px}
+#modalUsuario input{width:90%;padding:12px;border-radius:10px;border:2px solid #2AABEE;background:#f5f5f5;color:#000;font-weight:700;text-align:center;margin:12px 0}
+.boxMensaje{width:90%;max-width:360px;margin:20px auto;background:#fff;border:2px solid #2AABEE;border-radius:16px;padding:12px}
+.boxMensaje textarea{width:92%;height:70px;border-radius:10px;padding:10px;background:#f5f5f5;color:#000;border:1px solid #2AABEE;resize:none;font-family:Arial}
 </style>
 </head>
 <body>
-<div id="label">⬅️⬆️⬇️➡️ Mover | 🔺🟦⭕❌ Atacar</div>
-<div id="game-container"></div>
-<div id="up" class="ctrl">⬆️</div><div id="down" class="ctrl">⬇️</div><div id="left" class="ctrl">⬅️</div><div id="right" class="ctrl">➡️</div>
-<div id="tri" class="ctrl">🔺</div><div id="sqr" class="ctrl">🟦</div><div id="cir" class="ctrl">⭕</div><div id="xis" class="ctrl">❌</div>
-
+<div class="header">🍟 DALEPLAY1 - GANA DE 1$ A 5$ TODO LOS DIAS</div>
+<div class="cont" id="ci">Intentos: 2 | Puntos: 0</div>
+<div id="timer">⏳ Reinicio en: 60:00</div>
+<div class="grid" id="g"></div>
+<button id="btnAnuncio" class="btn">📺 VER ANUNCIO 0/2 PARA +1 INTENTO</button>
+<button id="btnLike" class="btn">👍 ME GUSTA <span id="likeCount">0</span></button>
+<div class="boxMensaje">
+<p style="color:#2AABEE;font-weight:900;margin:5px">💬 ¿QUIERES HABLAR CONMIGO?</p>
+<textarea id="txtPersonal" placeholder="Hola amigo cómo estás quiero comunicarme contigo..."></textarea>
+<button id="btnMensajePersonal" class="btn">✉️ ENVIAR MENSAJE</button>
+</div>
+<div id="modal"><div class="caja"><h1 style="color:#2AABEE">¡GANASTE! 🍟</h1><p>Código: <b id="cod"></b></p><p id="idTxt"></p><button onclick="location.reload()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">RECLAMAR</button></div></div>
+<div id="modalUsuario"><div class="caja">
+<h2 style="color:#2AABEE;margin:0">¡CASI LISTO!</h2>
+<p style="font-size:14px">Escribe tu @usuario para darte el intento</p>
+<input id="inputUsuario" type="text" placeholder="@tu_usuario">
+<button onclick="guardarUsuario()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0;cursor:pointer">GUARDAR +1 INTENTO</button>
+</div></div>
 <script>
-const tg=window.Telegram?.WebApp; if(tg){tg.expand();tg.ready();}
-const config={type:Phaser.AUTO,width:window.innerWidth,height:window.innerHeight,parent:'game-container',physics:{default:'arcade',arcade:{gravity:{y:1000},debug:false}},scene:{preload,create,update}};
-new Phaser.Game(config);
-
-let player,enemy,ground;
-let move={up:false,down:false,left:false,right:false};
-let isCrouching=false,isBlocking=false,isAttacking=false;
-let hpP=100,hpE=100;
-
-function preload(){
-    // TU SPRITESHEET NUEVO CON CUERPO MOVIBLE - 6 FRAMES
-    this.load.spritesheet('body','./ninja_body.png',{frameWidth:320,frameHeight:320});
+let tg = window.Telegram ? window.Telegram.WebApp : null;
+let USER_ID = 'anon'; let USER_NAME = 'Jugador';
+if(tg?.initDataUnsafe?.user){ USER_ID = tg.initDataUnsafe.user.id.toString(); USER_NAME = tg.initDataUnsafe.user.first_name||'Jugador'; try{tg.expand();tg.ready();}catch(e){}}
+function k(n){return 'dale_'+USER_ID+'_'+n;}
+function safeShow(){return new Promise(r=>{try{if(typeof show_12010449!=='undefined'){show_12010449().then(()=>r()).catch(()=>r());}else{r();}}catch(e){r();}});}
+const API_BASE = 'https://abacus.jasoncameron.dev';
+async function getCounter(name){try{let res=await fetch(`${API_BASE}/get/daleplay1-${name}`);let d=await res.json();return d.value;}catch(e){return null;}}
+async function hitCounter(name){try{let res=await fetch(`${API_BASE}/hit/daleplay1-${name}`);let d=await res.json();return d.value;}catch(e){return null;}}
+let hoyKey = new Date().toLocaleDateString('es-CO',{timeZone:'America/Bogota'}).replace(/\//g,'-');
+let hayGanadorGlobal = false;
+function esSabadoHoy(){let d=new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',weekday:'long'}).toLowerCase();return d.includes('sábado')||d.includes('sabado');}
+(async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0;await hitCounter('views-total');})();
+let UNA_HORA=60*60*1000;
+let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
+if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
+setInterval(()=>{
+let diff=(horaGuardada+UNA_HORA)-Date.now();
+if(diff<=0){localStorage.setItem(k('intentos'),'2');localStorage.setItem(k('descubiertas'),'[]');localStorage.removeItem(k('ganadora'));localStorage.setItem(k('anuncios'),'0');localStorage.setItem(k('hora'),Date.now().toString());location.reload();return;}
+let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
+document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
+},1000);
+let g=document.getElementById('g'); let ci=document.getElementById('ci'); let btnAnuncio=document.getElementById('btnAnuncio');
+let intentos=parseInt(localStorage.getItem(k('intentos'))||'2');
+let puntos=parseInt(localStorage.getItem(k('puntos'))||'0');
+let anuncios=parseInt(localStorage.getItem(k('anuncios'))||'0');
+let ganadora=parseInt(localStorage.getItem(k('ganadora'))||'');
+if(isNaN(ganadora)){ganadora=Math.floor(Math.random()*25);localStorage.setItem(k('ganadora'),ganadora.toString());}
+let descubiertas=JSON.parse(localStorage.getItem(k('descubiertas'))||'[]');
+if(!Array.isArray(descubiertas) || descubiertas.length>=25){descubiertas=[];localStorage.setItem(k('descubiertas'),'[]');}
+function crear(){
+g.innerHTML='';
+for(let i=0;i<25;i++){
+let d=document.createElement('div');d.className='box';
+if(descubiertas.includes(i)){d.innerText=(i===ganadora?'💎':'💣');d.classList.add('abierto');}
+else{d.innerText='?';d.onclick=()=>jugar(i,d);}
+g.appendChild(d);
 }
-
-function create(){
-    const w=this.cameras.main.width,h=this.cameras.main.height;
-    this.add.rectangle(w/2,h/2,w,h,0x1a1f2e);
-    ground=this.add.rectangle(w/2,h-15,w,30,0x222222); this.physics.add.existing(ground,true);
-
-    // ANIMACIONES CON MOVIMIENTO DE CUERPO REAL
-    this.anims.create({key:'idle',frames:[{key:'body',frame:0}],frameRate:6,repeat:-1});
-    this.anims.create({key:'walk',frames:this.anims.generateFrameNumbers('body',{start:1,end:2}),frameRate:10,repeat:-1});
-    this.anims.create({key:'jump',frames:[{key:'body',frame:3}],frameRate:1});
-    this.anims.create({key:'crouch',frames:[{key:'body',frame:4}],frameRate:1});
-    this.anims.create({key:'punch',frames:[{key:'body',frame:5}],frameRate:12});
-    this.anims.create({key:'punch2',frames:[{key:'body',frame:5}],frameRate:20});
-    this.anims.create({key:'kick',frames:[{key:'body',frame:5}],frameRate:15});
-
-    player=this.physics.add.sprite(w*0.3,h-90,'body',0).setScale(0.65).setCollideWorldBounds(true);
-    player.body.setSize(80,140).setOffset(120,140);
-    player.play('idle');
-
-    enemy=this.physics.add.sprite(w*0.7,h-90,'body',0).setScale(0.65).setCollideWorldBounds(true);
-    enemy.setTint(0x3498db); enemy.flipX=true;
-    enemy.body.setSize(80,140).setOffset(120,140);
-    enemy.play('idle');
-
-    this.physics.add.collider(player,ground);
-    this.physics.add.collider(enemy,ground);
-
-    this.barP=this.add.graphics(); this.barE=this.add.graphics();
-    this.add.text(20,30,'TU',{font:'bold 12px Arial',fill:'#fff'});
-    this.add.text(w-40,30,'IA',{font:'bold 12px Arial',fill:'#fff'});
-
-    // BIND BOTONES
-    const bind=(id,k)=>{
-        let el=document.getElementById(id);
-        el.addEventListener('touchstart',e=>{e.preventDefault(); move[k]=true;},{passive:false});
-        el.addEventListener('touchend',e=>{e.preventDefault(); move[k]=false;},{passive:false});
-        el.addEventListener('mousedown',()=>move[k]=true);
-        el.addEventListener('mouseup',()=>move[k]=false);
-        el.addEventListener('mouseleave',()=>move[k]=false);
-    };
-    bind('up','up');bind('down','down');bind('left','left');bind('right','right');
-
-    const bindA=(id,fn)=>{
-        let el=document.getElementById(id);
-        el.addEventListener('touchstart',e=>{e.preventDefault(); fn.call(this);},{passive:false});
-        el.addEventListener('mousedown',()=>fn.call(this));
-    };
-
-    bindA('xis',function(){ // ❌ = SALTO + PATADA
-        if(player.body.onFloor()){ player.body.setVelocityY(-520); player.play('jump'); }
-    });
-    bindA('tri',function(){ // 🔺 TRIANGULO = GOLPE FUERTE
-        if(isAttacking) return; isAttacking=true;
-        player.play('punch'); let d=Phaser.Math.Distance.Between(player.x,player.y,enemy.x,enemy.y);
-        if(d<110){ hpE-=22; enemy.setTint(0xff0000); this.tweens.add({targets:enemy,x:enemy.x+(enemy.x>player.x?30:-30),duration:100,yoyo:true}); }
-        this.time.delayedCall(400,()=>{isAttacking=false; enemy.clearTint(); enemy.setTint(0x3498db);});
-    });
-    bindA('sqr',function(){ // 🟦 CUADRADO = PATADA RAPIDA
-        if(isAttacking) return; isAttacking=true;
-        player.play('kick'); let d=Phaser.Math.Distance.Between(player.x,player.y,enemy.x,enemy.y);
-        if(d<100){ hpE-=14; enemy.setTint(0xff4757); }
-        this.time.delayedCall(300,()=>{isAttacking=false; enemy.clearTint(); enemy.setTint(0x3498db);});
-    });
-    bindA('cir',function(){ // ⭕ CIRCULO = BLOQUEO
-        if(isBlocking) return; isBlocking=true; player.setTint(0x2ed573);
-        this.time.delayedCall(700,()=>{isBlocking=false; player.clearTint();});
-    });
+ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;
+if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS';btnAnuncio.disabled=true;btnAnuncio.style.opacity='0.6';}
+else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
+let u=localStorage.getItem(k('usuario_tg')); if(u) document.getElementById('inputUsuario').value=u;
 }
-
-function update(){
-    if(!player) return;
-
-    // ADELANTE / ATRAS - CUERPO CAMINA
-    if(move.left){
-        player.body.setVelocityX(-220); player.flipX=true;
-        if(player.body.onFloor()&&!isAttacking&&!isCrouching) player.play('walk',true);
-    } else if(move.right){
-        player.body.setVelocityX(220); player.flipX=false;
-        if(player.body.onFloor()&&!isAttacking&&!isCrouching) player.play('walk',true);
-    } else {
-        player.body.setVelocityX(0);
-        if(player.body.onFloor()&&!isAttacking&&!isCrouching) player.play('idle',true);
-    }
-
-    // SALTAR - CUERPO SE ENCOGE Y SALTA
-    if(move.up && player.body.onFloor()){
-        player.body.setVelocityY(-520);
-        player.play('jump');
-    }
-
-    // AGACHARSE - CUERPO BAJA REAL
-    if(move.down){
-        if(!isCrouching){ isCrouching=true; player.body.setSize(80,70).setOffset(120,220); }
-        if(player.body.onFloor()&&!isAttacking) player.play('crouch',true);
-        player.body.setVelocityX(player.body.velocity.x*0.5);
-    } else {
-        if(isCrouching){ isCrouching=false; player.body.setSize(80,140).setOffset(120,140); }
-    }
-
-    if(!player.body.onFloor()&&!isAttacking){ player.play('jump',true); }
-
-    // BARRAS
-    this.barP.clear(); this.barP.fillStyle(0x2ed573,1); this.barP.fillRect(20,50,Math.max(0,hpP)*1.5,10);
-    this.barE.clear(); this.barE.fillStyle(0xff4757,1); this.barE.fillRect(window.innerWidth-170,50,Math.max(0,hpE)*1.5,10);
-
-    // IA simple
-    if(hpE>0 && enemy.body){
-        if(enemy.x>player.x+90) {enemy.body.setVelocityX(-100); enemy.flipX=false; if(enemy.body.onFloor()) enemy.play('walk',true);}
-        else if(enemy.x<player.x-90){enemy.body.setVelocityX(100); enemy.flipX=true; if(enemy.body.onFloor()) enemy.play('walk',true);}
-        else {enemy.body.setVelocityX(0); if(Phaser.Math.Between(1,50)===5 && !isBlocking){ hpP-=8; player.setTint(0xff0000); this.time.delayedCall(100,()=>player.clearTint()); }}
-        if(!enemy.body.onFloor()) enemy.play('jump',true);
-    }
-
-    if(hpE<=0||hpP<=0){
-        this.physics.pause();
-        this.add.text(window.innerWidth/2-80, window.innerHeight/2, hpE<=0?"¡VICTORIA!":"K.O.", {font:'bold 36px Arial', backgroundColor:'#000', padding:{x:15,y:8}});
-        this.time.delayedCall(2000,()=>location.reload());
-    }
+function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toString());ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;}
+async function jugar(i,d){
+if(intentos<=0 || descubiertas.includes(i)) return;
+if(!esSabadoHoy()){
+intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
+await safeShow(); d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);
+if(i===ganadora){localStorage.removeItem(k('ganadora')); ganadora=Math.floor(Math.random()*25); localStorage.setItem(k('ganadora'),ganadora.toString()); localStorage.setItem(k('descubiertas'),'[]'); setTimeout(crear,800);}
+return;
 }
+if(hayGanadorGlobal){alert('¡YA HAY GANADOR HOY SÁBADO!');return;}
+intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas)); await safeShow();
+if(i===ganadora){
+let check=await getCounter('winner-'+hoyKey);
+if(check&&check>0){alert('Te ganaron por segundos.'); hayGanadorGlobal=true; location.reload(); return;}
+await hitCounter('winner-'+hoyKey); hayGanadorGlobal=true; d.innerText='💎';
+let codigo='SABADO-'+Math.floor(Math.random()*90000+10000);
+let userFinal = localStorage.getItem(k('usuario_tg')) || USER_NAME;
+document.getElementById('cod').innerText=codigo; document.getElementById('idTxt').innerText='ID:'+USER_ID+' | USER:'+userFinal;
+document.getElementById('modal').style.display='flex'; sumarPuntos(500);
+try{tg.sendData(`GANADOR|ID:${USER_ID}|USER:${userFinal}|COD:${codigo}`);}catch(e){}
+}else{d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);}
+}
+btnAnuncio.onclick=async()=>{
+if(anuncios>=2) return;
+btnAnuncio.innerText='⏳ CARGANDO ANUNCIO...'; btnAnuncio.disabled=true;
+await safeShow();
+document.getElementById('modalUsuario').style.display='flex';
+btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`; btnAnuncio.disabled=false;
+}
+function guardarUsuario(){
+let usuario = document.getElementById('inputUsuario').value.trim();
+if(usuario.length<3){alert("Escribe tu usuario");return;}
+if(!usuario.startsWith('@')) usuario='@'+usuario;
+localStorage.setItem(k('usuario_tg'), usuario);
+anuncios++; intentos++;
+localStorage.setItem(k('anuncios'),anuncios.toString());
+localStorage.setItem(k('intentos'),intentos.toString());
+ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;
+document.getElementById('modalUsuario').style.display='none';
+if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS';btnAnuncio.disabled=true;btnAnuncio.style.opacity='0.6';}
+else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
+try{tg.sendData(`NUEVO_USER|ID:${USER_ID}|USER:${usuario}`);}catch(e){}
+}
+document.getElementById('btnMensajePersonal').onclick = async () => {
+let txt = document.getElementById('txtPersonal').value.trim();
+if(txt.length < 4){ alert("Escribe tu mensaje primero"); return; }
+let btn = document.getElementById('btnMensajePersonal');
+btn.innerText='⏳ CARGANDO ANUNCIO...'; btn.disabled=true;
+await safeShow();
+let userFinal = localStorage.getItem(k('usuario_tg')) || USER_NAME;
+let mensajeCorto = txt.substring(0,400);
+try{
+tg.sendData(`MENSAJE_PERSONAL|ID:${USER_ID}|USER:${userFinal}|MSG:${mensajeCorto}`);
+alert("✅ Mensaje enviado! Te respondo por Telegram");
+document.getElementById('txtPersonal').value="";
+}catch(e){ alert("Abre la app dentro de Telegram"); }
+btn.innerText='✉️ ENVIAR MENSAJE'; btn.disabled=false;
+}
+let btnLike = document.getElementById('btnLike');
+function actualizarLikeUI(total, yaDioLike){
+if(yaDioLike){btnLike.innerHTML=`💙 TE GUSTA 👍 <span id="likeCount">${total ?? 0}</span>`;btnLike.style.background='#2AABEE';}else{btnLike.innerHTML=`👍 ME GUSTA <span id="likeCount">${total ?? 0}</span>`;btnLike.style.background='#1877F2';}
+}
+async function cargarLikes(){
+let total = await getCounter('likes-total');
+if(total === null) total = parseInt(localStorage.getItem('likes-local')||'0');
+let yaDioLike = localStorage.getItem(k('like'))==='1';
+actualizarLikeUI(total, yaDioLike);
+}
+cargarLikes();
+btnLike.onclick = async () => {
+if(localStorage.getItem(k('like'))==='1'){ alert("Ya le diste like bro 💙"); return; }
+btnLike.innerText='⏳ CARGANDO ANUNCIO...'; btnLike.disabled=true;
+await safeShow();
+let nuevo = await hitCounter('likes-total');
+if(nuevo === null){let localLikes = parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local', localLikes.toString());nuevo = localLikes;}
+localStorage.setItem(k('like'),'1');
+actualizarLikeUI(nuevo, true);
+btnLike.disabled=false;
+try{ tg.sendData(`LIKE|ID:${USER_ID}|USER:${localStorage.getItem(k('usuario_tg'))||USER_NAME}`);}catch(e){}
+}
+document.addEventListener('DOMContentLoaded', crear);
+crear();
+
+// 1. ANUNCIO A LOS 4 SEGUNDOS
+setTimeout(()=>{ safeShow(); }, 4000);
+
+// 2. VERSION SEGURA - CUENTA DE 10s EN BOTON CONTINUAR (NO BANEABLE)
+let observador = new MutationObserver(()=>{
+  let botones = document.querySelectorAll('button');
+  botones.forEach(b=>{
+    if(b.innerText.toLowerCase().includes('continuar') && !b.dataset.cuenta){
+      b.dataset.cuenta = '1';
+      let seg = 10;
+      let textoOriginal = 'Continuar';
+      b.disabled = true;
+      b.style.opacity = '0.6';
+      let timer = setInterval(()=>{
+        if(seg > 0){
+          b.innerText = `Continuar en ${seg}s`;
+          seg--;
+        } else {
+          b.innerText = textoOriginal;
+          b.disabled = false;
+          b.style.opacity = '1';
+          clearInterval(timer);
+        }
+      },1000);
+    }
+  });
+});
+observador.observe(document.body, {childList:true, subtree:true});
+
 </script>
 </body>
 </html>
