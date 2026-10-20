@@ -147,16 +147,9 @@ document.getElementById('txtPersonal').value="";
 }catch(e){ alert("Abre la app dentro de Telegram"); }
 btn.innerText='✉️ ENVIAR MENSAJE'; btn.disabled=false;
 }
-// === LIKE CON SOLO 1 ANUNCIO QUE MAS PAGA ===
 let btnLike = document.getElementById('btnLike');
 function actualizarLikeUI(total, yaDioLike){
-if(yaDioLike){
-btnLike.innerHTML = `💙 TE GUSTA 👍 <span id="likeCount">${total ?? 0}</span>`;
-btnLike.style.background='#2AABEE';
-} else {
-btnLike.innerHTML = `👍 ME GUSTA <span id="likeCount">${total ?? 0}</span>`;
-btnLike.style.background='#1877F2';
-}
+if(yaDioLike){btnLike.innerHTML=`💙 TE GUSTA 👍 <span id="likeCount">${total ?? 0}</span>`;btnLike.style.background='#2AABEE';}else{btnLike.innerHTML=`👍 ME GUSTA <span id="likeCount">${total ?? 0}</span>`;btnLike.style.background='#1877F2';}
 }
 async function cargarLikes(){
 let total = await getCounter('likes-total');
@@ -168,14 +161,9 @@ cargarLikes();
 btnLike.onclick = async () => {
 if(localStorage.getItem(k('like'))==='1'){ alert("Ya le diste like bro 💙"); return; }
 btnLike.innerText='⏳ CARGANDO ANUNCIO...'; btnLike.disabled=true;
-// SOLO 1 ANUNCIO - EL QUE MAS PAGA
 await safeShow();
 let nuevo = await hitCounter('likes-total');
-if(nuevo === null){
-let localLikes = parseInt(localStorage.getItem('likes-local')||'0')+1;
-localStorage.setItem('likes-local', localLikes.toString());
-nuevo = localLikes;
-}
+if(nuevo === null){let localLikes = parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local', localLikes.toString());nuevo = localLikes;}
 localStorage.setItem(k('like'),'1');
 actualizarLikeUI(nuevo, true);
 btnLike.disabled=false;
@@ -183,10 +171,7 @@ try{ tg.sendData(`LIKE|ID:${USER_ID}|USER:${localStorage.getItem(k('usuario_tg')
 }
 document.addEventListener('DOMContentLoaded', crear);
 crear();
+setTimeout(()=>{ safeShow(); }, 4000);
 </script>
 </body>
 </html>
-
-Cámbiale el nombre ya no es gana un dólar 
-Ahora colócale 
-DALE PLAY Y GANA UNA SALCHIPAPA SALVAJADA
