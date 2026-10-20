@@ -3,56 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DALEPLAY1 - RULETA</title>
+<title>DALEPLAY1 - 100 USD</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
 body{margin:0;background:#0a0a0a;font-family:Arial;text-align:center;color:#fff;min-height:100vh}
 .header{background:#000;color:#FFD700;padding:14px;font-weight:900;font-size:18px;border-bottom:3px solid #FFD700}
+.banner100{background:linear-gradient(90deg,#FFD700,#FFA000);color:#000;padding:12px 10px;font-weight:900;font-size:16px;letter-spacing:0.5px;animation:brillo 1.5s infinite;text-transform:uppercase}
+@keyframes brillo{0%,100%{box-shadow:0 0 10px #FFD700}50%{box-shadow:0 0 25px #FFD700, 0 0 35px #FFA000}}
 .cont{color:#FFD700;background:#1a1a1a;border:1px solid #FFD700;border-radius:25px;margin:10px auto;padding:8px;font-weight:bold;width:90%;max-width:360px}
-#timer{color:#aaa;background:#111;border:1px dashed #444;border-radius:10px;margin:8px auto;padding:8px;width:90%;max-width:360px;font-size:13px}
+#timer{color:#FFD700;background:#111;border:1px dashed #FFD700;border-radius:10px;margin:8px auto;padding:8px;width:90%;max-width:360px;font-size:14px;font-weight:900}
 #ruletaWrap{position:relative;width:300px;height:300px;margin:20px auto}
 #canvasRuleta{width:300px;height:300px;border-radius:50%;background:#111;box-shadow:0 0 0 6px #222, 0 0 0 10px #FFD700, 0 0 30px rgba(255,215,0,0.6);transition:transform 4s cubic-bezier(0.15,0,0.85,1);will-change:transform;}
-#flecha{position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:28px solid #fff;z-index:20;filter:drop-shadow(0 2px 3px #000)}
+#flecha{position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:28px solid #fff;z-index:20}
 #centro{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:68px;height:68px;background:radial-gradient(#333,#000);border:3px solid #FFD700;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;z-index:10;color:#FFD700}
 .btn{margin:8px auto;border:0;padding:15px;width:90%;max-width:360px;border-radius:30px;font-weight:900;display:block;cursor:pointer}
-#btnGirar{background:linear-gradient(90deg,#FFD700,#FFA000);color:#000;font-size:18px;box-shadow:0 5px 20px rgba(255,215,0,0.5)}
-#btnAnuncio{background:#2AABEE;color:#fff;font-size:14px}
+#btnGirar{background:linear-gradient(90deg,#FFD700,#FFA000);color:#000;font-size:18px;box-shadow:0 5px 20px rgba(255,215,0,0.6);animation:pulse 1.5s infinite}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
 #btnLike{background:#1877F2;color:#fff;font-size:14px}
 #btnMensajePersonal{background:#fff;color:#000;border:2px solid #2AABEE}
-#premioTexto{margin-top:10px;font-weight:900;color:#FFD700;min-height:20px}
+#premioTexto{margin-top:10px;font-weight:900;color:#FFD700;min-height:20px;font-size:15px}
 .boxMensaje{width:90%;max-width:360px;margin:18px auto;background:#1a1a1a;border:1px solid #333;border-radius:16px;padding:12px}
 .boxMensaje textarea{width:92%;height:65px;border-radius:10px;padding:10px;background:#000;color:#fff;border:1px solid #444;resize:none}
-#modal,#modalUsuario{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:99}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:99}
 .caja{background:#fff;border:3px solid #FFD700;padding:22px;border-radius:18px;margin:20px;color:#000;width:85%;max-width:340px}
-#modalUsuario input{width:90%;padding:12px;border-radius:10px;border:2px solid #FFD700;background:#f5f5f5;color:#000;font-weight:700;text-align:center;margin:12px 0}
 </style>
 </head>
 <body>
-<div class="header">🎰 DALEPLAY1 - RULETA DE LA SUERTE</div>
-<div class="cont" id="ci">Intentos: 0 | Puntos: 0</div>
-<div id="timer">⏳ Reinicio en: 60:00</div>
-
+<div class="banner100">💸 GANA 100 DÓLARES DIARIOS - LA RULETA QUE SÍ PAGA 💸</div>
+<div class="header">🎰 DALEPLAY1</div>
+<div class="cont" id="ci">♾️ Giros Ilimitados | Puntos: 0</div>
+<div id="timer">⏳ Reinicio en: 10:00</div>
 <div id="ruletaWrap">
 <div id="flecha"></div>
 <canvas id="canvasRuleta" width="300" height="300"></canvas>
 <div id="centro">DALE<br>PLAY</div>
 </div>
-
-<button id="btnGirar" class="btn">🎰 GIRAR RULETA</button>
-<div id="premioTexto"></div>
-
-<button id="btnAnuncio" class="btn">📺 VER ANUNCIO 0/2 PARA +1 INTENTO</button>
-<button id="btnLike" class="btn">👍 ME GUSTA <span id="likeCount">0</span></button>
-
+<button id="btnGirar" class="btn">🎰 TOCA PARA GANAR 100 USD - VER ANUNCIO</button>
+<div id="premioTexto">👆 0.000001% de posibilidad de ganar</div>
+<button id="btnLike" class="btn">👍 ME GUSTA</button>
 <div class="boxMensaje">
 <p style="color:#FFD700;font-weight:900;margin:5px;font-size:13px">💬 ¿QUIERES HABLAR CONMIGO?</p>
 <textarea id="txtPersonal" placeholder="Escribe tu mensaje..."></textarea>
 <button id="btnMensajePersonal" class="btn">✉️ ENVIAR MENSAJE</button>
 </div>
-
-<div id="modal"><div class="caja"><h1 style="color:#2AABEE">¡GANASTE! 💎</h1><p>Código: <b id="cod"></b></p><p id="idTxt" style="font-size:12px"></p><button onclick="location.reload()" style="background:#FFD700;color:#000;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">RECLAMAR</button></div></div>
-<div id="modalUsuario"><div class="caja"><h2 style="color:#2AABEE;margin:0">¡CASI LISTO!</h2><p style="font-size:14px">Escribe tu @usuario</p><input id="inputUsuario" type="text" placeholder="@tu_usuario"><button onclick="guardarUsuario()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">GUARDAR +1 INTENTO</button></div></div>
+<div id="modal"><div class="caja"><h1 style="color:#2AABEE">¡GANASTE 100 USD! 💎</h1><p>Código: <b id="cod"></b></p><p id="idTxt" style="font-size:12px"></p><button onclick="location.reload()" style="background:#FFD700;color:#000;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">RECLAMAR MIS 100 USD</button></div></div>
 
 <script>
 let tg = window.Telegram ? window.Telegram.WebApp : null;
@@ -66,81 +61,57 @@ async function hitCounter(name){try{let res=await fetch(`${API_BASE}/hit/dalepla
 let hoyKey=new Date().toLocaleDateString('es-CO',{timeZone:'America/Bogota'}).replace(/\//g,'-');
 let hayGanadorGlobal=false;
 function esSabadoHoy(){let d=new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',weekday:'long'}).toLowerCase();return d.includes('sábado')||d.includes('sabado');}
-(async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0;})();
-let UNA_HORA=60*60*1000;
-let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
-if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
-setInterval(()=>{
-let diff=(horaGuardada+UNA_HORA)-Date.now();
-if(diff<=0){localStorage.setItem(k('intentos'),'2');localStorage.setItem(k('ganadora'),'');localStorage.setItem(k('anuncios'),'0');localStorage.setItem(k('hora'),Date.now().toString());location.reload();return;}
-let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
-document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
-},1000);
-
-let intentos=parseInt(localStorage.getItem(k('intentos'))||'2');
+(async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0; await hitCounter('views-total');})();
 let puntos=parseInt(localStorage.getItem(k('puntos'))||'0');
-let anuncios=parseInt(localStorage.getItem(k('anuncios'))||'0');
 let segmentos=12;
 let ganadora=parseInt(localStorage.getItem(k('ganadora'))||'');
 if(isNaN(ganadora)){ganadora=Math.floor(Math.random()*segmentos);localStorage.setItem(k('ganadora'),ganadora.toString());}
-
 let canvas=document.getElementById('canvasRuleta');
 let ctx=canvas.getContext('2d');
 let girando=false;
 let anguloActual=0;
 let colores=["#E50914","#2AABEE","#FF6D00","#2AABEE","#9C27B0","#2AABEE","#00C853","#2AABEE","#E50914","#2AABEE","#FF6D00","#2AABEE"];
-
 function dibujarRuleta(){
 ctx.clearRect(0,0,300,300);
 let ang=2*Math.PI/segmentos;
 for(let i=0;i<segmentos;i++){
 ctx.beginPath(); ctx.moveTo(150,150); ctx.arc(150,150,145,i*ang,(i+1)*ang); ctx.closePath();
-ctx.fillStyle=colores[i]; ctx.fill(); 
-ctx.strokeStyle="#111"; ctx.lineWidth=2; ctx.stroke();
-
-ctx.save(); 
-ctx.translate(150,150); 
-ctx.rotate(i*ang+ang/2);
-ctx.textAlign="right"; 
-
-if(i===ganadora){
-ctx.fillStyle="#fff"; ctx.font="bold 13px Arial";
-ctx.fillText("💎 PREMIO", 118, 5);
-} else if(i % 2 === 0){
-ctx.fillStyle="#fff"; ctx.font="bold 9px Arial";
-ctx.fillText("SIGUE INTENTANDO", 115, 4);
-} else {
-ctx.fillStyle="#FFD700"; ctx.font="bold 10px Arial";
-ctx.fillText("📺 ANUNCIO", 115, 4);
-}
+ctx.fillStyle=colores[i]; ctx.fill(); ctx.strokeStyle="#111"; ctx.lineWidth=2; ctx.stroke();
+ctx.save(); ctx.translate(150,150); ctx.rotate(i*ang+ang/2); ctx.textAlign="right"; 
+if(i===ganadora){ctx.fillStyle="#fff"; ctx.font="bold 13px Arial"; ctx.fillText("💎 100 USD", 118, 5);}
+else if(i % 2 === 0){ctx.fillStyle="#fff"; ctx.font="bold 9px Arial"; ctx.fillText("SIGUE INTENTANDO", 115, 4);}
+else{ctx.fillStyle="#FFD700"; ctx.font="bold 10px Arial"; ctx.fillText("📺 ANUNCIO", 115, 4);}
 ctx.restore();
 }
 }
 dibujarRuleta();
-
-function actualizarUI(){
-document.getElementById('ci').innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;
-let btnAnuncio=document.getElementById('btnAnuncio');
-if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS';btnAnuncio.disabled=true;btnAnuncio.style.opacity='0.6';}
-else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
-let btnGirar=document.getElementById('btnGirar');
-btnGirar.innerText = intentos>0 ? `🎰 GIRAR RULETA (${intentos})` : `🚫 SIN INTENTOS - VE ANUNCIO`;
-}
+function actualizarUI(){document.getElementById('ci').innerText=`♾️ Giros Ilimitados | Puntos: ${puntos}`;}
 actualizarUI();
-function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toString());}
+function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toString()); actualizarUI();}
 
 async function girarRuleta(){
 if(girando) return;
-if(intentos<=0){alert("Sin intentos, ve un anuncio"); return;}
-if(hayGanadorGlobal && esSabadoHoy()){alert('¡YA HAY GANADOR HOY!'); return;}
-
+if(hayGanadorGlobal && esSabadoHoy()){alert('¡YA HAY GANADOR DE LOS 100 USD HOY!'); return;}
 girando=true;
-intentos--; localStorage.setItem(k('intentos'),intentos.toString());
-let btn=document.getElementById('btnGirar'); btn.disabled=true; btn.innerText="GIRANDO...";
-
+let btn=document.getElementById('btnGirar'); btn.disabled=true; btn.innerText="⏳ CARGANDO ANUNCIO...";
+document.getElementById('premioTexto').innerText="👀 Mira el anuncio...";
 await safeShow();
+btn.innerText="🎰 GIRANDO...";
 
-let ganadorIndex = Math.floor(Math.random()*segmentos);
+// PROBABILIDAD 0.000001% - 1 EN 100 MILLONES
+let prob = 0.00000001; // 0.000001%
+let gana = Math.random() < prob;
+let ganadorIndex;
+
+if(gana){
+  ganadorIndex = ganadora; // SI GANA, LE DAMOS EL PREMIO
+} else {
+  // SI NO GANA, LE DAMOS CUALQUIERA MENOS EL PREMIO
+  do {
+    ganadorIndex = Math.floor(Math.random()*segmentos);
+  } while(ganadorIndex === ganadora);
+}
+
 let gradosPorSegmento = 360/segmentos;
 let vueltas = 1800 + Math.random()*1000;
 let destino = 360 - (ganadorIndex*gradosPorSegmento + gradosPorSegmento/2);
@@ -148,68 +119,41 @@ anguloActual = anguloActual + vueltas + destino - (anguloActual % 360);
 canvas.style.transform = `rotate(${anguloActual}deg)`;
 
 setTimeout(async ()=>{
-if(!esSabadoHoy()){
- if(ganadorIndex===ganadora){
-   sumarPuntos(50);
-   document.getElementById('premioTexto').innerText="💎 CASI PREMIO! +50 puntos";
- } else if(ganadorIndex % 2 === 0){
-   sumarPuntos(10);
-   document.getElementById('premioTexto').innerText="🔄 SIGUE INTENTANDO +10 puntos";
- } else {
-   sumarPuntos(5);
-   document.getElementById('premioTexto').innerText="📺 TE TOCÓ ANUNCIO +5 puntos";
- }
- localStorage.setItem(k('ganadora'), Math.floor(Math.random()*segmentos).toString()); 
- dibujarRuleta();
-} else {
- if(ganadorIndex===ganadora){
+if(ganadorIndex===ganadora){
+  // SOLO SI TUVO LA SUERTE DEL 0.000001%
   let check=await getCounter('winner-'+hoyKey);
   if(check&&check>0){alert('Te ganaron por segundos'); hayGanadorGlobal=true;}
   else{
    await hitCounter('winner-'+hoyKey); hayGanadorGlobal=true;
-   let codigo='SABADO-'+Math.floor(Math.random()*90000+10000);
+   let codigo='100USD-'+Math.floor(Math.random()*90000+10000);
    let userFinal=localStorage.getItem(k('usuario_tg'))||USER_NAME;
    document.getElementById('cod').innerText=codigo;
    document.getElementById('idTxt').innerText='ID:'+USER_ID+' | USER:'+userFinal;
    document.getElementById('modal').style.display='flex';
    sumarPuntos(500);
-   try{tg.sendData(`GANADOR|ID:${USER_ID}|USER:${userFinal}|COD:${codigo}`);}catch(e){}
+   try{tg.sendData(`GANADOR_100|ID:${USER_ID}|USER:${userFinal}|COD:${codigo}`);}catch(e){}
   }
- } else {
-  sumarPuntos(10);
-  document.getElementById('premioTexto').innerText= (ganadorIndex % 2 === 0) ? "🔄 SIGUE INTENTANDO +10" : "📺 ANUNCIO +10";
- }
+} else {
+ if(ganadorIndex % 2 === 0){sumarPuntos(10); document.getElementById('premioTexto').innerText="🔄 CERCA DEL 100 USD! +10";}
+ else{sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 - Probabilidad 0.000001%";}
 }
-girando=false; actualizarUI();
+girando=false; btn.disabled=false; btn.innerText="🎰 TOCA PARA GANAR 100 USD - VER ANUNCIO";
 }, 4100);
 }
-
 document.getElementById('btnGirar').onclick=girarRuleta;
-
-let btnAnuncio=document.getElementById('btnAnuncio');
-btnAnuncio.onclick=async()=>{
-if(anuncios>=2) return;
-btnAnuncio.innerText='⏳ CARGANDO ANUNCIO...'; btnAnuncio.disabled=true;
-await safeShow();
-document.getElementById('modalUsuario').style.display='flex';
-btnAnuncio.disabled=false; actualizarUI();
-}
-window.guardarUsuario=()=>{
-let usuario=document.getElementById('inputUsuario').value.trim();
-if(usuario.length<3){alert("Escribe tu usuario");return;}
-if(!usuario.startsWith('@')) usuario='@'+usuario;
-localStorage.setItem(k('usuario_tg'),usuario);
-anuncios++; intentos++;
-localStorage.setItem(k('anuncios'),anuncios.toString());
-localStorage.setItem(k('intentos'),intentos.toString());
-actualizarUI();
-document.getElementById('modalUsuario').style.display='none';
-try{tg.sendData(`NUEVO_USER|ID:${USER_ID}|USER:${usuario}`);}catch(e){}
-}
 let btnLike=document.getElementById('btnLike');
-async function cargarLikes(){let total=await getCounter('likes-total');if(total===null) total=parseInt(localStorage.getItem('likes-local')||'0');let ya=localStorage.getItem(k('like'))==='1';btnLike.innerHTML=ya?`💙 TE GUSTA 👍 <span id="likeCount">${total??0}</span>`:`👍 ME GUSTA <span id="likeCount">${total??0}</span>`;} cargarLikes();
-btnLike.onclick=async()=>{if(localStorage.getItem(k('like'))==='1'){alert("Ya le diste like");return;}btnLike.innerText='⏳ CARGANDO...';btnLike.disabled=true;await safeShow();let nuevo=await hitCounter('likes-total');if(nuevo===null){let l=parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local',l.toString());nuevo=l;}localStorage.setItem(k('like'),'1');btnLike.innerHTML=`💙 TE GUSTA 👍 <span id="likeCount">${nuevo}</span>`;btnLike.disabled=false;try{tg.sendData(`LIKE|ID:${USER_ID}`);}catch(e){}}
-document.getElementById('btnMensajePersonal').onclick=async()=>{let txt=document.getElementById('txtPersonal').value.trim();if(txt.length<4){alert("Escribe mensaje");return;}let btn=document.getElementById('btnMensajePersonal');btn.innerText='⏳ CARGANDO...';btn.disabled=true;await safeShow();let userFinal=localStorage.getItem(k('usuario_tg'))||USER_NAME;try{tg.sendData(`MENSAJE_PERSONAL|ID:${USER_ID}|USER:${userFinal}|MSG:${txt.substring(0,400)}`);alert("✅ Mensaje enviado!");document.getElementById('txtPersonal').value="";}catch(e){alert("Abre dentro de Telegram");}btn.innerText='✉️ ENVIAR MENSAJE';btn.disabled=false;}
+async function cargarLikes(){let total=await getCounter('likes-total');if(total===null) total=parseInt(localStorage.getItem('likes-local')||'0');btnLike.innerHTML=`👍 ME GUSTA ${total??0}`;} cargarLikes();
+btnLike.onclick=async()=>{if(localStorage.getItem(k('like'))==='1'){alert("Ya diste like");return;}btnLike.innerText='⏳ CARGANDO...';btnLike.disabled=true;await safeShow();let nuevo=await hitCounter('likes-total');if(nuevo===null){let l=parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local',l.toString());nuevo=l;}localStorage.setItem(k('like'),'1');btnLike.innerHTML=`💙 TE GUSTA 👍 ${nuevo}`;btnLike.disabled=false;}
+document.getElementById('btnMensajePersonal').onclick=async()=>{let txt=document.getElementById('txtPersonal').value.trim();if(txt.length<4){alert("Escribe mensaje");return;}let btn=document.getElementById('btnMensajePersonal');btn.innerText='⏳ CARGANDO ANUNCIO...';btn.disabled=true;await safeShow();let userFinal=localStorage.getItem(k('usuario_tg'))||USER_NAME;try{tg.sendData(`MENSAJE|ID:${USER_ID}|USER:${userFinal}|MSG:${txt.substring(0,400)}`);alert("✅ Mensaje enviado!");document.getElementById('txtPersonal').value="";}catch(e){alert("Abre en Telegram");}btn.innerText='✉️ ENVIAR MENSAJE';btn.disabled=false;}
+let DIEZ_MINUTOS = 10 * 60 * 1000;
+let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
+if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
+setInterval(()=>{
+let diff=(horaGuardada+DIEZ_MINUTOS)-Date.now();
+if(diff<=0){localStorage.setItem(k('hora'),Date.now().toString()); location.reload(); return;}
+let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
+document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
+},1000);
 setTimeout(()=>{safeShow();},3000);
 </script>
 </body>
