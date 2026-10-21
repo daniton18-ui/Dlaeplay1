@@ -39,3 +39,160 @@ body{margin:0;background:#0a0a0a;font-family:Arial;text-align:center;color:#fff;
 <div id="premioTexto">👆 Toca para girar</div>
 <button id="btnLike" class="btn">👍 ME GUSTA</button>
 <div class="boxMensaje">
+<p style="color:#FFD700;font-weight:900;margin:5px;font-size:13px">💬 ¿QUIERES HABLAR CONMIGO?</p>
+<textarea id="txtPersonal" placeholder="Escribe tu mensaje..."></textarea>
+<button id="btnMensajePersonal" class="btn">✉️ ENVIAR MENSAJE</button>
+</div>
+<div id="modal"><div class="caja"><h1 style="color:#2AABEE">¡GANASTE 100 USD! 💎</h1><p>Código: <b id="cod"></b></p><p id="idTxt" style="font-size:12px"></p><button onclick="location.reload()" style="background:#FFD700;color:#000;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">RECLAMAR MIS 100 USD</button></div></div>
+
+<script>
+let tg = window.Telegram ? window.Telegram.WebApp : null;
+let USER_ID='anon'; let USER_NAME='Jugador';
+if(tg?.initDataUnsafe?.user){USER_ID=tg.initDataUnsafe.user.id.toString(); USER_NAME=tg.initDataUnsafe.user.first_name||'Jugador'; try{tg.expand();tg.ready();}catch(e){}}
+function k(n){return 'dale_'+USER_ID+'_'+n;}
+function safeShow(){return new Promise(r=>{try{if(typeof show_12010449!=='undefined'){show_12010449().then(()=>r()).catch(()=>r());}else{r();}}catch(e){r();}});}
+const API_BASE='https://abacus.jasoncameron.dev';
+async function getCounter(name){try{let res=await fetch(`${API_BASE}/get/daleplay1-${name}`);let d=await res.json();return d.value;}catch(e){return null;}}
+async function hitCounter(name){try{let res=await fetch(`${API_BASE}/hit/daleplay1-${name}`);let d=await res.json();return d.value;}catch(e){return null;}}
+let hoyKey=new Date().toLocaleDateString('es-CO',{timeZone:'America/Bogota'}).replace(/\//g,'-');
+let hayGanadorGlobal=false;
+function esSabadoHoy(){let d=new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',weekday:'long'}).toLowerCase();return d.includes('sábado')||d.includes('sabado');}
+(async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0; await hitCounter('views-total');})();
+let puntos=parseInt(localStorage.getItem(k('puntos'))||'0');
+let segmentos=12;
+let ganadora=parseInt(localStorage.getItem(k('ganadora'))||'');
+if(isNaN(ganadora)){ganadora=Math.floor(Math.random()*segmentos);localStorage.setItem(k('ganadora'),ganadora.toString());}
+let canvas=document.getElementById('canvasRuleta');
+let ctx=canvas.getContext('2d');
+let girando=false;
+let anguloActual=0;
+let colores=["#E50914","#2AABEE","#FF6D00","#2AABEE","#9C27B0","#2AABEE","#00C853","#2AABEE","#E50914","#2AABEE","#FF6D00","#2AABEE"];
+function dibujarRuleta(){
+ctx.clearRect(0,0,300,300);
+let ang=2*Math.PI/segmentos;
+for(let i=0;i<segmentos;i++){
+ctx.beginPath(); ctx.moveTo(150,150); ctx.arc(150,150,145,i*ang,(i+1)*ang); ctx.closePath();
+ctx.fillStyle=colores[i]; ctx.fill(); ctx.strokeStyle="#111"; ctx.lineWidth=2; ctx.stroke();
+ctx.save(); ctx.translate(150,150); ctx.rotate(i*ang+ang/2); ctx.textAlign="right"; 
+if(i===ganadora){ctx.fillStyle="#fff"; ctx.font="bold 13px Arial"; ctx.fillText("💎 100 USD", 118, 5);}
+else if(i % 2 === 0){ctx.fillStyle="#fff"; ctx.font="bold 9px Arial"; ctx.fillText("SIGUE INTENTANDO", 115, 4);}
+else{ctx.fillStyle="#FFD700"; ctx.font="bold 10px Arial"; ctx.fillText("📺 ANUNCIO", 115, 4);}
+ctx.restore();
+}
+}
+dibujarRuleta();
+function actualizarUI(){document.getElementById('ci').innerText=`♾️ Giros Ilimitados | Puntos: ${puntos}`;}
+actualizarUI();
+function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toString()); actualizarUI();}
+
+async function girarRuleta(){
+if(girando) return;
+if(hayGanadorGlobal && esSabadoHoy()){alert('¡YA HAY GANADOR HOY!'); return;}
+girando=true;
+let btn=document.getElementById('btnGirar'); 
+btn.disabled=true; btn.innerText="🎰 GIRANDO...";
+document.getElementById('premioTexto').innerText="🎰 Girando...";
+let prob = 0.00000001;
+let gana = Math.random() < prob;
+let ganadorIndex;
+if(gana){ ganadorIndex = ganadora; } else { do { ganadorIndex = Math.floor(Math.random()*segmentos); } while(ganadorIndex === ganadora); }
+let gradosPorSegmento = 360/segmentos;
+let vueltas = 1800 + Math.random()*1000;
+let destino = 360 - (ganadorIndex*gradosPorSegmento + gradosPorSegmento/2);
+anguloActual = anguloActual + vueltas + destino - (anguloActual % 360);
+canvas.style.transform = `rotate(${anguloActual}deg)`;
+
+// DESPUES QUE TERMINA EL GIRO, VE RESULTADO Y LUEGO ANUNCIO
+setTimeout(async ()=>{
+if(ganadorIndex===ganadora){
+  let check=await getCounter('winner-'+hoyKey);
+  if(check&&check>0){alert('Te ganaron por segundos'); hayGanadorGlobal=true; girando=false; btn.disabled=false; btn.innerText="🎰 TOCA PARA GANAR 100 USD";}
+  else{
+   await hitCounter('winner-'+hoyKey); hayGanadorGlobal=true;
+   let codigo='100USD-'+Math.floor(Math.random()*90000+10000);
+   let userFinal=localStorage.getItem(k('usuario_tg'))||USER_NAME;
+   document.getElementById('cod').innerText=codigo;
+   document.getElementById('idTxt').innerText='ID:'+USER_ID+' | USER:'+userFinal;
+   document.getElementById('modal').style.display='flex';
+   sumarPuntos(500);
+   try{tg.sendData(`GANADOR_100|ID:${USER_ID}|USER:${userFinal}|COD:${codigo}`);}catch(e){}
+   girando=false; btn.disabled=false; btn.innerText="🎰 TOCA PARA GANAR 100 USD";
+  }
+} else {
+ if(ganadorIndex % 2 === 0){sumarPuntos(10); document.getElementById('premioTexto').innerText="🔄 CERCA! +10 PUNTOS - No ganaste";}
+ else{sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 PUNTOS - Sigue intentando";}
+ // AHORA SI, DESPUES DE VER QUE NO GANO, SALE EL ANUNCIO
+ setTimeout(async()=>{
+   document.getElementById('premioTexto').innerText="📺 Cargando anuncio...";
+   await safeShow();
+   girando=false; btn.disabled=false; btn.innerText="🎰 TOCA PARA GANAR 100 USD";
+ }, 800);
+}
+}, 4100);
+}
+document.getElementById('btnGirar').onclick=girarRuleta;
+
+let btnLike=document.getElementById('btnLike');
+async function cargarLikes(){let total=await getCounter('likes-total');if(total===null) total=parseInt(localStorage.getItem('likes-local')||'0');btnLike.innerHTML=`👍 ME GUSTA ${total??0}`;} cargarLikes();
+btnLike.onclick=async()=>{
+if(girando) return;
+if(localStorage.getItem(k('like'))==='1'){alert("Ya diste like");return;}
+girando=true;
+btnLike.innerText='🎰 GIRANDO...';
+let gradosPorSegmento = 360/segmentos;
+let ganadorIndex; do{ganadorIndex=Math.floor(Math.random()*segmentos);}while(ganadorIndex===ganadora);
+let vueltas=1800+Math.random()*1000;
+let destino=360-(ganadorIndex*gradosPorSegmento+gradosPorSegmento/2);
+anguloActual=anguloActual+vueltas+destino-(anguloActual%360);
+canvas.style.transform=`rotate(${anguloActual}deg)`;
+document.getElementById('premioTexto').innerText="🎰 Girando por LIKE...";
+setTimeout(async()=>{
+  sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 LIKE - Ahora el anuncio";
+  setTimeout(async()=>{
+    await safeShow();
+    let nuevo=await hitCounter('likes-total');
+    if(nuevo===null){let l=parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local',l.toString());nuevo=l;}
+    localStorage.setItem(k('like'),'1');
+    btnLike.innerHTML=`💙 TE GUSTA 👍 ${nuevo}`;
+    girando=false;
+  }, 800);
+}, 4100);
+}
+
+document.getElementById('btnMensajePersonal').onclick=async()=>{
+if(girando) return;
+let txt=document.getElementById('txtPersonal').value.trim();
+if(txt.length<4){alert("Escribe mensaje");return;}
+girando=true;
+let btn=document.getElementById('btnMensajePersonal');
+btn.innerText='🎰 GIRANDO...'; btn.disabled=true;
+let gradosPorSegmento = 360/segmentos;
+let ganadorIndex; do{ganadorIndex=Math.floor(Math.random()*segmentos);}while(ganadorIndex===ganadora);
+let vueltas=1800+Math.random()*1000;
+let destino=360-(ganadorIndex*gradosPorSegmento+gradosPorSegmento/2);
+anguloActual=anguloActual+vueltas+destino-(anguloActual%360);
+canvas.style.transform=`rotate(${anguloActual}deg)`;
+document.getElementById('premioTexto').innerText="🎰 Girando por MENSAJE...";
+setTimeout(async()=>{
+  sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 MENSAJE - Ahora el anuncio";
+  setTimeout(async()=>{
+    await safeShow();
+    let userFinal=localStorage.getItem(k('usuario_tg'))||USER_NAME;
+    try{tg.sendData(`MENSAJE|ID:${USER_ID}|USER:${userFinal}|MSG:${txt.substring(0,400)}`);alert("✅ Mensaje enviado!");document.getElementById('txtPersonal').value="";}catch(e){alert("Abre en Telegram");}
+    btn.innerText='✉️ ENVIAR MENSAJE';btn.disabled=false; girando=false;
+  }, 800);
+}, 4100);
+}
+
+let DIEZ_MINUTOS = 10 * 60 * 1000;
+let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
+if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
+setInterval(()=>{
+let diff=(horaGuardada+DIEZ_MINUTOS)-Date.now();
+if(diff<=0){localStorage.setItem(k('hora'),Date.now().toString()); location.reload(); return;}
+let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
+document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
+},1000);
+</script>
+</body>
+</html>
