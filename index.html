@@ -88,7 +88,6 @@ dibujarRuleta();
 function actualizarUI(){document.getElementById('ci').innerText=`♾️ Giros Ilimitados | Puntos: ${puntos}`;}
 actualizarUI();
 function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toString()); actualizarUI();}
-
 async function girarRuleta(){
 if(girando) return;
 if(hayGanadorGlobal && esSabadoHoy()){alert('¡YA HAY GANADOR HOY!'); return;}
@@ -97,32 +96,19 @@ let btn=document.getElementById('btnGirar');
 btn.disabled=true; 
 btn.innerText="🎰 GIRANDO...";
 document.getElementById('premioTexto').innerText="🎰 Girando la ruleta...";
-
-// CALCULO DEL GANADOR CON 0.000001% PROBABILIDAD
 let prob = 0.00000001;
 let gana = Math.random() < prob;
 let ganadorIndex;
-if(gana){
-  ganadorIndex = ganadora;
-} else {
-  do {
-    ganadorIndex = Math.floor(Math.random()*segmentos);
-  } while(ganadorIndex === ganadora);
-}
-
+if(gana){ ganadorIndex = ganadora; } else { do { ganadorIndex = Math.floor(Math.random()*segmentos); } while(ganadorIndex === ganadora); }
 let gradosPorSegmento = 360/segmentos;
 let vueltas = 1800 + Math.random()*1000;
 let destino = 360 - (ganadorIndex*gradosPorSegmento + gradosPorSegmento/2);
 anguloActual = anguloActual + vueltas + destino - (anguloActual % 360);
 canvas.style.transform = `rotate(${anguloActual}deg)`;
-
-// A LOS 3 SEGUNDOS MIENTRAS GIRA, LANZA EL ANUNCIO
 setTimeout(async ()=>{
   document.getElementById('premioTexto').innerText="📺 Espera el anuncio para reclamar...";
   await safeShow();
 }, 3000);
-
-// RESULTADO FINAL A LOS 4 SEGUNDOS
 setTimeout(async ()=>{
 if(ganadorIndex===ganadora){
   let check=await getCounter('winner-'+hoyKey);
@@ -145,19 +131,11 @@ girando=false; btn.disabled=false; btn.innerText="🎰 TOCA PARA GANAR 100 USD -
 }, 4100);
 }
 document.getElementById('btnGirar').onclick=girarRuleta;
-
 let btnLike=document.getElementById('btnLike');
 async function cargarLikes(){let total=await getCounter('likes-total');if(total===null) total=parseInt(localStorage.getItem('likes-local')||'0');btnLike.innerHTML=`👍 ME GUSTA ${total??0}`;} cargarLikes();
 btnLike.onclick=async()=>{
 if(localStorage.getItem(k('like'))==='1'){alert("Ya diste like");return;}
 btnLike.innerText='🎰 GIRANDO...';
-setTimeout(async()=>{
-  await safeShow();
-  let nuevo=await hitCounter('likes-total');
-  if(nuevo===null){let l=parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local',l.toString());nuevo=l;}
-  localStorage.setItem(k('like'),'1');
-  btnLike.innerHTML=`💙 TE GUSTA 👍 ${nuevo}`;
-}, 3000);
 let gradosPorSegmento = 360/segmentos;
 let ganadorIndex;
 do{ganadorIndex=Math.floor(Math.random()*segmentos);}while(ganadorIndex===ganadora);
@@ -166,9 +144,15 @@ let destino=360-(ganadorIndex*gradosPorSegmento+gradosPorSegmento/2);
 anguloActual=anguloActual+vueltas+destino-(anguloActual%360);
 canvas.style.transform=`rotate(${anguloActual}deg)`;
 document.getElementById('premioTexto').innerText="🎰 Girando...";
-setTimeout(()=>{sumarPuntos(5);document.getElementById('premioTexto').innerText="📺 +5 LIKE";},4100);
+setTimeout(async()=>{
+  await safeShow();
+  let nuevo=await hitCounter('likes-total');
+  if(nuevo===null){let l=parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local',l.toString());nuevo=l;}
+  localStorage.setItem(k('like'),'1');
+  btnLike.innerHTML=`💙 TE GUSTA 👍 ${nuevo}`;
+  sumarPuntos(5);document.getElementById('premioTexto').innerText="📺 +5 LIKE";
+}, 3000);
 }
-
 document.getElementById('btnMensajePersonal').onclick=async()=>{
 let txt=document.getElementById('txtPersonal').value.trim();
 if(txt.length<4){alert("Escribe mensaje");return;}
@@ -182,6 +166,7 @@ let vueltas=1800+Math.random()*1000;
 let destino=360-(ganadorIndex*gradosPorSegmento+gradosPorSegmento/2);
 anguloActual=anguloActual+vueltas+destino-(anguloActual%360);
 canvas.style.transform=`rotate(${anguloActual}deg)`;
+document.getElementById('premioTexto').innerText="🎰 Girando...";
 setTimeout(async()=>{
   await safeShow();
   let userFinal=localStorage.getItem(k('usuario_tg'))||USER_NAME;
@@ -191,7 +176,6 @@ setTimeout(async()=>{
   btn.innerText='✉️ ENVIAR MENSAJE';btn.disabled=false;
 }, 3000);
 }
-
 let DIEZ_MINUTOS = 10 * 60 * 1000;
 let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
 if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
