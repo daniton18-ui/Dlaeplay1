@@ -40,7 +40,7 @@ body{margin:0;background:#0a0a0a;font-family:Arial;text-align:center;color:#fff;
 <div id="centro">DALE<br>PLAY</div>
 </div>
 <button id="btnGirar" class="btn">🎰 TOCA PARA GANAR 100 USD - VER ANUNCIO</button>
-<div id="premioTexto">👆 0.000001% de posibilidad de ganar</div>
+<div id="premioTexto">👆 alta posibilidad de ganar</div>
 <button id="btnLike" class="btn">👍 ME GUSTA</button>
 <div class="boxMensaje">
 <p style="color:#FFD700;font-weight:900;margin:5px;font-size:13px">💬 ¿QUIERES HABLAR CONMIGO?</p>
@@ -135,7 +135,7 @@ if(ganadorIndex===ganadora){
   }
 } else {
  if(ganadorIndex % 2 === 0){sumarPuntos(10); document.getElementById('premioTexto').innerText="🔄 CERCA DEL 100 USD! +10";}
- else{sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 - Probabilidad de ganar alta";}
+ else{sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 - Probabilidad 0.000001%";}
 }
 girando=false; btn.disabled=false; btn.innerText="🎰 TOCA PARA GANAR 100 USD - VER ANUNCIO";
 }, 4100);
