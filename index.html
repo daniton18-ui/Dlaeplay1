@@ -60,13 +60,18 @@ function esSabadoHoy(){let d=new Date().toLocaleString('es-CO',{timeZone:'Americ
 (async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0; await hitCounter('views-total');})();
 let puntos=parseInt(localStorage.getItem(k('puntos'))||'0');
 let segmentos=12;
-let ganadora=parseInt(localStorage.getItem(k('ganadora'))||'');
-if(isNaN(ganadora)){ganadora=Math.floor(Math.random()*segmentos);localStorage.setItem(k('ganadora'),ganadora.toString());}
+
+// --- ARREGLO DIAMANTE: BORRA CACHE VIEJO Y FIJA EL DIAMANTE ---
+localStorage.removeItem(k('ganadora'));
+let ganadora = 0; // DIAMANTE SIEMPRE EN POSICION 0, VISIBLE ARRIBA
+localStorage.setItem(k('ganadora'), '0');
+
 let canvas=document.getElementById('canvasRuleta');
 let ctx=canvas.getContext('2d');
 let girando=false;
 let anguloActual=0;
-let colores=["#E50914","#2AABEE","#FF6D00","#2AABEE","#9C27B0","#2AABEE","#00C853","#2AABEE","#E50914","#2AABEE","#FF6D00","#2AABEE"];
+let colores=["#FFD700","#2AABEE","#FF6D00","#2AABEE","#9C27B0","#2AABEE","#00C853","#2AABEE","#E50914","#2AABEE","#FF6D00","#2AABEE"];
+
 function dibujarRuleta(){
 ctx.clearRect(0,0,300,300);
 let ang=2*Math.PI/segmentos;
@@ -74,9 +79,14 @@ for(let i=0;i<segmentos;i++){
 ctx.beginPath(); ctx.moveTo(150,150); ctx.arc(150,150,145,i*ang,(i+1)*ang); ctx.closePath();
 ctx.fillStyle=colores[i]; ctx.fill(); ctx.strokeStyle="#111"; ctx.lineWidth=2; ctx.stroke();
 ctx.save(); ctx.translate(150,150); ctx.rotate(i*ang+ang/2); ctx.textAlign="right"; 
-if(i===ganadora){ctx.fillStyle="#fff"; ctx.font="bold 13px Arial"; ctx.fillText("💎 100 USD", 118, 5);}
-else if(i % 2 === 0){ctx.fillStyle="#fff"; ctx.font="bold 9px Arial"; ctx.fillText("SIGUE INTENTANDO", 115, 4);}
-else{ctx.fillStyle="#FFD700"; ctx.font="bold 10px Arial"; ctx.fillText("📺 ANUNCIO", 115, 4);}
+if(i===ganadora){
+  // DIAMANTE BIEN VISIBLE
+  ctx.fillStyle="#000"; ctx.font="900 13px Arial"; ctx.fillText("💎 100 USD", 118, 5);
+} else if(i % 2 === 0){
+  ctx.fillStyle="#fff"; ctx.font="bold 9px Arial"; ctx.fillText("SIGUE INTENTANDO", 115, 4);
+} else{
+  ctx.fillStyle="#FFD700"; ctx.font="bold 10px Arial"; ctx.fillText("📺 ANUNCIO", 115, 4);
+}
 ctx.restore();
 }
 }
@@ -89,8 +99,7 @@ async function girarRuleta(){
 if(girando) return;
 if(hayGanadorGlobal && esSabadoHoy()){alert('¡YA HAY GANADOR HOY!'); return;}
 girando=true;
-let btn=document.getElementById('btnGirar'); 
-btn.disabled=true; btn.innerText="🎰 GIRANDO...";
+let btn=document.getElementById('btnGirar'); btn.disabled=true; btn.innerText="🎰 GIRANDO...";
 document.getElementById('premioTexto').innerText="🎰 Girando...";
 let prob = 0.00000001;
 let gana = Math.random() < prob;
@@ -101,8 +110,6 @@ let vueltas = 1800 + Math.random()*1000;
 let destino = 360 - (ganadorIndex*gradosPorSegmento + gradosPorSegmento/2);
 anguloActual = anguloActual + vueltas + destino - (anguloActual % 360);
 canvas.style.transform = `rotate(${anguloActual}deg)`;
-
-// DESPUES QUE TERMINA EL GIRO, VE RESULTADO Y LUEGO ANUNCIO
 setTimeout(async ()=>{
 if(ganadorIndex===ganadora){
   let check=await getCounter('winner-'+hoyKey);
@@ -119,14 +126,9 @@ if(ganadorIndex===ganadora){
    girando=false; btn.disabled=false; btn.innerText="🎰 TOCA PARA GANAR 100 USD";
   }
 } else {
- if(ganadorIndex % 2 === 0){sumarPuntos(10); document.getElementById('premioTexto').innerText="🔄 CERCA! +10 PUNTOS - No ganaste";}
- else{sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 PUNTOS - Sigue intentando";}
- // AHORA SI, DESPUES DE VER QUE NO GANO, SALE EL ANUNCIO
- setTimeout(async()=>{
-   document.getElementById('premioTexto').innerText="📺 Cargando anuncio...";
-   await safeShow();
-   girando=false; btn.disabled=false; btn.innerText="🎰 TOCA PARA GANAR 100 USD";
- }, 800);
+ if(ganadorIndex % 2 === 0){sumarPuntos(10); document.getElementById('premioTexto').innerText="🔄 CERCA! +10 - No ganaste";}
+ else{sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 - Sigue intentando";}
+ setTimeout(async()=>{ document.getElementById('premioTexto').innerText="📺 Cargando anuncio..."; await safeShow(); girando=false; btn.disabled=false; btn.innerText="🎰 TOCA PARA GANAR 100 USD"; }, 800);
 }
 }, 4100);
 }
@@ -137,50 +139,28 @@ async function cargarLikes(){let total=await getCounter('likes-total');if(total=
 btnLike.onclick=async()=>{
 if(girando) return;
 if(localStorage.getItem(k('like'))==='1'){alert("Ya diste like");return;}
-girando=true;
-btnLike.innerText='🎰 GIRANDO...';
-let gradosPorSegmento = 360/segmentos;
-let ganadorIndex; do{ganadorIndex=Math.floor(Math.random()*segmentos);}while(ganadorIndex===ganadora);
-let vueltas=1800+Math.random()*1000;
-let destino=360-(ganadorIndex*gradosPorSegmento+gradosPorSegmento/2);
-anguloActual=anguloActual+vueltas+destino-(anguloActual%360);
-canvas.style.transform=`rotate(${anguloActual}deg)`;
+girando=true; btnLike.innerText='🎰 GIRANDO...';
+let gradosPorSegmento = 360/segmentos; let ganadorIndex; do{ganadorIndex=Math.floor(Math.random()*segmentos);}while(ganadorIndex===ganadora);
+let vueltas=1800+Math.random()*1000; let destino=360-(ganadorIndex*gradosPorSegmento+gradosPorSegmento/2);
+anguloActual=anguloActual+vueltas+destino-(anguloActual%360); canvas.style.transform=`rotate(${anguloActual}deg)`;
 document.getElementById('premioTexto').innerText="🎰 Girando por LIKE...";
 setTimeout(async()=>{
-  sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 LIKE - Ahora el anuncio";
-  setTimeout(async()=>{
-    await safeShow();
-    let nuevo=await hitCounter('likes-total');
-    if(nuevo===null){let l=parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local',l.toString());nuevo=l;}
-    localStorage.setItem(k('like'),'1');
-    btnLike.innerHTML=`💙 TE GUSTA 👍 ${nuevo}`;
-    girando=false;
-  }, 800);
+  sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 LIKE - Ahora anuncio";
+  setTimeout(async()=>{ await safeShow(); let nuevo=await hitCounter('likes-total'); if(nuevo===null){let l=parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local',l.toString());nuevo=l;} localStorage.setItem(k('like'),'1'); btnLike.innerHTML=`💙 TE GUSTA 👍 ${nuevo}`; girando=false; }, 800);
 }, 4100);
 }
 
 document.getElementById('btnMensajePersonal').onclick=async()=>{
 if(girando) return;
-let txt=document.getElementById('txtPersonal').value.trim();
-if(txt.length<4){alert("Escribe mensaje");return;}
-girando=true;
-let btn=document.getElementById('btnMensajePersonal');
-btn.innerText='🎰 GIRANDO...'; btn.disabled=true;
-let gradosPorSegmento = 360/segmentos;
-let ganadorIndex; do{ganadorIndex=Math.floor(Math.random()*segmentos);}while(ganadorIndex===ganadora);
-let vueltas=1800+Math.random()*1000;
-let destino=360-(ganadorIndex*gradosPorSegmento+gradosPorSegmento/2);
-anguloActual=anguloActual+vueltas+destino-(anguloActual%360);
-canvas.style.transform=`rotate(${anguloActual}deg)`;
+let txt=document.getElementById('txtPersonal').value.trim(); if(txt.length<4){alert("Escribe mensaje");return;}
+girando=true; let btn=document.getElementById('btnMensajePersonal'); btn.innerText='🎰 GIRANDO...'; btn.disabled=true;
+let gradosPorSegmento = 360/segmentos; let ganadorIndex; do{ganadorIndex=Math.floor(Math.random()*segmentos);}while(ganadorIndex===ganadora);
+let vueltas=1800+Math.random()*1000; let destino=360-(ganadorIndex*gradosPorSegmento+gradosPorSegmento/2);
+anguloActual=anguloActual+vueltas+destino-(anguloActual%360); canvas.style.transform=`rotate(${anguloActual}deg)`;
 document.getElementById('premioTexto').innerText="🎰 Girando por MENSAJE...";
 setTimeout(async()=>{
-  sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 MENSAJE - Ahora el anuncio";
-  setTimeout(async()=>{
-    await safeShow();
-    let userFinal=localStorage.getItem(k('usuario_tg'))||USER_NAME;
-    try{tg.sendData(`MENSAJE|ID:${USER_ID}|USER:${userFinal}|MSG:${txt.substring(0,400)}`);alert("✅ Mensaje enviado!");document.getElementById('txtPersonal').value="";}catch(e){alert("Abre en Telegram");}
-    btn.innerText='✉️ ENVIAR MENSAJE';btn.disabled=false; girando=false;
-  }, 800);
+  sumarPuntos(5); document.getElementById('premioTexto').innerText="📺 +5 MENSAJE - Ahora anuncio";
+  setTimeout(async()=>{ await safeShow(); let userFinal=localStorage.getItem(k('usuario_tg'))||USER_NAME; try{tg.sendData(`MENSAJE|ID:${USER_ID}|USER:${userFinal}|MSG:${txt.substring(0,400)}`);alert("✅ Mensaje enviado!");document.getElementById('txtPersonal').value="";}catch(e){alert("Abre en Telegram");} btn.innerText='✉️ ENVIAR MENSAJE';btn.disabled=false; girando=false; }, 800);
 }, 4100);
 }
 
