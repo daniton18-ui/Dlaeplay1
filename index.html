@@ -40,7 +40,7 @@ body{margin:0;background:#0a0a0a;font-family:Arial;text-align:center;color:#fff;
 <div id="centro">DALE<br>PLAY</div>
 </div>
 <button id="btnGirar" class="btn">🎰 TOCA PARA GANAR 100 USD - VER ANUNCIO</button>
-<div id="premioTexto">👆 alta posibilidad de ganar</div>
+<div id="premioTexto">👆 Toca para girar - anuncio a los 3 seg</div>
 <button id="btnLike" class="btn">👍 ME GUSTA</button>
 <div class="boxMensaje">
 <p style="color:#FFD700;font-weight:900;margin:5px;font-size:13px">💬 ¿QUIERES HABLAR CONMIGO?</p>
@@ -91,22 +91,20 @@ function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toStri
 
 async function girarRuleta(){
 if(girando) return;
-if(hayGanadorGlobal && esSabadoHoy()){alert('¡YA HAY GANADOR DE LOS 100 USD HOY!'); return;}
+if(hayGanadorGlobal && esSabadoHoy()){alert('¡YA HAY GANADOR HOY!'); return;}
 girando=true;
-let btn=document.getElementById('btnGirar'); btn.disabled=true; btn.innerText="⏳ CARGANDO ANUNCIO...";
-document.getElementById('premioTexto').innerText="👀 Mira el anuncio...";
-await safeShow();
+let btn=document.getElementById('btnGirar'); 
+btn.disabled=true; 
 btn.innerText="🎰 GIRANDO...";
+document.getElementById('premioTexto').innerText="🎰 Girando la ruleta...";
 
-// PROBABILIDAD 0.000001% - 1 EN 100 MILLONES
-let prob = 0.00000001; // 0.000001%
+// CALCULO DEL GANADOR CON 0.000001% PROBABILIDAD
+let prob = 0.00000001;
 let gana = Math.random() < prob;
 let ganadorIndex;
-
 if(gana){
-  ganadorIndex = ganadora; // SI GANA, LE DAMOS EL PREMIO
+  ganadorIndex = ganadora;
 } else {
-  // SI NO GANA, LE DAMOS CUALQUIERA MENOS EL PREMIO
   do {
     ganadorIndex = Math.floor(Math.random()*segmentos);
   } while(ganadorIndex === ganadora);
@@ -118,9 +116,15 @@ let destino = 360 - (ganadorIndex*gradosPorSegmento + gradosPorSegmento/2);
 anguloActual = anguloActual + vueltas + destino - (anguloActual % 360);
 canvas.style.transform = `rotate(${anguloActual}deg)`;
 
+// A LOS 3 SEGUNDOS MIENTRAS GIRA, LANZA EL ANUNCIO
+setTimeout(async ()=>{
+  document.getElementById('premioTexto').innerText="📺 Espera el anuncio para reclamar...";
+  await safeShow();
+}, 3000);
+
+// RESULTADO FINAL A LOS 4 SEGUNDOS
 setTimeout(async ()=>{
 if(ganadorIndex===ganadora){
-  // SOLO SI TUVO LA SUERTE DEL 0.000001%
   let check=await getCounter('winner-'+hoyKey);
   if(check&&check>0){alert('Te ganaron por segundos'); hayGanadorGlobal=true;}
   else{
@@ -141,10 +145,53 @@ girando=false; btn.disabled=false; btn.innerText="🎰 TOCA PARA GANAR 100 USD -
 }, 4100);
 }
 document.getElementById('btnGirar').onclick=girarRuleta;
+
 let btnLike=document.getElementById('btnLike');
 async function cargarLikes(){let total=await getCounter('likes-total');if(total===null) total=parseInt(localStorage.getItem('likes-local')||'0');btnLike.innerHTML=`👍 ME GUSTA ${total??0}`;} cargarLikes();
-btnLike.onclick=async()=>{if(localStorage.getItem(k('like'))==='1'){alert("Ya diste like");return;}btnLike.innerText='⏳ CARGANDO...';btnLike.disabled=true;await safeShow();let nuevo=await hitCounter('likes-total');if(nuevo===null){let l=parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local',l.toString());nuevo=l;}localStorage.setItem(k('like'),'1');btnLike.innerHTML=`💙 TE GUSTA 👍 ${nuevo}`;btnLike.disabled=false;}
-document.getElementById('btnMensajePersonal').onclick=async()=>{let txt=document.getElementById('txtPersonal').value.trim();if(txt.length<4){alert("Escribe mensaje");return;}let btn=document.getElementById('btnMensajePersonal');btn.innerText='⏳ CARGANDO ANUNCIO...';btn.disabled=true;await safeShow();let userFinal=localStorage.getItem(k('usuario_tg'))||USER_NAME;try{tg.sendData(`MENSAJE|ID:${USER_ID}|USER:${userFinal}|MSG:${txt.substring(0,400)}`);alert("✅ Mensaje enviado!");document.getElementById('txtPersonal').value="";}catch(e){alert("Abre en Telegram");}btn.innerText='✉️ ENVIAR MENSAJE';btn.disabled=false;}
+btnLike.onclick=async()=>{
+if(localStorage.getItem(k('like'))==='1'){alert("Ya diste like");return;}
+btnLike.innerText='🎰 GIRANDO...';
+setTimeout(async()=>{
+  await safeShow();
+  let nuevo=await hitCounter('likes-total');
+  if(nuevo===null){let l=parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local',l.toString());nuevo=l;}
+  localStorage.setItem(k('like'),'1');
+  btnLike.innerHTML=`💙 TE GUSTA 👍 ${nuevo}`;
+}, 3000);
+let gradosPorSegmento = 360/segmentos;
+let ganadorIndex;
+do{ganadorIndex=Math.floor(Math.random()*segmentos);}while(ganadorIndex===ganadora);
+let vueltas=1800+Math.random()*1000;
+let destino=360-(ganadorIndex*gradosPorSegmento+gradosPorSegmento/2);
+anguloActual=anguloActual+vueltas+destino-(anguloActual%360);
+canvas.style.transform=`rotate(${anguloActual}deg)`;
+document.getElementById('premioTexto').innerText="🎰 Girando...";
+setTimeout(()=>{sumarPuntos(5);document.getElementById('premioTexto').innerText="📺 +5 LIKE";},4100);
+}
+
+document.getElementById('btnMensajePersonal').onclick=async()=>{
+let txt=document.getElementById('txtPersonal').value.trim();
+if(txt.length<4){alert("Escribe mensaje");return;}
+let btn=document.getElementById('btnMensajePersonal');
+btn.innerText='🎰 GIRANDO...';
+btn.disabled=true;
+let gradosPorSegmento = 360/segmentos;
+let ganadorIndex;
+do{ganadorIndex=Math.floor(Math.random()*segmentos);}while(ganadorIndex===ganadora);
+let vueltas=1800+Math.random()*1000;
+let destino=360-(ganadorIndex*gradosPorSegmento+gradosPorSegmento/2);
+anguloActual=anguloActual+vueltas+destino-(anguloActual%360);
+canvas.style.transform=`rotate(${anguloActual}deg)`;
+setTimeout(async()=>{
+  await safeShow();
+  let userFinal=localStorage.getItem(k('usuario_tg'))||USER_NAME;
+  try{tg.sendData(`MENSAJE|ID:${USER_ID}|USER:${userFinal}|MSG:${txt.substring(0,400)}`);alert("✅ Mensaje enviado!");document.getElementById('txtPersonal').value="";}catch(e){alert("Abre en Telegram");}
+  sumarPuntos(5);
+  document.getElementById('premioTexto').innerText="📺 +5 MENSAJE";
+  btn.innerText='✉️ ENVIAR MENSAJE';btn.disabled=false;
+}, 3000);
+}
+
 let DIEZ_MINUTOS = 10 * 60 * 1000;
 let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
 if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
@@ -154,7 +201,6 @@ if(diff<=0){localStorage.setItem(k('hora'),Date.now().toString()); location.relo
 let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
 document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
 },1000);
-setTimeout(()=>{safeShow();},3000);
 </script>
 </body>
 </html>
