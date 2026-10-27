@@ -3,157 +3,155 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Space Duel 1000 + Tienda</title>
+<title>ATARI 40 GAMES</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010451" data-sdk="show_12010451"></script>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
- body{margin:0;background:#000;color:#fff;font-family:monospace;text-align:center;overflow:hidden}
- canvas{background:radial-gradient(#0a0a1a,#000);display:block;margin:0 auto;border:2px solid #222;border-radius:12px}
- #stats{display:flex;justify-content:space-between;padding:8px 10px;background:#111;margin:5px;border-radius:10px;font-size:12px}
- #controls{display:flex;justify-content:center;gap:8px;margin:6px}
- .ctrl{width:72px;height:72px;background:#1c1c1c;border:2px solid #333;border-radius:16px;font-size:26px;color:#fff}
- .ctrl:active{background:#2ea6ff}
- #fire{width:100px;background:#ff2d55;border-color:#ff2d55}
- #gameover,#levelup,#shop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.96);display:none;flex-direction:column;justify-content:flex-start;align-items:center;z-index:50;padding-top:20px;overflow-y:auto}
- #gameover.show,#levelup.show,#shop.show{display:flex}
- button.action{padding:14px;width:90%;max-width:330px;background:#2ea6ff;border:0;border-radius:14px;color:#fff;font-weight:bold;margin:6px;font-size:15px}
- button.gold{background:linear-gradient(90deg,#ffb700,#ff8a00)}
- .shipCard{width:90%;max-width:340px;background:#151515;border:2px solid #333;border-radius:14px;padding:10px;margin:8px;display:flex;justify-content:space-between;align-items:center}
- .shipCard.owned{border-color:#00f5ff} .shipCard.active{border-color:#0f0;background:#0f1a0f}
- #progress{width:90%;height:6px;background:#222;border-radius:10px;margin:4px auto;overflow:hidden}
- #bar{height:100%;background:linear-gradient(90deg,#00f5ff,#2ea6ff);width:0%}
+ body{margin:0;background:#000;color:#0f0;font-family:'Press Start 2P',monospace;text-align:center}
+ #menu{padding:12px}
+ #grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:520px;margin:0 auto}
+ .card{background:linear-gradient(#222,#111);border:3px solid #333;border-radius:0;padding:10px;cursor:pointer;image-rendering:pixelated}
+ .card:active{border-color:#0f0;background:#0a1a0a;transform:scale(0.96)}
+ .card .ico{font-size:32px;filter:contrast(0) sepia(1) hue-rotate(90deg) saturate(5)}
+ .card b{font-size:8px;display:block;margin-top:8px;line-height:12px}
+ canvas{background:#000;display:none;margin:8px auto;border:4px solid #333;image-rendering:pixelated}
+ #top{display:none;justify-content:space-between;padding:8px;background:#111;font-size:8px;margin:5px}
+ #controls{display:none;justify-content:center;gap:8px;margin:8px}
+ .ctrl{width:70px;height:70px;background:#222;border:3px solid #444;font-family:'Press Start 2P';font-size:10px;color:#0f0}
+ .ctrl:active{background:#0f0;color:#000}
+ #over{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:none;flex-direction:column;justify-content:center;align-items:center;z-index:99;border:6px solid #0f0}
+ #over.show{display:flex}
+ button.action{padding:12px;width:90%;max-width:340px;background:#0f0;border:0;color:#000;font-family:'Press Start 2P';font-size:10px;margin:8px}
+ button.action.sec{background:#222;color:#0f0;border:2px solid #0f0}
 </style>
 </head>
 <body>
-<div id="stats">
-  <span>❤️ <b id="vidaP">3</b></span>
-  <span>LVL <b id="nivel">1</b>/1000</span>
-  <span>💰 <b id="coins">0</b></span>
-  <span>🤖 <b id="vidaM">5</b></span>
+<div id="menu">
+  <h2 style="font-size:14px;color:#ff0">ATARI 40 GAMES</h2>
+  <p style="font-size:7px;color:#555">SELECT GAME - COINS: <b id="coinsMenu">0</b></p>
+  <div id="grid"></div>
 </div>
-<div id="progress"><div id="bar"></div></div>
-<canvas id="game" width="340" height="420"></canvas>
-<div id="controls">
-  <button class="ctrl" id="left">◀</button>
-  <button class="ctrl" id="shopBtn">🛒</button>
-  <button class="ctrl" id="fire">🔥</button>
-  <button class="ctrl" id="right">▶</button>
-</div>
-
-<div id="levelup"><h2 id="lvlTitle">NIVEL SUPERADO</h2><p>+<span id="rewardCoins">20</span> monedas</p></div>
-
-<div id="gameover">
-  <h2>PERDISTE</h2><p>Nivel <b id="overLvl">1</b> | Monedas <b id="overCoins">0</b></p>
-  <button class="action" id="btnRevive">🎥 Revivir viendo anuncio</button>
-  <button class="action gold" onclick="addCoinsAd()">🎥 +50 monedas con anuncio</button>
-  <button class="action" style="background:#333" onclick="location.reload()">Reiniciar</button>
-</div>
-
-<div id="shop">
-  <h2>🛒 TIENDA DE NAVES</h2>
-  <p>Monedas: <b id="shopCoins">0</b></p>
-  <div id="ships"></div>
-  <button class="action gold" onclick="addCoinsAd()">🎥 Ver anuncio +50 monedas (12010449)</button>
-  <button class="action" style="background:#333" onclick="document.getElementById('shop').classList.remove('show')">Cerrar</button>
-</div>
+<div id="top"><span id="t1"></span><span id="t2"></span><button style="background:#222;border:2px solid #0f0;color:#0f0;font-family:'Press Start 2P';font-size:7px;padding:4px" onclick="goMenu()">MENU</button></div>
+<canvas id="game" width="320" height="400"></canvas>
+<div id="controls"><button class="ctrl" id="left">◀</button><button class="ctrl" id="fire">FIRE</button><button class="ctrl" id="right">▶</button></div>
+<div id="over"><h2 id="overTitle" style="font-size:12px"></h2><p id="overMsg" style="font-size:8px"></p><button class="action" id="btnRevive">AD REVIVE 12010449</button><button class="action sec" onclick="goMenu()">ATARI MENU</button></div>
 
 <script>
 const tg=Telegram.WebApp; tg.ready(); tg.expand();
 const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
-let nivel=parseInt(localStorage.getItem('nivel')||'1'), coins=parseInt(localStorage.getItem('coins')||'0');
-let player={x:155,y:380,w:30,h:20,vida:3}, enemy, bullets=[], eBullets=[], running=true;
+let coins=parseInt(localStorage.getItem('coins')||0), mode=null, running=false, score=0, nivel=1, player, ball, bullets=[], enemies=[], vy=0;
 
-const NAVES=[
- {id:0,name:"Básica",price:0,speed:28,shots:1,color:"#00f5ff"},
- {id:1,name:"Rápida",price:150,speed:40,shots:1,color:"#00ff88"},
- {id:2,name:"Doble",price:400,speed:32,shots:2,color:"#ffcc00"},
- {id:3,name:"Destructor",price:1000,speed:38,shots:3,color:"#ff2dff"},
+const ATARI=[
+ {id:1,name:"BREAKOUT",icon:"🧱",type:"breakout"},
+ {id:2,name:"PONG",icon:"🏓",type:"pong"},
+ {id:3,name:"SPACE INVADERS",icon:"👾",type:"invaders"},
+ {id:4,name:"ASTEROIDS",icon:"☄️",type:"asteroids"},
+ {id:5,name:"MISSILE COMMAND",icon:"🚀",type:"missile"},
+ {id:6,name:"CENTIPEDE",icon:"🐛",type:"centipede"},
+ {id:7,name:"FROGGER",icon:"🐸",type:"frogger"},
+ {id:8,name:"PAC-MAN",icon:"🟡",type:"pacman"},
+ {id:9,name:"DONKEY KONG",icon:"🦍",type:"kong"},
+ {id:10,name:"GALAGA",icon:"👽",type:"galaga"},
+ {id:11,name:"DEFENDER",icon:"🛸",type:"defender"},
+ {id:12,name:"PITFALL",icon:"🕳️",type:"pitfall"},
+ {id:13,name:"RIVER RAID",icon:"✈️",type:"river"},
+ {id:14,name:"COMBAT TANKS",icon:"🪖",type:"tanks"},
+ {id:15,name:"YARS REVENGE",icon:"🪰",type:"yars"},
+ {id:16,name:"BERZERK",icon:"🤖",type:"berzerk"},
+ {id:17,name:"KABOOM!",icon:"💣",type:"kaboom"},
+ {id:18,name:"SEAQUEST",icon:"🦈",type:"seaquest"},
+ {id:19,name:"ENDURO",icon:"🏎️",type:"enduro"},
+ {id:20,name:"Q*BERT",icon:"🔶",type:"qbert"},
+ {id:21,name:"DIG DUG",icon:"⛏️",type:"digdug"},
+ {id:22,name:"JUNGLE HUNT",icon:"🌴",type:"jungle"},
+ {id:23,name:"POPEYE",icon:"💪",type:"popeye"},
+ {id:24,name:"Joust",icon:"🦅",type:"joust"},
+ {id:25,name:"MOON PATROL",icon:"🌙",type:"moon"},
+ {id:26,name:"BURGERTIME",icon:"🍔",type:"burger"},
+ {id:27,name:"KEYSTONE KAPERS",icon:"👮",type:"keystone"},
+ {id:28,name:"HERO",icon:"🦸",type:"hero"},
+ {id:29,name:"BARNSTORMING",icon:"🛩️",type:"barn"},
+ {id:30,name:"BOXING",icon:"🥊",type:"boxing"},
+ {id:31,name:"BOWLING",icon:"🎳",type:"bowling"},
+ {id:32,name:"SKIING",icon:"🎿",type:"skiing"},
+ {id:33,name:"TENNIS",icon:"🎾",type:"tennis"},
+ {id:34,name:"ICE HOCKEY",icon:"🏒",type:"hockey"},
+ {id:35,name:"FISHING DERBY",icon:"🎣",type:"fishing"},
+ {id:36,name:"CIRCUS",icon:"🤹",type:"circus"},
+ {id:37,name:"LASER BLAST",icon:"🔫",type:"laser"},
+ {id:38,name:"DEMON ATTACK",icon:"👹",type:"demon"},
+ {id:39,name:"FREEWAY",icon:"🐔",type:"freeway"},
+ {id:40,name:"ATARI BOSS RUSH",icon:"👑",type:"boss"},
 ];
-let naveActual=parseInt(localStorage.getItem('nave')||'0');
-let owned=JSON.parse(localStorage.getItem('owned')||'[0]');
 
-function save(){ localStorage.setItem('coins',coins); localStorage.setItem('nivel',nivel); localStorage.setItem('nave',naveActual); localStorage.setItem('owned',JSON.stringify(owned)); updateUI(); }
-function updateUI(){ document.getElementById('coins').innerText=coins; document.getElementById('shopCoins').innerText=coins; document.getElementById('nivel').innerText=nivel; document.getElementById('bar').style.width=(Math.min(nivel,1000)/1000*100)+"%"; }
-
-function crearEnemigo(){
-  let esJefe=nivel%10===0;
-  let vida=3+Math.floor(nivel*0.7)*(esJefe?2:1);
-  enemy={x:140,y:45,w:esJefe?52:34,h:esJefe?32:24,vida,maxVida:vida,dir:1.5+nivel*0.12,esJefe,shootRate:0.025+nivel*0.0025};
-  document.getElementById('vidaM').innerText=vida;
+function renderMenu(){
+  document.getElementById('coinsMenu').innerText=coins;
+  let h=''; ATARI.forEach(g=>{ h+=`<div class="card" onclick="startGame(${g.id})"><div class="ico">${g.icon}</div><b>${g.name}</b></div>`; });
+  document.getElementById('grid').innerHTML=h;
 }
+function goMenu(){ running=false; mode=null; document.getElementById('menu').style.display='block'; document.getElementById('top').style.display='none'; canvas.style.display='none'; document.getElementById('controls').style.display='none'; document.getElementById('over').classList.remove('show'); }
 
-function draw(){
-  ctx.clearRect(0,0,340,420);
-  let n=NAVES[naveActual];
-  ctx.fillStyle=n.color; ctx.shadowColor=n.color; ctx.shadowBlur=12;
-  ctx.fillRect(player.x,player.y,player.w,player.h); ctx.fillRect(player.x+8,player.y-6,14,6);
-  ctx.shadowBlur=0;
-  ctx.fillStyle=enemy.esJefe?"#ffaa00":"#ff2d55"; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=enemy.esJefe?16:8;
-  ctx.fillRect(enemy.x,enemy.y,enemy.w,enemy.h); ctx.shadowBlur=0;
-  if(enemy.esJefe){ ctx.fillStyle="#333"; ctx.fillRect(20,8,300,6); ctx.fillStyle="#ffaa00"; ctx.fillRect(20,8,300*(enemy.vida/enemy.maxVida),6); }
-  ctx.fillStyle="#fff"; bullets.forEach(b=>ctx.fillRect(b.x,b.y,4,10));
-  ctx.fillStyle="#ffcc00"; eBullets.forEach(b=>ctx.fillRect(b.x,b.y,4,10));
+function startGame(id){
+  let g=ATARI.find(x=>x.id===id); mode=g; score=0; nivel=1; bullets=[]; enemies=[]; vy=0;
+  document.getElementById('menu').style.display='none'; document.getElementById('top').style.display='flex'; canvas.style.display='block'; document.getElementById('controls').style.display='flex';
+  document.getElementById('t1').innerText=g.name; 
+  if(g.type==='breakout'){ player={x:120,w:60}; ball={x:160,y:200,dx:2.5,dy:-2.5,r:4}; enemies=[]; for(let r=0;r<6;r++) for(let c=0;c<8;c++) enemies.push({x:c*38+8,y:r*16+40,alive:true}); }
+  else if(g.type==='pong'){ player={y:160,h:50}; ball={x:160,y:200,dx:3,dy:2,r:4}; enemies=[{y:160,h:50,dir:2}]; }
+  else { player={x:140,y:360,w:20,h:20}; }
+  running=true; loop();
 }
 
 function loop(){
   if(!running) return;
-  enemy.x+=enemy.dir; if(enemy.x<0||enemy.x>340-enemy.w) enemy.dir*=-1;
-  if(Math.random()<enemy.shootRate){ if(enemy.esJefe){ eBullets.push({x:enemy.x+5,y:enemy.y+enemy.h,dy:3+nivel*0.05}); eBullets.push({x:enemy.x+enemy.w-9,y:enemy.y+enemy.h,dy:3+nivel*0.05}); } eBullets.push({x:enemy.x+enemy.w/2,y:enemy.y+enemy.h,dy:3.5+nivel*0.1}); }
-  bullets.forEach(b=>b.y-=8); eBullets.forEach(b=>b.y+=b.dy);
-  bullets=bullets.filter(b=>b.y>-20); eBullets=eBullets.filter(b=>b.y<450);
-  bullets.forEach((b,i)=>{ if(b.x>enemy.x&&b.x<enemy.x+enemy.w&&b.y>enemy.y&&b.y<enemy.y+enemy.h){ bullets.splice(i,1); enemy.vida--; document.getElementById('vidaM').innerText=Math.max(0,enemy.vida); if(enemy.vida<=0) ganar(); }});
-  eBullets.forEach((b,i)=>{ if(b.x>player.x&&b.x<player.x+player.w&&b.y>player.y&&b.y<player.y+player.h){ eBullets.splice(i,1); player.vida--; document.getElementById('vidaP').innerText=Math.max(0,player.vida); if(player.vida<=0) perder(); }});
-  draw(); requestAnimationFrame(loop);
+  ctx.fillStyle="#000"; ctx.fillRect(0,0,320,400);
+  // scanlines retro
+  ctx.fillStyle="rgba(0,255,0,0.03)"; for(let y=0;y<400;y+=4) ctx.fillRect(0,y,320,1);
+
+  if(mode.type==='breakout'){
+    ball.x+=ball.dx; ball.y+=ball.dy; if(ball.x<0||ball.x>316) ball.dx*=-1; if(ball.y<0) ball.dy*=-1;
+    if(ball.y>360 && ball.x>player.x && ball.x<player.x+player.w) ball.dy=-Math.abs(ball.dy);
+    enemies.forEach(b=>{ if(b.alive && ball.x>b.x && ball.x<b.x+36 && ball.y>b.y && ball.y<b.y+12){ b.alive=false; ball.dy*=-1; score+=10; }});
+    if(ball.y>410) gameOver(); if(enemies.every(b=>!b.alive)) winLevel();
+    ctx.fillStyle="#0f0"; ctx.fillRect(player.x,380,player.w,8); ctx.fillStyle="#ff0"; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill(); enemies.forEach(b=>{ if(b.alive){ ctx.fillStyle=b.y<80?"#f00":"#0ff"; ctx.fillRect(b.x,b.y,34,10);} });
+  } else if(mode.type==='pong'){
+    ball.x+=ball.dx; ball.y+=ball.dy; if(ball.y<0||ball.y>396) ball.dy*=-1;
+    if(ball.x<20 && ball.y>player.y && ball.y<player.y+player.h) ball.dx=3; if(ball.x>300 && ball.y>enemies[0].y && ball.y<enemies[0].y+enemies[0].h) ball.dx=-3;
+    enemies[0].y+=enemies[0].dir; if(enemies[0].y<0||enemies[0].y>350) enemies[0].dir*=-1;
+    if(ball.x<0||ball.x>320){ score+=10; ball={x:160,y:200,dx:3*(Math.random()>0.5?1:-1),dy:2,r:4}; if(score>100) winLevel(); }
+    ctx.fillStyle="#0f0"; ctx.fillRect(10,player.y,6,player.h); ctx.fillRect(304,enemies[0].y,6,enemies[0].h); ctx.fillRect(ball.x,ball.y,6,6);
+  } else if(['invaders','galaga','demon','laser'].includes(mode.type)){
+    if(Math.random()<0.02) enemies.push({x:Math.random()*280,y:0,w:16,h:16,dy:1+nivel*0.2});
+    if(Math.random()<0.05) bullets.push({x:player.x+8,y:player.y,dy:-5});
+    enemies.forEach(e=>e.y+=e.dy); bullets.forEach(b=>b.y+=b.dy);
+    enemies=enemies.filter(e=>e.y<420); bullets=bullets.filter(b=>b.y>-10);
+    enemies.forEach((e,i)=>{ bullets.forEach((b,j)=>{ if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){ enemies.splice(i,1); bullets.splice(j,1); score+=20; }}); if(e.x<player.x+player.w&&e.x+e.w>player.x&&e.y<player.y+player.h&&e.y+e.h>player.y) gameOver(); });
+    if(score>300) winLevel();
+    ctx.fillStyle="#0f0"; ctx.fillRect(player.x,player.y,player.w,player.h); ctx.fillStyle="#f00"; enemies.forEach(e=>ctx.fillRect(e.x,e.y,e.w,e.h)); ctx.fillStyle="#ff0"; bullets.forEach(b=>ctx.fillRect(b.x,b.y,2,6));
+  } else {
+    // generico atari runner/dodge
+    if(Math.random()<0.06) enemies.push({x:Math.random()*300,y:-20,w:16,h:16,dy:2+nivel*0.3});
+    enemies.forEach(e=>e.y+=e.dy); enemies=enemies.filter(e=>e.y<420);
+    enemies.forEach(e=>{ if(e.x<player.x+player.w&&e.x+e.w>player.x&&e.y<player.y+player.h&&e.y+e.h>player.y) gameOver(); });
+    score++; if(score%500===0) nivel++;
+    ctx.fillStyle="#0f0"; ctx.fillRect(player.x,player.y,player.w,player.h); ctx.fillStyle="#f00"; enemies.forEach(e=>ctx.fillRect(e.x,e.y,e.w,e.h));
+  }
+  document.getElementById('t2').innerText=`SCORE ${score}`;
+  requestAnimationFrame(loop);
 }
+function winLevel(){ running=false; coins+=30; localStorage.setItem('coins',coins); if(typeof show_12010451==='function'){ show_12010451().then(()=>{ nivel++; running=true; loop(); }).catch(()=>{ nivel++; running=true; loop(); }); } else { nivel++; running=true; loop(); } }
+function gameOver(){ running=false; document.getElementById('overTitle').innerText=mode.name; document.getElementById('overMsg').innerText=`SCORE ${score} LEVEL ${nivel}`; document.getElementById('over').classList.add('show'); }
 
-function ganar(){
-  running=false; let reward=20+Math.floor(nivel/5)*5; if(enemy.esJefe) reward*=2; coins+=reward;
-  document.getElementById('lvlTitle').innerText=`NIVEL ${nivel} SUPERADO`; document.getElementById('rewardCoins').innerText=reward;
-  document.getElementById('levelup').classList.add('show'); save();
-  setTimeout(()=>{ if(typeof show_12010451==='function'){ show_12010451().then(nextLevel).catch(nextLevel); } else nextLevel(); },700);
-}
-function nextLevel(){ document.getElementById('levelup').classList.remove('show'); nivel++; if(nivel>1000) nivel=1000; player.x=155; bullets=[]; eBullets=[]; player.vida=3; document.getElementById('vidaP').innerText=3; crearEnemigo(); save(); running=true; loop(); }
-function perder(){ running=false; document.getElementById('overLvl').innerText=nivel; document.getElementById('overCoins').innerText=coins; document.getElementById('gameover').classList.add('show'); save(); }
+document.getElementById('left').ontouchstart=e=>{ if(player) player.x=Math.max(0,player.x-20); e.preventDefault(); };
+document.getElementById('right').ontouchstart=e=>{ if(player) player.x=Math.min(300,player.x+20); e.preventDefault(); };
+document.getElementById('fire').ontouchstart=e=>{ if(mode && ['invaders','galaga'].includes(mode.type)) bullets.push({x:player.x+8,y:player.y,dy:-5}); e.preventDefault(); };
+document.getElementById('left').onmousedown=()=>{ if(player) player.x=Math.max(0,player.x-20); };
+document.getElementById('right').onmousedown=()=>{ if(player) player.x=Math.min(300,player.x+20); };
+document.getElementById('fire').onmousedown=()=>{ if(mode) bullets.push({x:player.x+8,y:player.y,dy:-5}); };
+document.getElementById('btnRevive').onclick=()=>{ if(typeof show_12010449==='function'){ show_12010449().then(()=>{ document.getElementById('over').classList.remove('show'); running=true; loop(); }); } };
 
-function shoot(){
-  let n=NAVES[naveActual];
-  if(n.shots===1) bullets.push({x:player.x+13,y:player.y-8});
-  if(n.shots===2){ bullets.push({x:player.x+3,y:player.y-8}); bullets.push({x:player.x+23,y:player.y-8}); }
-  if(n.shots>=3){ bullets.push({x:player.x+3,y:player.y-8}); bullets.push({x:player.x+13,y:player.y-8}); bullets.push({x:player.x+23,y:player.y-8}); }
-}
-
-function addCoinsAd(){
-  if(typeof show_12010449==='function'){
-    show_12010449().then(()=>{ coins+=50; save(); alert('+50 monedas!'); }).catch(()=>alert('Anuncio no disponible'));
-  } else alert('SDK cargando');
-}
-
-// Tienda render
-function renderShop(){
-  let html='';
-  NAVES.forEach(n=>{
-    let isOwned=owned.includes(n.id), isActive=naveActual===n.id;
-    html+=`<div class="shipCard ${isOwned?'owned':''} ${isActive?'active':''}">
-      <div><b>${n.name}</b><br><small>${n.shots} disparo | vel ${n.speed}</small></div>
-      <div>${isOwned ? (isActive ? '<b>✅ ACTIVA</b>' : `<button class="action" style="width:auto;padding:8px 12px" onclick="elegirNave(${n.id})">Usar</button>`) : `<button class="action" style="width:auto;padding:8px 12px;background:#ffb700" onclick="comprarNave(${n.id})">💰 ${n.price}</button>`}</div>
-    </div>`;
-  });
-  document.getElementById('ships').innerHTML=html;
-}
-window.comprarNave=(id)=>{ let n=NAVES[id]; if(coins>=n.price){ coins-=n.price; owned.push(id); naveActual=id; save(); renderShop(); } else alert('Te faltan monedas. Ve un anuncio para +50'); };
-window.elegirNave=(id)=>{ naveActual=id; save(); renderShop(); };
-
-document.getElementById('left').ontouchstart=e=>{ player.x=Math.max(0,player.x-NAVES[naveActual].speed); e.preventDefault(); };
-document.getElementById('right').ontouchstart=e=>{ player.x=Math.min(310,player.x+NAVES[naveActual].speed); e.preventDefault(); };
-document.getElementById('fire').ontouchstart=e=>{ shoot(); e.preventDefault(); };
-document.getElementById('left').onmousedown=()=>player.x=Math.max(0,player.x-NAVES[naveActual].speed);
-document.getElementById('right').onmousedown=()=>player.x=Math.min(310,player.x+NAVES[naveActual].speed);
-document.getElementById('fire').onmousedown=shoot;
-document.getElementById('shopBtn').onclick=()=>{ renderShop(); document.getElementById('shop').classList.add('show'); };
-document.getElementById('btnRevive').onclick=()=>{ if(typeof show_12010449==='function'){ show_12010449().then(()=>{ player.vida=2; document.getElementById('vidaP').innerText=2; document.getElementById('gameover').classList.remove('show'); running=true; loop(); }); } };
-
-crearEnemigo(); updateUI(); loop();
+renderMenu();
 </script>
 </body>
 </html>
