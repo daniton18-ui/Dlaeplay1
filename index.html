@@ -2,274 +2,162 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DALEPLAY1 - DOBLE ANUNCIO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>DALEPLAY SHOOTER - DOBLE ANUNCIO</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<!-- TUS 2 ZONAS -->
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <script src="https://alwingulla.com/88/tag.min.js" data-zone="3528410"></script>
 <style>
-body{margin:0;background:#0f1419;font-family:Arial;text-align:center;color:#fff;min-height:100vh}
-.header{background:#2AABEE;color:#fff;padding:14px;font-weight:900;font-size:18px}
-.cont{color:#2AABEE;background:#fff;border:2px solid #2AABEE;border-radius:12px;margin:10px;padding:10px;font-weight:bold}
-#timer{color:#333;background:#fff;border:1px dashed #2AABEE;border-radius:10px;margin:8px 12px;padding:8px;font-size:14px}
-.grid{width:95%;max-width:360px;margin:15px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;min-height:320px}
-.box{height:60px;background:#fff;border:2px solid #2AABEE;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900;color:#2AABEE;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
-.box.abierto{background:#e3f2fd;color:#888;border-color:#ccc}
-.btn{margin:8px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:25px;font-weight:900;display:block;cursor:pointer}
-#btnAnuncio{background:#2AABEE;color:#fff;font-size:16px}
-#btnLike{background:#1877F2;color:#fff;border:0;font-size:15px;box-shadow:0 3px 10px rgba(24,119,242,0.4)}
-#btnMensajePersonal{background:#fff;color:#0f1419;border:2px solid #2AABEE}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:99}
-.caja{background:#fff;border:3px solid #2AABEE;padding:22px;border-radius:18px;margin:20px;color:#000}
-#modalUsuario{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:100}
-#modalUsuario .caja{width:85%;max-width:320px}
-#modalUsuario input{width:90%;padding:12px;border-radius:10px;border:2px solid #2AABEE;background:#f5f5f5;color:#000;font-weight:700;text-align:center;margin:12px 0}
-.boxMensaje{width:90%;max-width:360px;margin:20px auto;background:#fff;border:2px solid #2AABEE;border-radius:16px;padding:12px}
-.boxMensaje textarea{width:92%;height:70px;border-radius:10px;padding:10px;background:#f5f5f5;color:#000;border:1px solid #2AABEE;resize:none;font-family:Arial}
+body{margin:0;background:#0f1419;color:#fff;font-family:Arial;text-align:center;overflow:hidden}
+.header{background:#2AABEE;padding:12px;font-weight:900;font-size:18px}
+#hud{display:flex;justify-content:space-between;background:#fff;color:#2AABEE;padding:8px 12px;font-weight:900;border:2px solid #2AABEE;margin:8px;border-radius:10px}
+canvas{border:3px solid #2AABEE;background:#000;border-radius:12px;box-shadow:0 0 20px #2AABEE60}
+.controls{display:flex;gap:10px;justify-content:center;margin-top:10px}
+.controls button{width:80px;height:65px;background:#fff;border:2px solid #2AABEE;color:#2AABEE;font-size:28px;border-radius:15px;font-weight:900}
+.controls button:active{background:#2AABEE;color:#fff}
+#status{color:#0f0;font-size:11px;margin-top:6px}
 </style>
 </head>
 <body>
-<div class="header">🍟 DALEPLAY1 - GANA DE 1$ A 5$ TODOS LOS DIAS</div>
-<div class="cont" id="ci">Intentos: 2 | Puntos: 0 | Nivel: 1</div>
-<div id="timer">⏳ Reinicio en: 60:00</div>
-<div class="grid" id="g"></div>
-<button id="btnAnuncio" class="btn">📺 VER ANUNCIO 0/2 PARA +1 INTENTO</button>
-<button id="btnLike" class="btn">👍 ME GUSTA <span id="likeCount">0</span></button>
-<div class="boxMensaje">
-<p style="color:#2AABEE;font-weight:900;margin:5px">💬 ¿QUIERES HABLAR CONMIGO?</p>
-<textarea id="txtPersonal" placeholder="Hola amigo..."></textarea>
-<button id="btnMensajePersonal" class="btn">✉️ ENVIAR MENSAJE</button>
+<div class="header">🍟 DALEPLAY SHOOTER - NIVEL INFIERNO</div>
+<div id="hud"><span id="score">SCORE 0</span><span id="lvl">LVL 1</span><span id="money">ADS $0.00</span></div>
+<canvas id="game" width="360" height="500"></canvas>
+<div id="status">ID 12010449 + 3528410 ACTIVOS</div>
+<div class="controls">
+<button id="left">◀</button>
+<button id="fire">🔥</button>
+<button id="right">▶</button>
 </div>
 
-<div id="modal"><div class="caja"><h1 style="color:#2AABEE">¡GANASTE NIVEL! 🍟</h1><p>Código: <b id="cod"></b></p><p id="idTxt"></p><button id="btnReclamar" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">💰 VER ANUNCIO 3528410 PARA PASAR DE NIVEL</button></div></div>
-
-<div id="modalUsuario"><div class="caja">
-<h2 style="color:#2AABEE;margin:0">¡CASI LISTO!</h2>
-<p style="font-size:14px">Escribe tu @usuario para darte el intento</p>
-<input id="inputUsuario" type="text" placeholder="@tu_usuario">
-<button onclick="guardarUsuario()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0;cursor:pointer">GUARDAR +1 INTENTO</button>
-</div></div>
-
 <script>
-let tg = window.Telegram ? window.Telegram.WebApp : null;
-let USER_ID = 'anon'; let USER_NAME = 'Jugador';
-if(tg?.initDataUnsafe?.user){ USER_ID = tg.initDataUnsafe.user.id.toString(); USER_NAME = tg.initDataUnsafe.user.first_name||'Jugador'; try{tg.expand();tg.ready();}catch(e){}}
+let tg=Telegram.WebApp; tg.ready(); tg.expand();
 
-function k(n){return 'dale_'+USER_ID+'_'+n;}
+let score=0, level=1, ads=0, isAd=false;
+let player={x:170,y:460,speed:5}, bullets=[], enemies=[], eBullets=[], keys={};
+const c=document.getElementById('game'), ctx=c.getContext('2d');
 
-// --- FIX ANTI-BLOQUEO: NUNCA SE QUEDA PARADO ---
-function safeShow(){
+// FIX ANTI-CONGELAMIENTO
+function show_12010449_safe(){
   return new Promise(r=>{
-    let done=false;
-    const finish=()=>{ if(!done){done=true; r();} };
-    setTimeout(finish, 3000); // Si el SDK no responde en 3s, continua igual
-    try{
-      if(typeof show_12010449!=='undefined'){
-        show_12010449().then(finish).catch(finish);
-      } else { finish(); }
-    }catch(e){ finish(); }
+    let ok=false; let f=()=>{if(!ok){ok=true;r();}};
+    setTimeout(f, 3000);
+    try{ show_12010449().then(f).catch(f); }catch(e){ f(); }
+  });
+}
+function show_3528410_safe(){
+  return new Promise(r=>{
+    setTimeout(r, 2500);
+    try{ tg.openLink('https://alwingulla.com/g/3528410'); }catch(e){}
   });
 }
 
-function showMonetag3528410(){
-  return new Promise(r=>{
-    let done=false;
-    const finish=()=>{ if(!done){done=true; r();} };
-    setTimeout(finish, 2500);
-    try{
-      tg.openLink('https://alwingulla.com/g/3528410');
-      let s=document.createElement('script');
-      s.src='https://alwingulla.com/88/tag.min.js';
-      s.setAttribute('data-zone','3528410');
-      document.body.appendChild(s);
-    }catch(e){}
-    setTimeout(finish, 2500);
+function spawn(lv){
+  enemies=[];
+  let rows=4+lv, cols=9;
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) enemies.push({x:12+c*37,y:40+r*26,w:24,h:14,dir:1,alive:true});
+}
+spawn(1);
+
+function shoot(){ if(isAd) return; bullets.push({x:player.x+10,y:player.y,vy:-9}); }
+
+async function reviveAd(){
+  if(isAd) return; isAd=true;
+  document.getElementById('status').innerText='▶ MOSTRANDO ANUNCIO 12010449 PARA REVIVIR...';
+  await show_12010449_safe();
+  ads++; document.getElementById('money').innerText=`ADS $${(ads*0.04).toFixed(2)}`;
+  document.getElementById('status').innerText='✅ REVIVISTE - ID 12010449 PAGADO';
+  player.x=170; bullets=[]; eBullets=[]; isAd=false;
+}
+
+async function nextLevelAd(){
+  if(isAd) return; isAd=true;
+  document.getElementById('status').innerText='▶ MOSTRANDO ANUNCIO 3528410 PARA PASAR DE NIVEL...';
+  await show_3528410_safe();
+  ads++; level++; score+=1000;
+  document.getElementById('lvl').innerText='LVL '+level;
+  document.getElementById('score').innerText='SCORE '+score;
+  document.getElementById('money').innerText=`ADS $${(ads*0.04).toFixed(2)}`;
+  document.getElementById('status').innerText=`✅ NIVEL ${level} - ID 3528410 PAGADO`;
+  player.x=170; bullets=[]; eBullets=[]; spawn(level); isAd=false;
+}
+
+function die(){
+  if(isAd) return; isAd=true;
+  tg.HapticFeedback.notificationOccurred('error');
+  tg.showPopup({
+    title:`💀 MORISTE NIVEL ${level}`,
+    message:`Score: ${score}\nMira anuncio 12010449 para revivir`,
+    buttons:[{id:'revive',type:'default',text:'💰 VER ANUNCIO 12010449 REVIVIR'}]
   });
 }
 
-const API_BASE = 'https://abacus.jasoncameron.dev';
-async function getCounter(name){try{let res=await fetch(`${API_BASE}/get/daleplay1-${name}`);let d=await res.json();return d.value;}catch(e){return null;}}
-async function hitCounter(name){try{let res=await fetch(`${API_BASE}/hit/daleplay1-${name}`);let d=await res.json();return d.value;}catch(e){return null;}}
-
-let hoyKey = new Date().toLocaleDateString('es-CO',{timeZone:'America/Bogota'}).replace(/\//g,'-');
-let hayGanadorGlobal = false;
-function esSabadoHoy(){let d=new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',weekday:'long'}).toLowerCase();return d.includes('sábado')||d.includes('sabado');}
-(async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0;await hitCounter('views-total');})();
-
-let UNA_HORA=60*60*1000;
-let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
-if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
-setInterval(()=>{
-let diff=(horaGuardada+UNA_HORA)-Date.now();
-if(diff<=0){localStorage.setItem(k('intentos'),'2');localStorage.setItem(k('descubiertas'),'[]');localStorage.removeItem(k('ganadora'));localStorage.setItem(k('anuncios'),'0');localStorage.setItem(k('hora'),Date.now().toString());location.reload();return;}
-let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
-document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
-},1000);
-
-let g=document.getElementById('g'); let ci=document.getElementById('ci'); let btnAnuncio=document.getElementById('btnAnuncio');
-let intentos=parseInt(localStorage.getItem(k('intentos'))||'2');
-let puntos=parseInt(localStorage.getItem(k('puntos'))||'0');
-let nivel=parseInt(localStorage.getItem(k('nivel'))||'1');
-let anuncios=parseInt(localStorage.getItem(k('anuncios'))||'0');
-let ganadora=parseInt(localStorage.getItem(k('ganadora'))||'');
-if(isNaN(ganadora)){ganadora=Math.floor(Math.random()*25);localStorage.setItem(k('ganadora'),ganadora.toString());}
-let descubiertas=JSON.parse(localStorage.getItem(k('descubiertas'))||'[]');
-if(!Array.isArray(descubiertas) || descubiertas.length>=25){descubiertas=[];localStorage.setItem(k('descubiertas'),'[]');}
-
-function crear(){
-g.innerHTML='';
-for(let i=0;i<25;i++){
-let d=document.createElement('div');d.className='box';
-if(descubiertas.includes(i)){d.innerText=(i===ganadora?'💎':'💣');d.classList.add('abierto');}
-else{d.innerText='?';d.onclick=()=>jugar(i,d);}
-g.appendChild(d);
-}
-ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos} | Nivel: ${nivel}`;
-if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS';btnAnuncio.disabled=true;btnAnuncio.style.opacity='0.6';}
-else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
-let u=localStorage.getItem(k('usuario_tg')); if(u) document.getElementById('inputUsuario').value=u;
-}
-function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toString());ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos} | Nivel: ${nivel}`;}
-
-async function jugar(i,d){
-if(descubiertas.includes(i)) return;
-
-// SI NO TIENE INTENTOS -> ANUNCIO PARA REVIVIR (TU PETICION)
-if(intentos<=0){
-  if(tg){
-    tg.showPopup({title:'😢 SIN INTENTOS', message:'Mira un anuncio 12010449 para revivir +1 intento', buttons:[{id:'revive',type:'default',text:'💰 VER ANUNCIO PARA REVIVIR'}]});
-    tg.onPopupButtonClicked = async (data)=>{
-      if(data.buttonId==='revive'){
-        await safeShow();
-        intentos=1; localStorage.setItem(k('intentos'), '1');
-        ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos} | Nivel: ${nivel}`;
-      }
-    };
-  } else {
-    await safeShow();
-    intentos=1; localStorage.setItem(k('intentos'), '1');
-  }
-  return;
+function win(){
+  if(isAd) return; isAd=true;
+  tg.HapticFeedback.notificationOccurred('success');
+  tg.showPopup({
+    title:`🎉 NIVEL ${level} PASADO`,
+    message:`Mataste a todos! Score ${score}\nMira anuncio 3528410 para nivel ${level+1}`,
+    buttons:[{id:'next',type:'default',text:'💰 VER ANUNCIO 3528410 PASAR NIVEL'}]
+  });
 }
 
-if(!esSabadoHoy()){
-intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
-await safeShow(); d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);
-if(i===ganadora){localStorage.removeItem(k('ganadora')); ganadora=Math.floor(Math.random()*25); localStorage.setItem(k('ganadora'),ganadora.toString()); localStorage.setItem(k('descubiertas'),'[]'); setTimeout(crear,800);}
-return;
-}
-if(hayGanadorGlobal){alert('¡YA HAY GANADOR HOY SÁBADO!');return;}
-intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas)); await safeShow();
-if(i===ganadora){
-let check=await getCounter('winner-'+hoyKey);
-if(check&&check>0){alert('Te ganaron por segundos.'); hayGanadorGlobal=true; location.reload(); return;}
-await hitCounter('winner-'+hoyKey); hayGanadorGlobal=true; d.innerText='💎';
-let codigo='SABADO-'+Math.floor(Math.random()*90000+10000);
-let userFinal = localStorage.getItem(k('usuario_tg')) || USER_NAME;
-document.getElementById('cod').innerText=codigo; document.getElementById('idTxt').innerText='ID:'+USER_ID+' | USER:'+userFinal+' | NIVEL:'+nivel;
-document.getElementById('modal').style.display='flex'; sumarPuntos(500);
-try{tg.sendData(`GANADOR|ID:${USER_ID}|USER:${userFinal}|COD:${codigo}|NIVEL:${nivel}`);}catch(e){}
-}else{d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);}
-}
-
-btnAnuncio.onclick=async()=>{
-if(anuncios>=2) return;
-btnAnuncio.innerText='⏳ CARGANDO ANUNCIO 12010449...'; btnAnuncio.disabled=true;
-await safeShow();
-document.getElementById('modalUsuario').style.display='flex';
-btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`; btnAnuncio.disabled=false;
-}
-
-function guardarUsuario(){
-let usuario = document.getElementById('inputUsuario').value.trim();
-if(usuario.length<3){alert("Escribe tu usuario");return;}
-if(!usuario.startsWith('@')) usuario='@'+usuario;
-localStorage.setItem(k('usuario_tg'), usuario);
-anuncios++; intentos++;
-localStorage.setItem(k('anuncios'),anuncios.toString());
-localStorage.setItem(k('intentos'),intentos.toString());
-ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos} | Nivel: ${nivel}`;
-document.getElementById('modalUsuario').style.display='none';
-if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS';btnAnuncio.disabled=true;btnAnuncio.style.opacity='0.6';}
-else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
-try{tg.sendData(`NUEVO_USER|ID:${USER_ID}|USER:${usuario}`);}catch(e){}
-}
-
-// NUEVO: BOTON DE NIVEL - ANUNCIO 3528410 PARA PASAR DE NIVEL
-document.getElementById('btnReclamar').onclick = async () => {
-  let btn = document.getElementById('btnReclamar');
-  btn.innerText='⏳ CARGANDO ANUNCIO 3528410...'; btn.disabled=true;
-  await showMonetag3528410();
-  nivel++;
-  localStorage.setItem(k('nivel'), nivel.toString());
-  localStorage.removeItem(k('ganadora'));
-  localStorage.setItem(k('descubiertas'), '[]');
-  document.getElementById('modal').style.display='none';
-  btn.innerText='💰 VER ANUNCIO 3528410 PARA PASAR DE NIVEL';
-  btn.disabled=false;
-  crear();
+tg.onPopupButtonClicked = (d)=>{
+  if(d.buttonId==='revive') reviveAd();
+  if(d.buttonId==='next') nextLevelAd();
 };
 
-document.getElementById('btnMensajePersonal').onclick = async () => {
-let txt = document.getElementById('txtPersonal').value.trim();
-if(txt.length < 4){ alert("Escribe tu mensaje primero"); return; }
-let btn = document.getElementById('btnMensajePersonal');
-btn.innerText='⏳ CARGANDO ANUNCIO...'; btn.disabled=true;
-await safeShow();
-let userFinal = localStorage.getItem(k('usuario_tg')) || USER_NAME;
-let mensajeCorto = txt.substring(0,400);
-try{
-tg.sendData(`MENSAJE_PERSONAL|ID:${USER_ID}|USER:${userFinal}|MSG:${mensajeCorto}`);
-alert("✅ Mensaje enviado! Te respondo por Telegram");
-document.getElementById('txtPersonal').value="";
-}catch(e){ alert("Abre la app dentro de Telegram"); }
-btn.innerText='✉️ ENVIAR MENSAJE'; btn.disabled=false;
-}
-let btnLike = document.getElementById('btnLike');
-function actualizarLikeUI(total, yaDioLike){
-if(yaDioLike){btnLike.innerHTML=`💙 TE GUSTA 👍 <span id="likeCount">${total ?? 0}</span>`;btnLike.style.background='#2AABEE';}else{btnLike.innerHTML=`👍 ME GUSTA <span id="likeCount">${total ?? 0}</span>`;btnLike.style.background='#1877F2';}
-}
-async function cargarLikes(){
-let total = await getCounter('likes-total');
-if(total === null) total = parseInt(localStorage.getItem('likes-local')||'0');
-let yaDioLike = localStorage.getItem(k('like'))==='1';
-actualizarLikeUI(total, yaDioLike);
-}
-cargarLikes();
-btnLike.onclick = async () => {
-if(localStorage.getItem(k('like'))==='1'){ alert("Ya le diste like bro 💙"); return; }
-btnLike.innerText='⏳ CARGANDO ANUNCIO...'; btnLike.disabled=true;
-await safeShow();
-let nuevo = await hitCounter('likes-total');
-if(nuevo === null){let localLikes = parseInt(localStorage.getItem('likes-local')||'0')+1;localStorage.setItem('likes-local', localLikes.toString());nuevo = localLikes;}
-localStorage.setItem(k('like'),'1');
-actualizarLikeUI(nuevo, true);
-btnLike.disabled=false;
-try{ tg.sendData(`LIKE|ID:${USER_ID}|USER:${localStorage.getItem(k('usuario_tg'))||USER_NAME}`);}catch(e){}
-}
-document.addEventListener('DOMContentLoaded', crear);
-crear();
-
-setTimeout(()=>{ safeShow(); }, 4000);
-
-let observador = new MutationObserver(()=>{
-  let botones = document.querySelectorAll('button');
-  botones.forEach(b=>{
-    if(b.innerText.toLowerCase().includes('continuar') && !b.dataset.cuenta){
-      b.dataset.cuenta = '1';
-      let seg = 10;
-      let textoOriginal = 'Continuar';
-      b.disabled = true;
-      b.style.opacity = '0.6';
-      let timer = setInterval(()=>{
-        if(seg > 0){ b.innerText = `Continuar en ${seg}s`; seg--; }
-        else { b.innerText = textoOriginal; b.disabled = false; b.style.opacity = '1'; clearInterval(timer); }
-      },1000);
-    }
+function update(){
+  if(isAd) return;
+  if(keys['left']) player.x-=player.speed;
+  if(keys['right']) player.x+=player.speed;
+  player.x=Math.max(0,Math.min(336,player.x));
+  bullets.forEach((b,i)=>{b.y+=b.vy; if(b.y<0) bullets.splice(i,1);});
+  let edge=false, spd=0.8+level*0.6;
+  enemies.forEach(e=>{if(!e.alive)return; e.x+=e.dir*spd; if(e.x<2||e.x>334) edge=true;});
+  if(edge) enemies.forEach(e=>{e.dir*=-1; e.y+=15+level;});
+  eBullets.forEach((b,i)=>{
+    b.y+=b.vy; if(b.y>500) eBullets.splice(i,1);
+    if(b.x>player.x&&b.x<player.x+24&&b.y>player.y&&b.y<player.y+15){eBullets.splice(i,1); die();}
   });
-});
-observador.observe(document.body, {childList:true, subtree:true});
+  bullets.forEach((b,bi)=>{
+    enemies.forEach(e=>{
+      if(!e.alive) return;
+      if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){
+        e.alive=false; bullets.splice(bi,1); score+=100;
+        document.getElementById('score').innerText='SCORE '+score;
+      }
+    });
+  });
+  if(enemies.every(e=>!e.alive)) win();
+  if(enemies.some(e=>e.alive&&e.y>440)) die();
+}
+
+function draw(){
+  ctx.clearRect(0,0,360,500);
+  ctx.fillStyle='#0ff'; ctx.fillRect(player.x,player.y,24,5); ctx.fillRect(player.x+8,player.y-10,8,12);
+  ctx.fillStyle='#ff0'; bullets.forEach(b=>ctx.fillRect(b.x,b.y,3,12));
+  ctx.fillStyle='#f00'; eBullets.forEach(b=>ctx.fillRect(b.x,b.y,3,10));
+  enemies.forEach(e=>{
+    if(!e.alive) return;
+    ctx.fillStyle='#f00'; ctx.fillRect(e.x,e.y,24,10);
+    ctx.fillRect(e.x+3,e.y+10,5,4); ctx.fillRect(e.x+16,e.y+10,5,4);
+  });
+}
+
+function loop(){ update(); draw(); requestAnimationFrame(loop); } loop();
+
+document.getElementById('left').ontouchstart=e=>{e.preventDefault();keys['left']=true;};
+document.getElementById('left').ontouchend=e=>{e.preventDefault();keys['left']=false;};
+document.getElementById('right').ontouchstart=e=>{e.preventDefault();keys['right']=true;};
+document.getElementById('right').ontouchend=e=>{e.preventDefault();keys['right']=false;};
+document.getElementById('fire').ontouchstart=e=>{e.preventDefault();shoot();};
+
+setInterval(()=>{
+  if(isAd) return;
+  let alive=enemies.filter(e=>e.alive); if(!alive.length) return;
+  let e=alive[Math.floor(Math.random()*alive.length)];
+  eBullets.push({x:e.x+10,y:e.y+12,vy:3+level*0.5});
+}, 500);
 </script>
 </body>
 </html>
