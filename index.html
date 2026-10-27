@@ -2,114 +2,82 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>RatonOcela Tetris</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>RATONOCELA INFIERNO 3528410</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+(function(d,z,s){
+  s=d.createElement('script');
+  s.src='https://alwingulla.com/88/tag.min.js';
+  s.setAttribute('data-zone', z);
+  (d.head||d.documentElement).appendChild(s);
+})(document,'3528410');
+</script>
 <style>
-  body { margin:0; background:#0f172a; color:white; font-family:system-ui; display:flex; flex-direction:column; align-items:center; height:100vh; overflow:hidden; }
-  #header { width:100%; padding:12px; display:flex; justify-content:space-between; box-sizing:border-box; }
-  #score { font-weight:800; color:#38bdf8; }
-  canvas { border:3px solid #38bdf8; border-radius:12px; background:#020617; box-shadow:0 0 30px #38bdf833; touch-action:none; }
-  .controls { display:grid; grid-template-columns:repeat(3,70px); gap:12px; margin-top:18px; }
-  .controls button { height:56px; font-size:22px; background:#1e293b; color:white; border:1px solid #334155; border-radius:14px; }
-  .controls button:active { background:#38bdf8; }
+body{margin:0;background:#000;color:#f00;font-family:Courier New;display:flex;flex-direction:column;align-items:center;height:100vh;overflow:hidden}
+#hud{width:320px;display:flex;justify-content:space-between;padding:10px 5px;font-weight:900;font-size:13px}
+canvas{border:3px solid #f00;background:#000;box-shadow:0 0 20px #f00a}
+.controls{display:grid;grid-template-columns:70px 70px 70px;gap:12px;margin-top:12px}
+.controls button{height:62px;background:#200;border:2px solid #f00;color:#f00;font-size:26px;border-radius:12px}
+#money{color:#0f0;font-size:11px;margin-top:6px;text-align:center}
 </style>
 </head>
 <body>
-<div id="header">
-  <span id="score">PUNTOS: 0</span>
-  <span id="user">👮 Daniel</span>
-</div>
-<canvas id="game" width="240" height="400"></canvas>
+<div id="hud"><span id="score">SCORE 0</span><span id="lvl">LVL1 INFIERNO</span><span id="deaths">MUERTES:0</span></div>
+<canvas id="game" width="320" height="480"></canvas>
+<div id="money">ID 3528410 ACTIVO - CADA MUERTE = $$$</div>
 <div class="controls">
-  <button id="left">⬅️</button>
-  <button id="rot">🔄</button>
-  <button id="right">➡️</button>
-  <button id="down" style="grid-column:2">⬇️ RAPIDO</button>
+<button id="left">◀</button>
+<button id="fire">🔥</button>
+<button id="right">▶</button>
 </div>
-
 <script>
-const tg = window.Telegram.WebApp;
-tg.ready(); tg.expand(); tg.setHeaderColor('#0f172a');
-tg.BackButton.show(); tg.BackButton.onClick(()=>tg.close());
-
-const user = tg.initDataUnsafe?.user;
-if(user) document.getElementById('user').innerText = `👮 ${user.first_name}`;
-
-const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
-ctx.scale(20,20);
-const PIECES = [
-  [[1,1,1,1]], [[1,1],[1,1]], [[1,1,1],[0,1,0]],
-  [[1,1,1],[1,0,0]], [[1,1,1],[0,0,1]],
-  [[1,1,0],[0,1,1]], [[0,1,1],[1,1,0]]
-];
-const COLORS = [null,'#38bdf8','#facc15','#fb7185','#4ade80','#a78bfa','#f97316','#22d3ee'];
-
-let arena = Array(20).fill().map(()=>Array(12).fill(0));
-let player = { pos:{x:4,y:0}, matrix: PIECES[0] };
-let score = 0, dropCounter=0, dropInterval=700, lastTime=0;
-
-function collide(a,p){
-  for(let y=0;y<p.matrix.length;y++) for(let x=0;x<p.matrix[y].length;x++)
-  if(p.matrix[y][x] && (a[y+p.pos.y] && a[y+p.pos.y][x+p.pos.x])!==0) return true;
-  return false;
+const tg=Telegram.WebApp; tg.ready(); tg.expand();
+let score=0,level=1,deaths=0,gameOver=false;
+let player={x:150,y:440,speed:3.5}, bullets=[], enemies=[], enemyBullets=[], particles=[], keys={};
+const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
+function spawn(){ enemies=[]; for(let r=0;r<6;r++) for(let c=0;c<10;c++) enemies.push({x:10+c*30,y:30+r*22,w:16,h:10,dir:1,alive:true}); }
+spawn();
+function shoot(){ if(gameOver) return; bullets.push({x:player.x+6,y:player.y,vy:-9}); }
+function triggerAd(){
+  deaths++; document.getElementById('deaths').innerText='MUERTES:'+deaths;
+  document.getElementById('money').innerText='MOSTRANDO ANUNCIO 3528410...';
+  try{ if(window.monetag) monetag.show(); }catch(e){}
+  setTimeout(()=>{ gameOver=false; level++; document.getElementById('lvl').innerText='LVL'+level+' INFIERNO'; document.getElementById('money').innerText='ID 3528410 PAGADO - NIVEL '+level; bullets=[]; enemyBullets=[]; player.x=150; spawn(); },2000);
 }
-function merge(a,p){ p.matrix.forEach((r,y)=>r.forEach((v,x)=>{ if(v) a[y+p.pos.y][x+p.pos.x]=v })); }
+function endGame(){
+  gameOver=true; tg.HapticFeedback.notificationOccurred('error');
+  tg.showPopup({title:'💀 MORISTE LVL '+level, message:'Score:'+score+' | Muertes:'+deaths+' - Tu anuncio 3528410 se disparará', buttons:[{id:'ad',type:'default',text:'💰 VER ANUNCIO 3528410 Y REVIVIR'}]});
+  tg.onPopupButtonClicked=(d)=>{ if(d.buttonId==='ad') triggerAd(); };
+}
+function update(){
+  if(gameOver) return;
+  if(keys['left']) player.x-=player.speed; if(keys['right']) player.x+=player.speed;
+  player.x=Math.max(0,Math.min(304,player.x));
+  bullets.forEach((b,i)=>{ b.y+=b.vy; if(b.y<0) bullets.splice(i,1); });
+  let edge=false, spd=1+level*0.9;
+  enemies.forEach(e=>{ if(!e.alive) return; e.x+=e.dir*spd; if(e.x<2||e.x>302) edge=true; });
+  if(edge) enemies.forEach(e=>{ e.dir*=-1; e.y+=20; });
+  enemyBullets.forEach((b,i)=>{ b.y+=b.vy; if(b.y>480) enemyBullets.splice(i,1); if(b.x>player.x&&b.x<player.x+16&&b.y>player.y&&b.y<player.y+12){ endGame(); enemyBullets.splice(i,1); } });
+  bullets.forEach((b,bi)=>{ enemies.forEach(e=>{ if(!e.alive) return; if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){ e.alive=false; bullets.splice(bi,1); score+=150; document.getElementById('score').innerText='SCORE '+score; for(let k=0;k<4;k++) particles.push({x:e.x,y:e.y,vx:(Math.random()-0.5)*5,vy:(Math.random()-0.5)*5,life:12}); } }); });
+  if(enemies.every(e=>!e.alive)){ level++; document.getElementById('lvl').innerText='LVL'+level+' INFIERNO'; spawn(); }
+  if(enemies.some(e=>e.alive&&e.y>400)) endGame();
+}
 function draw(){
-  ctx.fillStyle='#020617'; ctx.fillRect(0,0,12,20);
-  arena.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ ctx.fillStyle=COLORS[v]; ctx.fillRect(x,y,1,1); ctx.strokeStyle='#020617'; ctx.strokeRect(x,y,1,1); }}));
-  player.matrix.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ ctx.fillStyle=COLORS[1]; ctx.fillRect(x+player.pos.x,y+player.pos.y,1,1); }}));
+  ctx.clearRect(0,0,320,480); ctx.fillStyle='rgba(255,0,0,0.05)'; for(let y=0;y<480;y+=3) ctx.fillRect(0,y,320,1);
+  ctx.fillStyle='#0ff'; ctx.fillRect(player.x,player.y,16,3); ctx.fillRect(player.x+6,player.y-6,4,8);
+  ctx.fillStyle='#ff0'; bullets.forEach(b=>ctx.fillRect(b.x,b.y,2,10));
+  ctx.fillStyle='#f00'; enemyBullets.forEach(b=>ctx.fillRect(b.x,b.y,3,10));
+  enemies.forEach(e=>{ if(!e.alive) return; ctx.fillStyle='#f00'; ctx.fillRect(e.x,e.y,16,6); ctx.fillRect(e.x+2,e.y+6,3,4); ctx.fillRect(e.x+11,e.y+6,3,4); });
+  particles.forEach((p,i)=>{ p.x+=p.vx; p.y+=p.vy; p.life--; if(p.life<=0) particles.splice(i,1); else {ctx.fillStyle='#fff'; ctx.fillRect(p.x,p.y,2,2);} });
 }
-function sweep(){
-  for(let y=arena.length-1;y>=0;y--){
-    if(arena[y].every(v=>v!==0)){
-      arena.splice(y,1); arena.unshift(Array(12).fill(0));
-      score+=100; document.getElementById('score').innerText='PUNTOS: '+score;
-      tg.HapticFeedback.notificationOccurred('success');
-      y++;
-    }
-  }
-}
-function reset(){
-  player.pos={x:4,y:0}; player.matrix=PIECES[Math.floor(Math.random()*7)];
-  if(collide(arena,player)){
-    tg.showPopup({title:'Game Over 👮', message:`Hiciste ${score} puntos, Daniel! ¿Otra ronda?`, buttons:[{type:'ok'}]});
-    arena.forEach(r=>r.fill(0)); score=0;
-    document.getElementById('score').innerText='PUNTOS: 0';
-  }
-}
-function update(t=0){
-  const dt=t-lastTime; lastTime=t; dropCounter+=dt;
-  if(dropCounter>dropInterval){
-    player.pos.y++; 
-    if(collide(arena,player)){ player.pos.y--; merge(arena,player); reset(); sweep(); }
-    dropCounter=0;
-  }
-  draw(); requestAnimationFrame(update);
-}
-function move(d){ player.pos.x+=d; if(collide(arena,player)) player.pos.x-=d; }
-function rotate(){
-  const m = player.matrix[0].map((_,i)=>player.matrix.map(r=>r[i]).reverse());
-  const prev = player.matrix; player.matrix=m; let k=0;
-  while(collide(arena,player)){ player.pos.x+=k; k=-(k+(k>0?1:-1)); if(Math.abs(k)>2){ player.matrix=prev; break; }}
-}
-function hardDrop(){ while(!collide(arena,player)) player.pos.y++; player.pos.y--; merge(arena,player); reset(); sweep(); tg.HapticFeedback.impactOccurred('medium'); }
-
-// Botones táctiles
-document.getElementById('left').ontouchstart=()=>move(-1);
-document.getElementById('right').ontouchstart=()=>move(1);
-document.getElementById('rot').ontouchstart=()=>rotate();
-document.getElementById('down').ontouchstart=()=>hardDrop();
-
-// Teclado PC
-document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowLeft') move(-1);
-  if(e.key==='ArrowRight') move(1);
-  if(e.key==='ArrowDown') hardDrop();
-  if(e.key==='ArrowUp') rotate();
-});
-
-reset(); update();
+function loop(){ update(); draw(); requestAnimationFrame(loop); } loop();
+document.getElementById('left').ontouchstart=()=>keys['left']=true; document.getElementById('left').ontouchend=()=>keys['left']=false;
+document.getElementById('right').ontouchstart=()=>keys['right']=true; document.getElementById('right').ontouchend=()=>keys['right']=false;
+document.getElementById('fire').ontouchstart=()=>shoot();
+document.addEventListener('keydown',e=>{keys[e.key]=true; if(e.code==='Space') shoot();});
+document.addEventListener('keyup',e=>keys[e.key]=false);
+setInterval(()=>{ if(gameOver) return; let alive=enemies.filter(e=>e.alive); if(!alive.length) return; for(let i=0;i<4;i++){ let e=alive[Math.floor(Math.random()*alive.length)]; enemyBullets.push({x:e.x+6,y:e.y+10,vy:4+level*0.6}); } },300);
 </script>
 </body>
 </html>
