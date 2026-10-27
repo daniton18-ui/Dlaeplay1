@@ -3,145 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>DALEPLAY SHOOTER - ANUNCIOS BIEN PUESTOS</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#0a0e13;color:#fff;font-family:Arial;text-align:center;overflow:hidden}
-.header{background:#2AABEE;padding:10px;font-weight:900;font-size:16px;letter-spacing:1px}
-#hud{display:flex;justify-content:space-between;background:#fff;color:#2AABEE;padding:8px 10px;font-weight:900;border:2px solid #2AABEE;margin:6px;border-radius:10px;font-size:12px}
-.ad-box{background:#111;border:1px solid #2AABEE;border-radius:8px;margin:6px auto;padding:4px;min-height:60px;display:flex;align-items:center;justify-content:center;color:#555;font-size:10px;width:360px;max-width:95%}
-.ad-box.top{min-height:70px;background:#0f1a22}
-.ad-box.bottom{min-height:70px;background:#0f1a22}
-canvas{border:3px solid #2AABEE;background:#000;border-radius:12px;display:block;margin:0 auto}
-.controls{display:flex;gap:12px;justify-content:center;margin-top:8px}
-.controls button{width:85px;height:68px;background:#fff;border:2px solid #2AABEE;color:#2AABEE;font-size:30px;border-radius:16px;font-weight:900}
-.controls button:active{background:#2AABEE;color:#fff}
-#status{color:#0f0;font-size:10px;margin-top:4px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:99999}
-.modal .box{background:#fff;color:#000;padding:22px;border-radius:18px;border:3px solid #2AABEE;width:88%;max-width:330px}
-.modal .box h2{color:#2AABEE;margin:0}
-.modal .box button{background:#2AABEE;color:#fff;border:0;padding:16px;width:100%;border-radius:12px;font-weight:900;margin-top:10px;font-size:16px;cursor:pointer}
-</style>
-
-<!-- SDKs TUS 2 ZONAS -->
+<title>DALEPLAY</title>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010451" data-sdk="show_12010451"></script>
-
-<!-- MONETAG 3528410 SI LO USAS COMO BANNER -->
-<script async src="https://alwingulla.com/88/tag.min.js" data-zone="3528410"></script>
+<style>
+body{margin:0;background:#000;color:#fff;text-align:center;font-family:Arial}
+canvas{border:2px solid #2AABEE;background:#000}
+#hud{display:flex;justify-content:space-between;padding:8px;font-weight:900;color:#2AABEE;background:#fff;margin:5px;border-radius:8px}
+button{padding:12px 20px;background:#2AABEE;color:#fff;border:0;border-radius:10px;font-weight:900;margin:5px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center}
+.box{background:#fff;color:#000;padding:20px;border-radius:12px}
+</style>
 </head>
 <body>
+<div id="hud"><span id="s">SCORE 0</span><span id="l">LVL 1</span><span id="m">$0.00</span></div>
+<canvas id="g" width="360" height="450"></canvas><br>
+<button id="L">◀</button><button id="F">🔥</button><button id="R">▶</button>
 
-<div class="header">🍟 DALEPLAY SHOOTER</div>
-
-<div id="hud">
-  <span id="s">SCORE 0</span>
-  <span id="l">LVL 1</span>
-  <span id="m">ADS $0.00</span>
-</div>
-
-<!-- ANUNCIO TOP - ZONA 12010449 -->
-<div class="ad-box top">
-  <div id="ad-top-12010449">ANUNCIO TOP 12010449</div>
-  <script> try{ if(typeof show_12010449!=='undefined'){} }catch(e){} </script>
-</div>
-
-<canvas id="g" width="360" height="420"></canvas>
-
-<!-- ANUNCIO BOTTOM - ZONA 12010451 -->
-<div class="ad-box bottom">
-  <div id="ad-bottom-12010451">ANUNCIO BOTTOM 12010451</div>
-</div>
-
-<div id="status">12010449 [TOP+REVIVE] | 12010451 [BOTTOM+NIVEL] ACTIVOS</div>
-
-<div class="controls"><button id="L">◀</button><button id="F">🔥</button><button id="R">▶</button></div>
-
-<!-- MODAL MUERTE - INTERSTITIAL 12010449 -->
-<div id="md" class="modal"><div class="box">
-  <h2>💀 MORISTE</h2>
-  <p id="dt"></p>
-  <div style="background:#f0f8ff;border:2px dashed #2AABEE;border-radius:8px;padding:8px;margin:8px 0;font-size:11px;color:#2AABEE">ANUNCIO 12010449 - REVIVIR</div>
-  <button id="br">💰 VER ANUNCIO PARA REVIVIR<br><small>ZONA 12010449 - PAGA</small></button>
-</div></div>
-
-<!-- MODAL NIVEL - INTERSTITIAL 12010451 -->
-<div id="mw" class="modal"><div class="box">
-  <h2>🎉 ¡NIVEL PASADO!</h2>
-  <p id="wt"></p>
-  <div style="background:#f0f8ff;border:2px dashed #2AABEE;border-radius:8px;padding:8px;margin:8px 0;font-size:11px;color:#2AABEE">ANUNCIO 12010451 - SIGUIENTE NIVEL</div>
-  <button id="bn">💰 VER ANUNCIO SIGUIENTE NIVEL<br><small>ZONA 12010451 - PAGA</small></button>
-</div></div>
+<div id="md" class="modal"><div class="box"><h3>💀 MORISTE</h3><button id="br">VER ANUNCIO 12010449 - REVIVIR</button></div></div>
+<div id="mw" class="modal"><div class="box"><h3>🎉 PASASTE</h3><button id="bn">VER ANUNCIO 12010451 - SIGUIENTE</button></div></div>
 
 <script>
-let score=0,level=1,ads=0,paused=false;
-let pl={x:170,y:390,s:5},bull=[],en=[],eb=[],keys={};
-const cn=document.getElementById('g'),cx=cn.getContext('2d');
+let score=0,level=1,ads=0,paused=false,pl={x:170,y:410},bull=[],en=[],eb=[],keys={};
+let c=document.getElementById('g'),x=c.getContext('2d');
+function spawn(){en=[];for(let r=0;r<4;r++)for(let cc=0;cc<9;cc++)en.push({x:10+cc*38,y:30+r*25,a:true,dir:1})}
+spawn();
 
-function spawn(lv){ en=[]; for(let r=0;r<4+Math.min(lv,5);r++) for(let c=0;c<9;c++) en.push({x:12+c*37,y:30+r*24,w:24,h:12,dir:1,a:true}); }
-spawn(1);
+function showAd(id){try{if(id==12010449&&typeof show_12010449!=='undefined')show_12010449();if(id==12010451&&typeof show_12010451!=='undefined')show_12010451();}catch(e){}}
 
-// PAGO BIEN COLOCADO
-function pagar12010449(){
-  try{ if(typeof show_12010449!=='undefined'){ show_12010449().then(()=>{}).catch(()=>{}); } }catch(e){}
-  try{ let i=new Image(); i.src='https://libtl.com/view/12010449/?t='+Date.now(); }catch(e){}
+function morir(){paused=true;document.getElementById('md').style.display='flex'}
+function ganar(){paused=true;document.getElementById('mw').style.display='flex'}
+
+document.getElementById('br').onclick=()=>{showAd(12010449);ads++;document.getElementById('m').innerText='$'+(ads*0.04).toFixed(2);document.getElementById('md').style.display='none';paused=false;pl.x=170;bull=[];eb=[]}
+document.getElementById('bn').onclick=()=>{showAd(12010451);ads++;level++;score+=500;document.getElementById('l').innerText='LVL '+level;document.getElementById('s').innerText='SCORE '+score;document.getElementById('m').innerText='$'+(ads*0.04).toFixed(2);document.getElementById('mw').style.display='none';paused=false;spawn()}
+
+function loop(){
+ if(!paused){
+  if(keys.L)pl.x-=5;if(keys.R)pl.x+=5;pl.x=Math.max(0,Math.min(336,pl.x));
+  bull.forEach((b,i)=>{b.y-=8;if(b.y<0)bull.splice(i,1)});
+  let edge=false;en.forEach(e=>{if(!e.a)return;e.x+=e.dir*(0.8+level*0.3);if(e.x<0||e.x>336)edge=true});
+  if(edge)en.forEach(e=>{e.dir*=-1;e.y+=12});
+  eb.forEach((b,i)=>{b.y+=3;if(b.y>450){eb.splice(i,1);return}if(b.x>pl.x&&b.x<pl.x+24&&b.y>pl.y&&b.y<pl.y+15){eb.splice(i,1);morir()}});
+  bull.forEach((b,bi)=>{en.forEach(e=>{if(!e.a)return;if(b.x>e.x&&b.x<e.x+24&&b.y>e.y&&b.y<e.y+12){e.a=false;bull.splice(bi,1);score+=100;document.getElementById('s').innerText='SCORE '+score}})});
+  if(en.every(e=>!e.a))ganar();if(en.some(e=>e.a&&e.y>380))morir();
+ }
+ x.clearRect(0,0,360,450);x.fillStyle='#0ff';x.fillRect(pl.x,410,24,10);
+ x.fillStyle='#ff0';bull.forEach(b=>x.fillRect(b.x,b.y,3,10));
+ x.fillStyle='#f00';eb.forEach(b=>x.fillRect(b.x,b.y,3,8));en.forEach(e=>{if(e.a){x.fillStyle='#f00';x.fillRect(e.x,e.y,24,10)}});
+ requestAnimationFrame(loop);
 }
-function pagar12010451(){
-  try{ if(typeof show_12010451!=='undefined'){ show_12010451().then(()=>{}).catch(()=>{}); } }catch(e){}
-  try{ if(typeof show_12010449!=='undefined'){ show_12010449(); } }catch(e){} // fallback que siempre paga
-}
-
-// CARGAR BANNERS VISIBLES CADA 30 SEG PARA QUE PAGUEN MAS
-setInterval(()=>{ try{ document.getElementById('ad-top-12010449').innerHTML='TOP 12010449 - '+new Date().toLocaleTimeString(); pagar12010449(); }catch(e){} }, 30000);
-setInterval(()=>{ try{ document.getElementById('ad-bottom-12010451').innerHTML='BOTTOM 12010451 - '+new Date().toLocaleTimeString(); pagar12010451(); }catch(e){} }, 35000);
-
-function morir(){ if(paused) return; paused=true; document.getElementById('dt').innerText=`Nivel ${level} | Score ${score}`; document.getElementById('md').style.display='flex'; }
-function ganar(){ if(paused) return; paused=true; document.getElementById('wt').innerText=`Nivel ${level} pasado! Score ${score}`; document.getElementById('mw').style.display='flex'; }
-
-document.getElementById('br').onclick=()=>{
-  pagar12010449();
-  ads++; document.getElementById('m').innerText='ADS $'+(ads*0.045).toFixed(2);
-  document.getElementById('md').style.display='none'; pl.x=170; bull=[]; eb=[]; paused=false;
-  document.getElementById('status').innerText='✅ 12010449 PAGADO - REVIVISTE';
-};
-document.getElementById('bn').onclick=()=>{
-  pagar12010451();
-  ads++; level++; score+=1000;
-  document.getElementById('l').innerText='LVL '+level;
-  document.getElementById('s').innerText='SCORE '+score;
-  document.getElementById('m').innerText='ADS $'+(ads*0.045).toFixed(2);
-  document.getElementById('mw').style.display='none'; pl.x=170; bull=[]; eb=[]; spawn(level); paused=false;
-  document.getElementById('status').innerText='✅ 12010451 PAGADO - NIVEL '+level;
-};
-
-function update(){
-  if(paused) return;
-  if(keys.L) pl.x-=pl.s; if(keys.R) pl.x+=pl.s;
-  pl.x=Math.max(0,Math.min(336,pl.x));
-  bull.forEach((b,i)=>{b.y+=b.vy; if(b.y<0) bull.splice(i,1);});
-  let edge=false, sp=0.9+level*0.55;
-  en.forEach(e=>{if(!e.a)return; e.x+=e.dir*sp; if(e.x<2||e.x>334) edge=true;});
-  if(edge) en.forEach(e=>{e.dir*=-1; e.y+=14;});
-  eb.forEach((b,i)=>{ b.y+=b.vy; if(b.y>420) eb.splice(i,1); if(b.x>pl.x&&b.x<pl.x+24&&b.y>pl.y&&b.y<pl.y+15){ eb.splice(i,1); morir(); } });
-  bull.forEach((b,bi)=>{ en.forEach(e=>{ if(!e.a) return; if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){ e.a=false; bull.splice(bi,1); score+=100; document.getElementById('s').innerText='SCORE '+score; } }); });
-  if(en.every(e=>!e.a)) ganar();
-  if(en.some(e=>e.a&&e.y>380)) morir();
-}
-function draw(){
-  cx.clearRect(0,0,360,420);
-  cx.fillStyle='#0ff'; cx.fillRect(pl.x,pl.y,24,5); cx.fillRect(pl.x+8,pl.y-10,8,12);
-  cx.fillStyle='#ff0'; bull.forEach(b=>cx.fillRect(b.x,b.y,3,12));
-  cx.fillStyle='#f00'; eb.forEach(b=>cx.fillRect(b.x,b.y,3,10));
-  en.forEach(e=>{if(!e.a)return; cx.fillStyle='#f00'; cx.fillRect(e.x,e.y,24,10);});
-}
-function loop(){ update(); draw(); requestAnimationFrame(loop); } loop();
-
-document.getElementById('L').ontouchstart=e=>{e.preventDefault();keys.L=true;};
-document.getElementById('L').ontouchend=e=>{e.preventDefault();keys.L=false;};
-document.getElementById('R').ontouchstart=e=>{e.preventDefault();keys.R=true;};
-document.getElementById('R').ontouchend=e=>{e.preventDefault();keys.R=false;};
-document.getElementById('F').ontouchstart=e=>{e.preventDefault(); if(!paused) bull.push({x:pl.x+10,y:pl.y,vy:-10}); };
-setInterval(()=>{ if(paused) return; let a=en.filter(e=>e.a); if(!a.length) return; let e=a[Math.floor(Math.random()*a.length)]; eb.push({x:e.x+10,y:e.y+12,vy:3+level*0.4}); }, 650);
+loop();
+document.getElementById('L').ontouchstart=e=>{e.preventDefault();keys.L=true};document.getElementById('L').ontouchend=e=>{keys.L=false};
+document.getElementById('R').ontouchstart=e=>{e.preventDefault();keys.R=true};document.getElementById('R').ontouchend=e=>{keys.R=false};
+document.getElementById('F').ontouchstart=e=>{e.preventDefault();if(!paused)bull.push({x:pl.x+10,y:410})};
+setInterval(()=>{if(paused)return;let a=en.filter(e=>e.a);if(!a.length)return;let e=a[Math.floor(Math.random()*a.length)];eb.push({x:e.x+10,y:e.y})},700);
 </script>
 </body>
 </html>
