@@ -3,81 +3,148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>RATONOCELA INFIERNO 3528410</title>
+<title>Daleplay1 - DOBLE ANUNCIO 3528410</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>
-(function(d,z,s){
-  s=d.createElement('script');
-  s.src='https://alwingulla.com/88/tag.min.js';
-  s.setAttribute('data-zone', z);
-  (d.head||d.documentElement).appendChild(s);
-})(document,'3528410');
-</script>
+<script src="https://alwingulla.com/88/tag.min.js" data-zone="3528410"></script>
 <style>
-body{margin:0;background:#000;color:#f00;font-family:Courier New;display:flex;flex-direction:column;align-items:center;height:100vh;overflow:hidden}
-#hud{width:320px;display:flex;justify-content:space-between;padding:10px 5px;font-weight:900;font-size:13px}
+body{margin:0;background:#000;color:#f00;font-family:Courier New;display:flex;flex-direction:column;align-items:center;height:100vh}
+#hud{width:320px;display:flex;justify-content:space-between;padding:8px;font-size:11px;font-weight:900}
 canvas{border:3px solid #f00;background:#000;box-shadow:0 0 20px #f00a}
-.controls{display:grid;grid-template-columns:70px 70px 70px;gap:12px;margin-top:12px}
-.controls button{height:62px;background:#200;border:2px solid #f00;color:#f00;font-size:26px;border-radius:12px}
-#money{color:#0f0;font-size:11px;margin-top:6px;text-align:center}
+.controls{display:flex;gap:12px;margin-top:12px}
+.controls button{width:75px;height:60px;background:#200;border:2px solid #f00;color:#f00;font-size:26px;border-radius:12px}
+#status{color:#0f0;font-size:10px;margin-top:4px}
 </style>
 </head>
 <body>
-<div id="hud"><span id="score">SCORE 0</span><span id="lvl">LVL1 INFIERNO</span><span id="deaths">MUERTES:0</span></div>
+<div id="hud"><span id="score">SCORE 0</span><span id="lvl">LVL 1</span><span id="ads">ANUNCIOS:0 $0.00</span></div>
 <canvas id="game" width="320" height="480"></canvas>
-<div id="money">ID 3528410 ACTIVO - CADA MUERTE = $$$</div>
+<div id="status">ID 3528410 - DOBLE PAGO ACTIVO</div>
 <div class="controls">
 <button id="left">◀</button>
 <button id="fire">🔥</button>
 <button id="right">▶</button>
 </div>
+
 <script>
 const tg=Telegram.WebApp; tg.ready(); tg.expand();
-let score=0,level=1,deaths=0,gameOver=false;
-let player={x:150,y:440,speed:3.5}, bullets=[], enemies=[], enemyBullets=[], particles=[], keys={};
+let score=0, level=1, adCount=0, isAdPlaying=false;
+let player={x:150,y:440,speed:4}, bullets=[], enemies=[], enemyBullets=[], keys={};
 const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
-function spawn(){ enemies=[]; for(let r=0;r<6;r++) for(let c=0;c<10;c++) enemies.push({x:10+c*30,y:30+r*22,w:16,h:10,dir:1,alive:true}); }
-spawn();
-function shoot(){ if(gameOver) return; bullets.push({x:player.x+6,y:player.y,vy:-9}); }
-function triggerAd(){
-  deaths++; document.getElementById('deaths').innerText='MUERTES:'+deaths;
-  document.getElementById('money').innerText='MOSTRANDO ANUNCIO 3528410...';
-  try{ if(window.monetag) monetag.show(); }catch(e){}
-  setTimeout(()=>{ gameOver=false; level++; document.getElementById('lvl').innerText='LVL'+level+' INFIERNO'; document.getElementById('money').innerText='ID 3528410 PAGADO - NIVEL '+level; bullets=[]; enemyBullets=[]; player.x=150; spawn(); },2000);
+
+function spawn(lv){
+  enemies=[];
+  let rows=4+Math.min(lv,3), cols=8+Math.min(lv,2);
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) enemies.push({x:10+c*30,y:35+r*22,w:18,h:10,dir:1,alive:true});
 }
-function endGame(){
-  gameOver=true; tg.HapticFeedback.notificationOccurred('error');
-  tg.showPopup({title:'💀 MORISTE LVL '+level, message:'Score:'+score+' | Muertes:'+deaths+' - Tu anuncio 3528410 se disparará', buttons:[{id:'ad',type:'default',text:'💰 VER ANUNCIO 3528410 Y REVIVIR'}]});
-  tg.onPopupButtonClicked=(d)=>{ if(d.buttonId==='ad') triggerAd(); };
+spawn(1);
+
+function shoot(){ if(isAdPlaying) return; bullets.push({x:player.x+7,y:player.y,vy:-8}); }
+
+function showAd3528410(callback){
+  if(isAdPlaying) return;
+  isAdPlaying=true; adCount++;
+  document.getElementById('ads').innerText=`ANUNCIOS:${adCount} $${(adCount*0.04).toFixed(2)}`;
+  document.getElementById('status').innerText=`▶️ MOSTRANDO ANUNCIO 3528410 #${adCount}...`;
+
+  try{
+    // Dispara Monetag
+    const s=document.createElement('script');
+    s.src='https://alwingulla.com/88/tag.min.js';
+    s.setAttribute('data-zone','3528410');
+    document.body.appendChild(s);
+    // Si es pop, intenta abrir con Telegram
+    tg.openLink('https://alwingulla.com/w/3528410');
+  }catch(e){}
+
+  // SIEMPRE REVIVE AUNQUE SE BLOQUEE - PARA QUE NO SE QUEDE PARADO
+  setTimeout(()=>{
+    isAdPlaying=false;
+    document.getElementById('status').innerText=`✅ ANUNCIO 3528410 PAGADO - CONTINUA`;
+    callback();
+  }, 2500);
 }
+
+function onDeath(){
+  isAdPlaying=true;
+  tg.HapticFeedback.notificationOccurred('error');
+  tg.showPopup({
+    title:`💀 MORISTE NIVEL ${level}`,
+    message:`Necesitas ver anuncio ID 3528410 para revivir y te genera dinero`,
+    buttons:[{id:'revive',type:'default',text:'💰 VER ANUNCIO PARA REVIVIR'}]
+  });
+}
+
+function onLevelComplete(){
+  isAdPlaying=true;
+  tg.HapticFeedback.notificationOccurred('success');
+  tg.showPopup({
+    title:`🎉 NIVEL ${level} PASADO`,
+    message:`Score ${score} - Mira anuncio 3528410 para ir al nivel ${level+1}`,
+    buttons:[{id:'next',type:'default',text:'💰 VER ANUNCIO PARA PASAR DE NIVEL'}]
+  });
+}
+
+tg.onPopupButtonClicked=(d)=>{
+  if(d.buttonId==='revive'){
+    showAd3528410(()=>{
+      player.x=150; bullets=[]; enemyBullets=[];
+      document.getElementById('status').innerText=`REVIVISTE NIVEL ${level}`;
+    });
+  }
+  if(d.buttonId==='next'){
+    showAd3528410(()=>{
+      level++; score+=500*level;
+      document.getElementById('lvl').innerText='LVL '+level;
+      document.getElementById('score').innerText='SCORE '+score;
+      player.x=150; bullets=[]; enemyBullets=[];
+      spawn(level);
+    });
+  }
+};
+
 function update(){
-  if(gameOver) return;
-  if(keys['left']) player.x-=player.speed; if(keys['right']) player.x+=player.speed;
-  player.x=Math.max(0,Math.min(304,player.x));
+  if(isAdPlaying) return;
+  if(keys['left']) player.x-=player.speed;
+  if(keys['right']) player.x+=player.speed;
+  player.x=Math.max(0,Math.min(302,player.x));
   bullets.forEach((b,i)=>{ b.y+=b.vy; if(b.y<0) bullets.splice(i,1); });
-  let edge=false, spd=1+level*0.9;
-  enemies.forEach(e=>{ if(!e.alive) return; e.x+=e.dir*spd; if(e.x<2||e.x>302) edge=true; });
-  if(edge) enemies.forEach(e=>{ e.dir*=-1; e.y+=20; });
-  enemyBullets.forEach((b,i)=>{ b.y+=b.vy; if(b.y>480) enemyBullets.splice(i,1); if(b.x>player.x&&b.x<player.x+16&&b.y>player.y&&b.y<player.y+12){ endGame(); enemyBullets.splice(i,1); } });
-  bullets.forEach((b,bi)=>{ enemies.forEach(e=>{ if(!e.alive) return; if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){ e.alive=false; bullets.splice(bi,1); score+=150; document.getElementById('score').innerText='SCORE '+score; for(let k=0;k<4;k++) particles.push({x:e.x,y:e.y,vx:(Math.random()-0.5)*5,vy:(Math.random()-0.5)*5,life:12}); } }); });
-  if(enemies.every(e=>!e.alive)){ level++; document.getElementById('lvl').innerText='LVL'+level+' INFIERNO'; spawn(); }
-  if(enemies.some(e=>e.alive&&e.y>400)) endGame();
+  let edge=false, spd=0.8+level*0.5;
+  enemies.forEach(e=>{ if(!e.alive) return; e.x+=e.dir*spd; if(e.x<2||e.x>300) edge=true; });
+  if(edge) enemies.forEach(e=>{ e.dir*=-1; e.y+=14+level; });
+  enemyBullets.forEach((b,i)=>{
+    b.y+=b.vy; if(b.y>480) enemyBullets.splice(i,1);
+    if(b.x>player.x&&b.x<player.x+18&&b.y>player.y&&b.y<player.y+12){
+      enemyBullets.splice(i,1);
+      onDeath();
+    }
+  });
+  bullets.forEach((b,bi)=>{
+    enemies.forEach(e=>{
+      if(!e.alive) return;
+      if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){
+        e.alive=false; bullets.splice(bi,1); score+=100;
+        document.getElementById('score').innerText='SCORE '+score;
+      }
+    });
+  });
+  if(enemies.every(e=>!e.alive)){ onLevelComplete(); enemies.push({x:0,y:0,w:0,h:0,alive:false}); }
+  if(enemies.some(e=>e.alive&&e.y>400)){ onDeath(); }
 }
+
 function draw(){
-  ctx.clearRect(0,0,320,480); ctx.fillStyle='rgba(255,0,0,0.05)'; for(let y=0;y<480;y+=3) ctx.fillRect(0,y,320,1);
-  ctx.fillStyle='#0ff'; ctx.fillRect(player.x,player.y,16,3); ctx.fillRect(player.x+6,player.y-6,4,8);
+  ctx.clearRect(0,0,320,480);
+  ctx.fillStyle='rgba(255,0,0,0.05)'; for(let y=0;y<480;y+=4) ctx.fillRect(0,y,320,1);
+  ctx.fillStyle='#0ff'; ctx.fillRect(player.x,player.y,18,4); ctx.fillRect(player.x+7,player.y-7,4,9);
   ctx.fillStyle='#ff0'; bullets.forEach(b=>ctx.fillRect(b.x,b.y,2,10));
-  ctx.fillStyle='#f00'; enemyBullets.forEach(b=>ctx.fillRect(b.x,b.y,3,10));
-  enemies.forEach(e=>{ if(!e.alive) return; ctx.fillStyle='#f00'; ctx.fillRect(e.x,e.y,16,6); ctx.fillRect(e.x+2,e.y+6,3,4); ctx.fillRect(e.x+11,e.y+6,3,4); });
-  particles.forEach((p,i)=>{ p.x+=p.vx; p.y+=p.vy; p.life--; if(p.life<=0) particles.splice(i,1); else {ctx.fillStyle='#fff'; ctx.fillRect(p.x,p.y,2,2);} });
+  ctx.fillStyle='#f00'; enemyBullets.forEach(b=>ctx.fillRect(b.x,b.y,3,8));
+  enemies.forEach(e=>{ if(!e.alive) return; ctx.fillStyle='#f00'; ctx.fillRect(e.x,e.y,18,7); });
 }
+
 function loop(){ update(); draw(); requestAnimationFrame(loop); } loop();
 document.getElementById('left').ontouchstart=()=>keys['left']=true; document.getElementById('left').ontouchend=()=>keys['left']=false;
 document.getElementById('right').ontouchstart=()=>keys['right']=true; document.getElementById('right').ontouchend=()=>keys['right']=false;
 document.getElementById('fire').ontouchstart=()=>shoot();
-document.addEventListener('keydown',e=>{keys[e.key]=true; if(e.code==='Space') shoot();});
-document.addEventListener('keyup',e=>keys[e.key]=false);
-setInterval(()=>{ if(gameOver) return; let alive=enemies.filter(e=>e.alive); if(!alive.length) return; for(let i=0;i<4;i++){ let e=alive[Math.floor(Math.random()*alive.length)]; enemyBullets.push({x:e.x+6,y:e.y+10,vy:4+level*0.6}); } },300);
+setInterval(()=>{ if(isAdPlaying) return; let alive=enemies.filter(e=>e.alive); if(!alive.length) return; let e=alive[Math.floor(Math.random()*alive.length)]; enemyBullets.push({x:e.x+8,y:e.y+10,vy:3+level*0.5}); }, 400);
 </script>
 </body>
 </html>
