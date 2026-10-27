@@ -3,19 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<title>DALEPLAY SHOOTER - DOBLE ANUNCIO</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>DALEPLAY SHOOTER - FIX FINAL</title>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <script src="https://alwingulla.com/88/tag.min.js" data-zone="3528410"></script>
 <style>
 body{margin:0;background:#0f1419;color:#fff;font-family:Arial;text-align:center;overflow:hidden}
 .header{background:#2AABEE;padding:12px;font-weight:900;font-size:18px}
-#hud{display:flex;justify-content:space-between;background:#fff;color:#2AABEE;padding:8px 12px;font-weight:900;border:2px solid #2AABEE;margin:8px;border-radius:10px}
-canvas{border:3px solid #2AABEE;background:#000;border-radius:12px;box-shadow:0 0 20px #2AABEE60}
+#hud{display:flex;justify-content:space-between;background:#fff;color:#2AABEE;padding:8px 12px;font-weight:900;border:2px solid #2AABEE;margin:8px;border-radius:10px;font-size:13px}
+canvas{border:3px solid #2AABEE;background:#000;border-radius:12px}
 .controls{display:flex;gap:10px;justify-content:center;margin-top:10px}
 .controls button{width:80px;height:65px;background:#fff;border:2px solid #2AABEE;color:#2AABEE;font-size:28px;border-radius:15px;font-weight:900}
 .controls button:active{background:#2AABEE;color:#fff}
-#status{color:#0f0;font-size:11px;margin-top:6px}
+#status{color:#0f0;font-size:11px;margin-top:6px;height:14px}
+/* MODALES PARA DALEPLAY - NO SE BLOQUEAN */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;z-index:9999}
+.modal .box{background:#fff;color:#000;padding:20px;border-radius:16px;border:3px solid #2AABEE;width:85%;max-width:300px}
+.modal .box h2{color:#2AABEE;margin:0 0 10px 0}
+.modal .box button{background:#2AABEE;color:#fff;border:0;padding:14px;width:100%;border-radius:10px;font-weight:900;margin-top:10px;font-size:15px}
 </style>
 </head>
 <body>
@@ -29,85 +33,83 @@ canvas{border:3px solid #2AABEE;background:#000;border-radius:12px;box-shadow:0 
 <button id="right">▶</button>
 </div>
 
-<script>
-let tg=Telegram.WebApp; tg.ready(); tg.expand();
+<!-- MODAL MUERTE -->
+<div id="modalDie" class="modal"><div class="box"><h2>💀 MORISTE</h2><p id="dieText">Nivel 1</p><button id="btnRevive">💰 VER ANUNCIO 12010449 PARA REVIVIR</button></div></div>
+<!-- MODAL NIVEL -->
+<div id="modalWin" class="modal"><div class="box"><h2>🎉 NIVEL PASADO</h2><p id="winText">Bien!</p><button id="btnNext">💰 VER ANUNCIO 3528410 PASAR NIVEL</button></div></div>
 
-let score=0, level=1, ads=0, isAd=false;
-let player={x:170,y:460,speed:5}, bullets=[], enemies=[], eBullets=[], keys={};
+<script>
+let score=0, level=1, ads=0, isPaused=false;
+let player={x:170,y:460,w:24,h:12,speed:5}, bullets=[], enemies=[], eBullets=[], keys={};
 const c=document.getElementById('game'), ctx=c.getContext('2d');
 
-// FIX ANTI-CONGELAMIENTO
-function show_12010449_safe(){
+function safeAd12010449(){
   return new Promise(r=>{
-    let ok=false; let f=()=>{if(!ok){ok=true;r();}};
-    setTimeout(f, 3000);
-    try{ show_12010449().then(f).catch(f); }catch(e){ f(); }
+    let done=false; let f=()=>{if(!done){done=true;r();}};
+    setTimeout(f, 3500); // NUNCA SE QUEDA PEGADO MAS DE 3.5s
+    try{ if(typeof show_12010449!=='undefined'){ show_12010449().then(f).catch(f); } else { f(); } }catch(e){ f(); }
   });
 }
-function show_3528410_safe(){
+function safeAd3528410(){
   return new Promise(r=>{
-    setTimeout(r, 2500);
-    try{ tg.openLink('https://alwingulla.com/g/3528410'); }catch(e){}
+    let done=false; let f=()=>{if(!done){done=true;r();}};
+    setTimeout(f, 3000);
+    try{
+      let s=document.createElement('script'); s.src='https://alwingulla.com/88/tag.min.js'; s.setAttribute('data-zone','3528410'); document.body.appendChild(s);
+      f();
+    }catch(e){ f(); }
   });
 }
 
 function spawn(lv){
   enemies=[];
-  let rows=4+lv, cols=9;
+  let rows=4+Math.min(lv,5), cols=9;
   for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) enemies.push({x:12+c*37,y:40+r*26,w:24,h:14,dir:1,alive:true});
 }
 spawn(1);
 
-function shoot(){ if(isAd) return; bullets.push({x:player.x+10,y:player.y,vy:-9}); }
+function shoot(){ if(isPaused) return; bullets.push({x:player.x+10,y:player.y,vy:-10}); }
 
-async function reviveAd(){
-  if(isAd) return; isAd=true;
-  document.getElementById('status').innerText='▶ MOSTRANDO ANUNCIO 12010449 PARA REVIVIR...';
-  await show_12010449_safe();
-  ads++; document.getElementById('money').innerText=`ADS $${(ads*0.04).toFixed(2)}`;
-  document.getElementById('status').innerText='✅ REVIVISTE - ID 12010449 PAGADO';
-  player.x=170; bullets=[]; eBullets=[]; isAd=false;
+function openDie(){
+  isPaused=true;
+  document.getElementById('dieText').innerText=`Moriste en Nivel ${level} | Score ${score}`;
+  document.getElementById('modalDie').style.display='flex';
+}
+function openWin(){
+  isPaused=true;
+  document.getElementById('winText').innerText=`Pasaste Nivel ${level} | Score ${score}`;
+  document.getElementById('modalWin').style.display='flex';
 }
 
-async function nextLevelAd(){
-  if(isAd) return; isAd=true;
-  document.getElementById('status').innerText='▶ MOSTRANDO ANUNCIO 3528410 PARA PASAR DE NIVEL...';
-  await show_3528410_safe();
+document.getElementById('btnRevive').onclick = async ()=>{
+  let btn=document.getElementById('btnRevive');
+  btn.innerText='⏳ CARGANDO ANUNCIO 12010449...'; btn.disabled=true;
+  document.getElementById('status').innerText='▶ ANUNCIO 12010449...';
+  await safeAd12010449();
+  ads++; document.getElementById('money').innerText=`ADS $${(ads*0.04).toFixed(2)}`;
+  document.getElementById('status').innerText='✅ REVIVISTE';
+  document.getElementById('modalDie').style.display='none';
+  btn.innerText='💰 VER ANUNCIO 12010449 PARA REVIVIR'; btn.disabled=false;
+  player.x=170; bullets=[]; eBullets=[]; isPaused=false;
+};
+
+document.getElementById('btnNext').onclick = async ()=>{
+  let btn=document.getElementById('btnNext');
+  btn.innerText='⏳ CARGANDO ANUNCIO 3528410...'; btn.disabled=true;
+  document.getElementById('status').innerText='▶ ANUNCIO 3528410...';
+  await safeAd3528410();
   ads++; level++; score+=1000;
   document.getElementById('lvl').innerText='LVL '+level;
   document.getElementById('score').innerText='SCORE '+score;
   document.getElementById('money').innerText=`ADS $${(ads*0.04).toFixed(2)}`;
-  document.getElementById('status').innerText=`✅ NIVEL ${level} - ID 3528410 PAGADO`;
-  player.x=170; bullets=[]; eBullets=[]; spawn(level); isAd=false;
-}
-
-function die(){
-  if(isAd) return; isAd=true;
-  tg.HapticFeedback.notificationOccurred('error');
-  tg.showPopup({
-    title:`💀 MORISTE NIVEL ${level}`,
-    message:`Score: ${score}\nMira anuncio 12010449 para revivir`,
-    buttons:[{id:'revive',type:'default',text:'💰 VER ANUNCIO 12010449 REVIVIR'}]
-  });
-}
-
-function win(){
-  if(isAd) return; isAd=true;
-  tg.HapticFeedback.notificationOccurred('success');
-  tg.showPopup({
-    title:`🎉 NIVEL ${level} PASADO`,
-    message:`Mataste a todos! Score ${score}\nMira anuncio 3528410 para nivel ${level+1}`,
-    buttons:[{id:'next',type:'default',text:'💰 VER ANUNCIO 3528410 PASAR NIVEL'}]
-  });
-}
-
-tg.onPopupButtonClicked = (d)=>{
-  if(d.buttonId==='revive') reviveAd();
-  if(d.buttonId==='next') nextLevelAd();
+  document.getElementById('status').innerText=`✅ NIVEL ${level} - 3528410 PAGADO`;
+  document.getElementById('modalWin').style.display='none';
+  btn.innerText='💰 VER ANUNCIO 3528410 PASAR NIVEL'; btn.disabled=false;
+  player.x=170; bullets=[]; eBullets=[]; spawn(level); isPaused=false;
 };
 
 function update(){
-  if(isAd) return;
+  if(isPaused) return;
   if(keys['left']) player.x-=player.speed;
   if(keys['right']) player.x+=player.speed;
   player.x=Math.max(0,Math.min(336,player.x));
@@ -117,7 +119,7 @@ function update(){
   if(edge) enemies.forEach(e=>{e.dir*=-1; e.y+=15+level;});
   eBullets.forEach((b,i)=>{
     b.y+=b.vy; if(b.y>500) eBullets.splice(i,1);
-    if(b.x>player.x&&b.x<player.x+24&&b.y>player.y&&b.y<player.y+15){eBullets.splice(i,1); die();}
+    if(b.x>player.x&&b.x<player.x+24&&b.y>player.y&&b.y<player.y+15){eBullets.splice(i,1); openDie();}
   });
   bullets.forEach((b,bi)=>{
     enemies.forEach(e=>{
@@ -128,8 +130,8 @@ function update(){
       }
     });
   });
-  if(enemies.every(e=>!e.alive)) win();
-  if(enemies.some(e=>e.alive&&e.y>440)) die();
+  if(enemies.every(e=>!e.alive)) openWin();
+  if(enemies.some(e=>e.alive&&e.y>440)) openDie();
 }
 
 function draw(){
@@ -137,11 +139,7 @@ function draw(){
   ctx.fillStyle='#0ff'; ctx.fillRect(player.x,player.y,24,5); ctx.fillRect(player.x+8,player.y-10,8,12);
   ctx.fillStyle='#ff0'; bullets.forEach(b=>ctx.fillRect(b.x,b.y,3,12));
   ctx.fillStyle='#f00'; eBullets.forEach(b=>ctx.fillRect(b.x,b.y,3,10));
-  enemies.forEach(e=>{
-    if(!e.alive) return;
-    ctx.fillStyle='#f00'; ctx.fillRect(e.x,e.y,24,10);
-    ctx.fillRect(e.x+3,e.y+10,5,4); ctx.fillRect(e.x+16,e.y+10,5,4);
-  });
+  enemies.forEach(e=>{if(!e.alive)return; ctx.fillStyle='#f00'; ctx.fillRect(e.x,e.y,24,10);});
 }
 
 function loop(){ update(); draw(); requestAnimationFrame(loop); } loop();
@@ -151,13 +149,7 @@ document.getElementById('left').ontouchend=e=>{e.preventDefault();keys['left']=f
 document.getElementById('right').ontouchstart=e=>{e.preventDefault();keys['right']=true;};
 document.getElementById('right').ontouchend=e=>{e.preventDefault();keys['right']=false;};
 document.getElementById('fire').ontouchstart=e=>{e.preventDefault();shoot();};
-
-setInterval(()=>{
-  if(isAd) return;
-  let alive=enemies.filter(e=>e.alive); if(!alive.length) return;
-  let e=alive[Math.floor(Math.random()*alive.length)];
-  eBullets.push({x:e.x+10,y:e.y+12,vy:3+level*0.5});
-}, 500);
+setInterval(()=>{ if(isPaused) return; let alive=enemies.filter(e=>e.alive); if(!alive.length) return; let e=alive[Math.floor(Math.random()*alive.length)]; eBullets.push({x:e.x+10,y:e.y+12,vy:3+level*0.5}); }, 600);
 </script>
 </body>
 </html>
