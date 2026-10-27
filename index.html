@@ -1,87 +1,181 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>DALEPLAY FIX MORIR</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Atari Breakout - Telegram Mini App</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- MONETAG - TUS IDS -->
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010451" data-sdk="show_12010451"></script>
 <style>
-body{margin:0;background:#000;color:#fff;text-align:center;font-family:Arial;overflow:hidden}
-#hud{display:flex;justify-content:space-between;background:#fff;color:#2AABEE;padding:8px;font-weight:900;margin:5px;border-radius:8px;font-size:13px}
-canvas{border:2px solid #2AABEE;background:#000;display:block;margin:0 auto}
-button{padding:14px;background:#2AABEE;color:#fff;border:0;border-radius:10px;font-weight:900;margin:5px;font-size:16px}
-.controls button{width:80px;height:65px;font-size:28px;background:#fff;color:#2AABEE;border:2px solid #2AABEE}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9999}
-.box{background:#fff;color:#000;padding:22px;border-radius:16px;width:85%;max-width:300px}
+  *{box-sizing:border-box}
+  body{margin:0;background:#000;color:#fff;font-family:monospace;text-align:center;overflow:hidden;user-select:none}
+  #ui{padding:10px}
+  #stats{display:flex;justify-content:space-between;padding:8px 12px;background:#1a1a1a;border-radius:10px;margin-bottom:8px;font-size:14px}
+  canvas{background:#0e0e0e;display:block;margin:0 auto;border:2px solid #2a2a2a;border-radius:12px}
+  button{padding:16px 20px;font-size:16px;background:#2ea6ff;color:#fff;border:0;border-radius:12px;margin:8px auto;font-weight:bold;width:92%;max-width:320px;display:block;cursor:pointer}
+  button.sec{background:#2a2a2a;color:#aaa}
+  button:active{transform:scale(0.97)}
+  #gameover,#levelup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:10}
+  #gameover.show,#levelup.show{display:flex}
+  h2{font-size:28px;margin:0 0 10px 0}
+  p{color:#aaa}
 </style>
 </head>
 <body>
-<div id="hud"><span id="s">SCORE 0</span><span id="l">LVL 1</span><span id="m">$0.00</span></div>
-<canvas id="g" width="360" height="450"></canvas>
-<div id="status" style="font-size:11px;color:#0f0">12010449 + 12010451 LISTOS</div>
-<div class="controls"><button id="L">◀</button><button id="F">🔥</button><button id="R">▶</button></div>
+<div id="ui">
+  <div id="stats">
+    <span>NIVEL <b id="nivel">1</b></span>
+    <span>VIDAS <b id="vidas">3</b></span>
+    <span><b id="puntos">0</b> PTS</span>
+  </div>
+  <canvas id="game" width="320" height="480"></canvas>
+  <p style="font-size:12px;color:#555">Desliza el dedo para mover</p>
+</div>
 
-<div id="md" class="modal"><div class="box"><h2 style="color:#2AABEE">💀 MORISTE</h2><p id="dt"></p><button id="br">💰 VER ANUNCIO 12010449 - REVIVIR</button></div></div>
-<div id="mw" class="modal"><div class="box"><h2 style="color:#2AABEE">🎉 NIVEL PASADO</h2><p id="wt"></p><button id="bn">💰 ANUNCIO 12010451 - SIGUIENTE</button></div></div>
+<div id="gameover">
+  <h2>💀 GAME OVER</h2>
+  <p>Puntaje: <span id="finalScore">0</span></p>
+  <button id="btnRevive">🎥 Ver anuncio para +1 vida</button>
+  <button id="btnRestart" class="sec">Reiniciar</button>
+</div>
+
+<div id="levelup">
+  <h2>🔥 NIVEL SUPERADO</h2>
+  <p>Cargando anuncio para continuar...</p>
+</div>
 
 <script>
-let score=0,level=1,ads=0,paused=false,pl={x:170,y:410},bull=[],en=[],eb=[],keys={};
-let c=document.getElementById('g'),x=c.getContext('2d');
-function spawn(lv){en=[];for(let r=0;r<4;r++)for(let cc=0;cc<9;cc++)en.push({x:10+cc*38,y:30+r*25,a:true,dir:1})}
-spawn(1);
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
 
-function pagar(id){
-  try{
-    if(id===12010449 && typeof show_12010449!=='undefined') show_12010449();
-    if(id===12010451 && typeof show_12010451!=='undefined') show_12010451();
-  }catch(e){}
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let vidas = 3, puntos = 0, nivel = 1;
+let ball = {x:160, y:400, dx:3.2, dy:-3.8, r:6};
+let paddle = {x:120, w:85, h:12};
+let bricks = [];
+let running = true;
+
+function crearNivel(){
+  bricks=[];
+  let filas = 4 + nivel;
+  if(filas>9) filas=9;
+  for(let r=0;r<filas;r++){
+    for(let c=0;c<6;c++){
+      bricks.push({x:c*52+4, y:r*22+45, alive:true});
+    }
+  }
+}
+function resetBall(){ ball.x=160; ball.y=400; ball.dx=3.2*(Math.random()>0.5?1:-1); ball.dy=-3.8 - nivel*0.35; }
+
+function draw(){
+  ctx.clearRect(0,0,320,480);
+  ctx.fillStyle="#00f5ff";
+  ctx.shadowColor="#00f5ff"; ctx.shadowBlur=10;
+  ctx.fillRect(paddle.x, 462, paddle.w, paddle.h);
+  ctx.shadowBlur=0;
+  ctx.fillStyle="#fff";
+  ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fill();
+  bricks.forEach(b=>{
+    if(b.alive){
+      ctx.fillStyle = b.y<70 ? "#ff2d7b" : b.y<120 ? "#ffcc00" : "#00ff88";
+      ctx.fillRect(b.x, b.y, 48, 16);
+    }
+  });
 }
 
-function morir(){ if(paused) return; paused=true; document.getElementById('dt').innerText=`Nivel ${level} | Score ${score}`; document.getElementById('md').style.display='flex'; }
-function ganar(){ if(paused) return; paused=true; document.getElementById('wt').innerText=`Nivel ${level} Score ${score}`; document.getElementById('mw').style.display='flex'; }
+function pasarNivel(){
+  nivel++;
+  puntos+=100;
+  document.getElementById('nivel').innerText=nivel;
+  document.getElementById('puntos').innerText=puntos;
+  document.getElementById('levelup').classList.remove('show');
+  crearNivel(); resetBall(); running=true; requestAnimationFrame(loop);
+}
 
-document.getElementById('br').onclick=()=>{
-  pagar(12010449);
-  ads++; document.getElementById('m').innerText='$'+(ads*0.04).toFixed(2);
-  // FIX DEL BUG DE TU FOTO - ESTO FALTABA:
-  document.getElementById('md').style.display='none';
-  bull=[]; eb=[]; pl.x=170;
-  en.forEach(e=>{ e.y -= 80; if(e.y<20) e.y=20; }); // SUBE LOS ENEMIGOS PARA QUE NO TE MATEN AL REVIVIR
-  paused=false;
-  document.getElementById('status').innerText='✅ 12010449 PAGADO - REVIVISTE';
-};
+function checkWin(){
+  if(bricks.every(b=>!b.alive)){
+    running=false;
+    document.getElementById('levelup').classList.add('show');
+    // ANUNCIO AL PASAR DE NIVEL - ID 12010451
+    setTimeout(()=>{
+      if(typeof show_12010451 === 'function'){
+        show_12010451().then(()=> pasarNivel()).catch(()=> pasarNivel());
+      } else { pasarNivel(); }
+    }, 700);
+    return true;
+  }
+  return false;
+}
 
-document.getElementById('bn').onclick=()=>{
-  pagar(12010451);
-  ads++; level++; score+=500;
-  document.getElementById('l').innerText='LVL '+level;
-  document.getElementById('s').innerText='SCORE '+score;
-  document.getElementById('m').innerText='$'+(ads*0.04).toFixed(2);
-  document.getElementById('mw').style.display='none';
-  bull=[]; eb=[]; pl.x=170; spawn(level); paused=false;
-};
+function gameOver(){
+  running=false;
+  document.getElementById('finalScore').innerText=puntos;
+  document.getElementById('gameover').classList.add('show');
+  if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+}
 
 function loop(){
- if(!paused){
-  if(keys.L)pl.x-=5;if(keys.R)pl.x+=5;pl.x=Math.max(0,Math.min(336,pl.x));
-  bull.forEach((b,i)=>{b.y-=8;if(b.y<0)bull.splice(i,1)});
-  let edge=false;en.forEach(e=>{if(!e.a)return;e.x+=e.dir*(0.8+level*0.3);if(e.x<0||e.x>336)edge=true});
-  if(edge)en.forEach(e=>{e.dir*=-1;e.y+=12});
-  eb.forEach((b,i)=>{b.y+=3;if(b.y>460){eb.splice(i,1);return}if(b.x>pl.x&&b.x<pl.x+24&&b.y>pl.y&&b.y<pl.y+15){eb.splice(i,1);morir()}});
-  bull.forEach((b,bi)=>{en.forEach(e=>{if(!e.a)return;if(b.x>e.x&&b.x<e.x+24&&b.y>e.y&&b.y<e.y+12){e.a=false;bull.splice(bi,1);score+=100;document.getElementById('s').innerText='SCORE '+score}})});
-  if(en.every(e=>!e.a))ganar();if(en.some(e=>e.a&&e.y>390))morir();
- }
- x.clearRect(0,0,360,450);x.fillStyle='#0ff';x.fillRect(pl.x,410,24,10);
- x.fillStyle='#ff0';bull.forEach(b=>x.fillRect(b.x,b.y,3,10));
- x.fillStyle='#f00';eb.forEach(b=>x.fillRect(b.x,b.y,3,8));en.forEach(e=>{if(e.a){x.fillStyle='#f00';x.fillRect(e.x,e.y,24,10)}});
- requestAnimationFrame(loop);
+  if(!running) return;
+  ball.x+=ball.dx; ball.y+=ball.dy;
+  if(ball.x<ball.r || ball.x>320-ball.r) ball.dx*=-1;
+  if(ball.y<ball.r) ball.dy*=-1;
+  if(ball.y>462-ball.r && ball.y<470 && ball.x>paddle.x && ball.x<paddle.x+paddle.w){
+    ball.dy*=-1;
+    ball.y=462-ball.r;
+    // efecto angulo segun donde pega
+    let hitPos = (ball.x - (paddle.x + paddle.w/2)) / (paddle.w/2);
+    ball.dx = hitPos * 4;
+    if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+  }
+  bricks.forEach(b=>{
+    if(b.alive && ball.x>b.x && ball.x<b.x+48 && ball.y>b.y && ball.y<b.y+16){
+      b.alive=false; ball.dy*=-1; puntos+=10;
+      document.getElementById('puntos').innerText=puntos;
+    }
+  });
+  if(ball.y>485){
+    vidas--; document.getElementById('vidas').innerText=vidas;
+    if(vidas<=0){ gameOver(); return; }
+    resetBall();
+  }
+  draw();
+  if(!checkWin()) requestAnimationFrame(loop);
 }
-loop();
-document.getElementById('L').ontouchstart=e=>{e.preventDefault();keys.L=true};document.getElementById('L').ontouchend=e=>{keys.L=false};
-document.getElementById('R').ontouchstart=e=>{e.preventDefault();keys.R=true};document.getElementById('R').ontouchend=e=>{keys.R=false};
-document.getElementById('F').ontouchstart=e=>{e.preventDefault();if(!paused)bull.push({x:pl.x+10,y:410})};
-setInterval(()=>{if(paused)return;let a=en.filter(e=>e.a);if(!a.length)return;let e=a[Math.floor(Math.random()*a.length)];eb.push({x:e.x+10,y:e.y})},700);
+
+// Controles
+canvas.addEventListener('touchmove', e=>{
+  let rect=canvas.getBoundingClientRect();
+  let x=e.touches[0].clientX-rect.left;
+  paddle.x = Math.max(0, Math.min(320-paddle.w, x-paddle.w/2));
+  e.preventDefault();
+},{passive:false});
+canvas.addEventListener('mousemove', e=>{
+  let rect=canvas.getBoundingClientRect();
+  paddle.x = Math.max(0, Math.min(320-paddle.w, e.clientX-rect.left-paddle.w/2));
+});
+
+// BOTONES
+document.getElementById('btnRevive').onclick=()=>{
+  // ANUNCIO PARA REVIVIR - ID 12010449
+  if(typeof show_12010449 === 'function'){
+    show_12010449().then(()=>{
+      vidas=1;
+      document.getElementById('vidas').innerText=vidas;
+      document.getElementById('gameover').classList.remove('show');
+      resetBall(); running=true; requestAnimationFrame(loop);
+    }).catch(()=> alert('Anuncio no disponible, intenta de nuevo en 10 seg'));
+  } else {
+    alert('Cargando anuncios... espera 2 segundos y vuelve a intentar');
+  }
+};
+document.getElementById('btnRestart').onclick=()=> location.reload();
+
+// INIT
+crearNivel(); draw(); loop();
 </script>
 </body>
 </html>
