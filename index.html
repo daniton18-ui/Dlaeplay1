@@ -3,45 +3,42 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>ATARI 40 GAMES</title>
+<title>ATARI FIX</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <script src="//libtl.com/sdk.js" data-zone="12010451" data-sdk="show_12010451"></script>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
  body{margin:0;background:#000;color:#0f0;font-family:'Press Start 2P',monospace;text-align:center}
- #menu{padding:12px}
- #grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:520px;margin:0 auto}
- .card{background:linear-gradient(#222,#111);border:3px solid #333;border-radius:0;padding:10px;cursor:pointer;image-rendering:pixelated}
- .card:active{border-color:#0f0;background:#0a1a0a;transform:scale(0.96)}
- .card .ico{font-size:32px;filter:contrast(0) sepia(1) hue-rotate(90deg) saturate(5)}
- .card b{font-size:8px;display:block;margin-top:8px;line-height:12px}
- canvas{background:#000;display:none;margin:8px auto;border:4px solid #333;image-rendering:pixelated}
+ #menu{padding:10px}
+ #grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:520px;margin:0 auto}
+ .card{background:#111;border:3px solid #222;padding:10px;cursor:pointer}
+ .card:active{border-color:#0f0}
+ .card b{font-size:7px;display:block;margin-top:6px;line-height:10px}
+ canvas{background:#000;display:none;margin:5px auto;border:4px solid #333}
  #top{display:none;justify-content:space-between;padding:8px;background:#111;font-size:8px;margin:5px}
- #controls{display:none;justify-content:center;gap:8px;margin:8px}
+ #controls{display:none;justify-content:center;gap:8px;margin:6px}
  .ctrl{width:70px;height:70px;background:#222;border:3px solid #444;font-family:'Press Start 2P';font-size:10px;color:#0f0}
- .ctrl:active{background:#0f0;color:#000}
  #over{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:none;flex-direction:column;justify-content:center;align-items:center;z-index:99;border:6px solid #0f0}
  #over.show{display:flex}
- button.action{padding:12px;width:90%;max-width:340px;background:#0f0;border:0;color:#000;font-family:'Press Start 2P';font-size:10px;margin:8px}
- button.action.sec{background:#222;color:#0f0;border:2px solid #0f0}
+ button.action{padding:12px;width:90%;max-width:340px;background:#0f0;border:0;color:#000;font-family:'Press Start 2P';font-size:9px;margin:6px}
 </style>
 </head>
 <body>
 <div id="menu">
-  <h2 style="font-size:14px;color:#ff0">ATARI 40 GAMES</h2>
-  <p style="font-size:7px;color:#555">SELECT GAME - COINS: <b id="coinsMenu">0</b></p>
+  <h2 style="font-size:12px;color:#ff0">ATARI FIXED 40</h2>
+  <p style="font-size:7px;color:#555">AHORA SI CAMBIAN - COINS: <b id="coinsMenu">0</b></p>
   <div id="grid"></div>
 </div>
 <div id="top"><span id="t1"></span><span id="t2"></span><button style="background:#222;border:2px solid #0f0;color:#0f0;font-family:'Press Start 2P';font-size:7px;padding:4px" onclick="goMenu()">MENU</button></div>
 <canvas id="game" width="320" height="400"></canvas>
 <div id="controls"><button class="ctrl" id="left">◀</button><button class="ctrl" id="fire">FIRE</button><button class="ctrl" id="right">▶</button></div>
-<div id="over"><h2 id="overTitle" style="font-size:12px"></h2><p id="overMsg" style="font-size:8px"></p><button class="action" id="btnRevive">AD REVIVE 12010449</button><button class="action sec" onclick="goMenu()">ATARI MENU</button></div>
+<div id="over"><h2 id="overTitle" style="font-size:11px"></h2><p id="overMsg" style="font-size:8px"></p><button class="action" id="btnRevive">AD REVIVE 12010449</button><button class="action" style="background:#222;color:#0f0;border:2px solid #0f0" onclick="goMenu()">MENU</button></div>
 
 <script>
 const tg=Telegram.WebApp; tg.ready(); tg.expand();
 const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
-let coins=parseInt(localStorage.getItem('coins')||0), mode=null, running=false, score=0, nivel=1, player, ball, bullets=[], enemies=[], vy=0;
+let coins=parseInt(localStorage.getItem('coins')||0), mode=null, running=false, score=0, nivel=1, player={}, ball={}, bullets=[], enemies=[], particles=[];
 
 const ATARI=[
  {id:1,name:"BREAKOUT",icon:"🧱",type:"breakout"},
@@ -49,106 +46,159 @@ const ATARI=[
  {id:3,name:"SPACE INVADERS",icon:"👾",type:"invaders"},
  {id:4,name:"ASTEROIDS",icon:"☄️",type:"asteroids"},
  {id:5,name:"MISSILE COMMAND",icon:"🚀",type:"missile"},
- {id:6,name:"CENTIPEDE",icon:"🐛",type:"centipede"},
+ {id:6,name:"PAC-MAN",icon:"🟡",type:"pacman"},
  {id:7,name:"FROGGER",icon:"🐸",type:"frogger"},
- {id:8,name:"PAC-MAN",icon:"🟡",type:"pacman"},
- {id:9,name:"DONKEY KONG",icon:"🦍",type:"kong"},
- {id:10,name:"GALAGA",icon:"👽",type:"galaga"},
- {id:11,name:"DEFENDER",icon:"🛸",type:"defender"},
- {id:12,name:"PITFALL",icon:"🕳️",type:"pitfall"},
- {id:13,name:"RIVER RAID",icon:"✈️",type:"river"},
- {id:14,name:"COMBAT TANKS",icon:"🪖",type:"tanks"},
- {id:15,name:"YARS REVENGE",icon:"🪰",type:"yars"},
- {id:16,name:"BERZERK",icon:"🤖",type:"berzerk"},
+ {id:8,name:"RIVER RAID",icon:"✈️",type:"river"},
+ {id:9,name:"COMBAT",icon:"🪖",type:"tanks"},
+ {id:10,name:"SEAQUEST",icon:"🦈",type:"seaquest"},
+ {id:11,name:"GALAGA",icon:"👽",type:"invaders"},
+ {id:12,name:"DEFENDER",icon:"🛸",type:"defender"},
+ {id:13,name:"CENTIPEDE",icon:"🐛",type:"centipede"},
+ {id:14,name:"Q*BERT",icon:"🔶",type:"qbert"},
+ {id:15,name:"ENDURO",icon:"🏎️",type:"enduro"},
+ {id:16,name:"FREEWAY",icon:"🐔",type:"freeway"},
  {id:17,name:"KABOOM!",icon:"💣",type:"kaboom"},
- {id:18,name:"SEAQUEST",icon:"🦈",type:"seaquest"},
- {id:19,name:"ENDURO",icon:"🏎️",type:"enduro"},
- {id:20,name:"Q*BERT",icon:"🔶",type:"qbert"},
- {id:21,name:"DIG DUG",icon:"⛏️",type:"digdug"},
- {id:22,name:"JUNGLE HUNT",icon:"🌴",type:"jungle"},
- {id:23,name:"POPEYE",icon:"💪",type:"popeye"},
- {id:24,name:"Joust",icon:"🦅",type:"joust"},
- {id:25,name:"MOON PATROL",icon:"🌙",type:"moon"},
- {id:26,name:"BURGERTIME",icon:"🍔",type:"burger"},
- {id:27,name:"KEYSTONE KAPERS",icon:"👮",type:"keystone"},
- {id:28,name:"HERO",icon:"🦸",type:"hero"},
- {id:29,name:"BARNSTORMING",icon:"🛩️",type:"barn"},
- {id:30,name:"BOXING",icon:"🥊",type:"boxing"},
- {id:31,name:"BOWLING",icon:"🎳",type:"bowling"},
- {id:32,name:"SKIING",icon:"🎿",type:"skiing"},
- {id:33,name:"TENNIS",icon:"🎾",type:"tennis"},
- {id:34,name:"ICE HOCKEY",icon:"🏒",type:"hockey"},
- {id:35,name:"FISHING DERBY",icon:"🎣",type:"fishing"},
- {id:36,name:"CIRCUS",icon:"🤹",type:"circus"},
- {id:37,name:"LASER BLAST",icon:"🔫",type:"laser"},
- {id:38,name:"DEMON ATTACK",icon:"👹",type:"demon"},
- {id:39,name:"FREEWAY",icon:"🐔",type:"freeway"},
- {id:40,name:"ATARI BOSS RUSH",icon:"👑",type:"boss"},
+ {id:18,name:"PITFALL",icon:"🕳️",type:"pitfall"},
+ {id:19,name:"LASER BLAST",icon:"🔫",type:"laser"},
+ {id:20,name:"DEMON ATTACK",icon:"👹",type:"invaders"},
+ {id:21,name:"BARNSTORMING",icon:"🛩️",type:"river"},
+ {id:22,name:"BOXING",icon:"🥊",type:"boxing"},
+ {id:23,name:"BOWLING",icon:"🎳",type:"bowling"},
+ {id:24,name:"SKIING",icon:"🎿",type:"skiing"},
+ {id:25,name:"TENNIS",icon:"🎾",type:"tennis"},
+ {id:26,name:"FISHING",icon:"🎣",type:"seaquest"},
+ {id:27,name:"CIRCUS",icon:"🤹",type:"circus"},
+ {id:28,name:"HERO",icon:"🦸",type:"pitfall"},
+ {id:29,name:"JUNGLE HUNT",icon:"🌴",type:"jungle"},
+ {id:30,name:"MOON PATROL",icon:"🌙",type:"moon"},
+ {id:31,name:"BURGERTIME",icon:"🍔",type:"burger"},
+ {id:32,name:"KEYSTONE",icon:"👮",type:"keystone"},
+ {id:33,name:"Joust",icon:"🦅",type:"joust"},
+ {id:34,name:"DIG DUG",icon:"⛏️",type:"digdug"},
+ {id:35,name:"POPEYE",icon:"💪",type:"popeye"},
+ {id:36,name:"BERZERK",icon:"🤖",type:"berzerk"},
+ {id:37,name:"YARS",icon:"🪰",type:"yars"},
+ {id:38,name:"ICE HOCKEY",icon:"🏒",type:"hockey"},
+ {id:39,name:"DODGE",icon:"💀",type:"dodge"},
+ {id:40,name:"BOSS RUSH",icon:"👑",type:"boss"},
 ];
 
-function renderMenu(){
-  document.getElementById('coinsMenu').innerText=coins;
-  let h=''; ATARI.forEach(g=>{ h+=`<div class="card" onclick="startGame(${g.id})"><div class="ico">${g.icon}</div><b>${g.name}</b></div>`; });
-  document.getElementById('grid').innerHTML=h;
-}
-function goMenu(){ running=false; mode=null; document.getElementById('menu').style.display='block'; document.getElementById('top').style.display='none'; canvas.style.display='none'; document.getElementById('controls').style.display='none'; document.getElementById('over').classList.remove('show'); }
+function renderMenu(){ document.getElementById('coinsMenu').innerText=coins; let h=''; ATARI.forEach(g=>{ h+=`<div class="card" onclick="startGame(${g.id})"><div style="font-size:28px">${g.icon}</div><b>${g.name}</b></div>`; }); document.getElementById('grid').innerHTML=h; }
+function goMenu(){ running=false; document.getElementById('menu').style.display='block'; document.getElementById('top').style.display='none'; canvas.style.display='none'; document.getElementById('controls').style.display='none'; document.getElementById('over').classList.remove('show'); }
 
 function startGame(id){
-  let g=ATARI.find(x=>x.id===id); mode=g; score=0; nivel=1; bullets=[]; enemies=[]; vy=0;
+  let g=ATARI.find(x=>x.id===id); mode=g; score=0; nivel=1; bullets=[]; enemies=[]; particles=[];
   document.getElementById('menu').style.display='none'; document.getElementById('top').style.display='flex'; canvas.style.display='block'; document.getElementById('controls').style.display='flex';
-  document.getElementById('t1').innerText=g.name; 
-  if(g.type==='breakout'){ player={x:120,w:60}; ball={x:160,y:200,dx:2.5,dy:-2.5,r:4}; enemies=[]; for(let r=0;r<6;r++) for(let c=0;c<8;c++) enemies.push({x:c*38+8,y:r*16+40,alive:true}); }
-  else if(g.type==='pong'){ player={y:160,h:50}; ball={x:160,y:200,dx:3,dy:2,r:4}; enemies=[{y:160,h:50,dir:2}]; }
-  else { player={x:140,y:360,w:20,h:20}; }
+  document.getElementById('t1').innerText=g.name;
+  if(g.type==='breakout'){ player={x:120,w:70}; ball={x:160,y:200,dx:3,dy:-3,r:5}; enemies=[]; for(let r=0;r<6;r++) for(let c=0;c<8;c++) enemies.push({x:c*38+6,y:r*16+30,alive:true,color:r<2?'#f00':r<4?'#ff0':'#0f0'}); }
+  else if(g.type==='pong'){ player={y:170,h:50}; ball={x:160,y:200,dx:3,dy:2,r:5}; enemies=[{y:170,h:50,dir:2.5}]; }
+  else if(g.type==='invaders'){ player={x:150,y:360,w:22,h:12}; enemies=[]; for(let r=0;r<4;r++) for(let c=0;c<8;c++) enemies.push({x:c*32+20,y:r*22+30,w:18,h:12,alive:true,dir:1}); }
+  else if(g.type==='asteroids'){ player={x:160,y:200,angle:0,thrust:false}; enemies=[]; for(let i=0;i<5+nivel;i++) enemies.push({x:Math.random()*320,y:Math.random()*100,w:20,h:20,dx:(Math.random()-0.5)*2,dy:Math.random()*1}); }
+  else if(g.type==='pacman'){ player={x:160,y:300,dir:0}; enemies=[{x:80,y:80,color:'#f00'},{x:240,y:80,color:'#f0f'}]; bullets=[]; for(let i=0;i<40;i++) bullets.push({x:(i%8)*36+20,y:Math.floor(i/8)*30+40,eaten:false}); }
+  else if(g.type==='frogger'){ player={x:150,y:380,w:16,h:16}; enemies=[]; for(let r=0;r<5;r++) for(let c=0;c<3;c++) enemies.push({x:c*140+Math.random()*40,y:80+r*50,w:50,h:20,dir:r%2?1:-1,speed:1+r*0.3}); }
+  else if(g.type==='river'){ player={x:150,y:320,w:20,h:30}; enemies=[]; }
+  else { player={x:150,y:350,w:18,h:18}; enemies=[]; }
   running=true; loop();
+}
+
+function drawShip(x,y,angle){
+  ctx.save(); ctx.translate(x,y); ctx.rotate(angle);
+  ctx.fillStyle="#0ff"; ctx.beginPath(); ctx.moveTo(12,0); ctx.lineTo(-10,-8); ctx.lineTo(-6,0); ctx.lineTo(-10,8); ctx.closePath(); ctx.fill();
+  ctx.restore();
 }
 
 function loop(){
   if(!running) return;
   ctx.fillStyle="#000"; ctx.fillRect(0,0,320,400);
-  // scanlines retro
-  ctx.fillStyle="rgba(0,255,0,0.03)"; for(let y=0;y<400;y+=4) ctx.fillRect(0,y,320,1);
+  ctx.fillStyle="rgba(0,255,0,0.04)"; for(let y=0;y<400;y+=4) ctx.fillRect(0,y,320,1);
 
   if(mode.type==='breakout'){
-    ball.x+=ball.dx; ball.y+=ball.dy; if(ball.x<0||ball.x>316) ball.dx*=-1; if(ball.y<0) ball.dy*=-1;
+    ball.x+=ball.dx; ball.y+=ball.dy; if(ball.x<0||ball.x>314) ball.dx*=-1; if(ball.y<0) ball.dy*=-1;
     if(ball.y>360 && ball.x>player.x && ball.x<player.x+player.w) ball.dy=-Math.abs(ball.dy);
-    enemies.forEach(b=>{ if(b.alive && ball.x>b.x && ball.x<b.x+36 && ball.y>b.y && ball.y<b.y+12){ b.alive=false; ball.dy*=-1; score+=10; }});
-    if(ball.y>410) gameOver(); if(enemies.every(b=>!b.alive)) winLevel();
-    ctx.fillStyle="#0f0"; ctx.fillRect(player.x,380,player.w,8); ctx.fillStyle="#ff0"; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill(); enemies.forEach(b=>{ if(b.alive){ ctx.fillStyle=b.y<80?"#f00":"#0ff"; ctx.fillRect(b.x,b.y,34,10);} });
-  } else if(mode.type==='pong'){
-    ball.x+=ball.dx; ball.y+=ball.dy; if(ball.y<0||ball.y>396) ball.dy*=-1;
-    if(ball.x<20 && ball.y>player.y && ball.y<player.y+player.h) ball.dx=3; if(ball.x>300 && ball.y>enemies[0].y && ball.y<enemies[0].y+enemies[0].h) ball.dx=-3;
-    enemies[0].y+=enemies[0].dir; if(enemies[0].y<0||enemies[0].y>350) enemies[0].dir*=-1;
-    if(ball.x<0||ball.x>320){ score+=10; ball={x:160,y:200,dx:3*(Math.random()>0.5?1:-1),dy:2,r:4}; if(score>100) winLevel(); }
-    ctx.fillStyle="#0f0"; ctx.fillRect(10,player.y,6,player.h); ctx.fillRect(304,enemies[0].y,6,enemies[0].h); ctx.fillRect(ball.x,ball.y,6,6);
-  } else if(['invaders','galaga','demon','laser'].includes(mode.type)){
-    if(Math.random()<0.02) enemies.push({x:Math.random()*280,y:0,w:16,h:16,dy:1+nivel*0.2});
-    if(Math.random()<0.05) bullets.push({x:player.x+8,y:player.y,dy:-5});
-    enemies.forEach(e=>e.y+=e.dy); bullets.forEach(b=>b.y+=b.dy);
-    enemies=enemies.filter(e=>e.y<420); bullets=bullets.filter(b=>b.y>-10);
-    enemies.forEach((e,i)=>{ bullets.forEach((b,j)=>{ if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){ enemies.splice(i,1); bullets.splice(j,1); score+=20; }}); if(e.x<player.x+player.w&&e.x+e.w>player.x&&e.y<player.y+player.h&&e.y+e.h>player.y) gameOver(); });
-    if(score>300) winLevel();
-    ctx.fillStyle="#0f0"; ctx.fillRect(player.x,player.y,player.w,player.h); ctx.fillStyle="#f00"; enemies.forEach(e=>ctx.fillRect(e.x,e.y,e.w,e.h)); ctx.fillStyle="#ff0"; bullets.forEach(b=>ctx.fillRect(b.x,b.y,2,6));
-  } else {
-    // generico atari runner/dodge
-    if(Math.random()<0.06) enemies.push({x:Math.random()*300,y:-20,w:16,h:16,dy:2+nivel*0.3});
-    enemies.forEach(e=>e.y+=e.dy); enemies=enemies.filter(e=>e.y<420);
-    enemies.forEach(e=>{ if(e.x<player.x+player.w&&e.x+e.w>player.x&&e.y<player.y+player.h&&e.y+e.h>player.y) gameOver(); });
-    score++; if(score%500===0) nivel++;
+    enemies.forEach(b=>{ if(b.alive && ball.x>b.x && ball.x<b.x+34 && ball.y>b.y && ball.y<b.y+12){ b.alive=false; ball.dy*=-1; score+=10; }});
+    if(ball.y>410) return gameOver(); if(enemies.every(b=>!b.alive)) return winLevel();
+    ctx.fillStyle="#fff"; ctx.fillRect(player.x,380,player.w,10); ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
+    enemies.forEach(b=>{ if(b.alive){ ctx.fillStyle=b.color; ctx.fillRect(b.x,b.y,34,10);} });
+  }
+  else if(mode.type==='pong'){
+    ball.x+=ball.dx; ball.y+=ball.dy; if(ball.y<0||ball.y>395) ball.dy*=-1;
+    if(ball.x<18 && ball.y>player.y && ball.y<player.y+player.h) ball.dx=3; 
+    if(ball.x>296 && ball.y>enemies[0].y && ball.y<enemies[0].y+enemies[0].h) ball.dx=-3;
+    enemies[0].y+=(ball.y-enemies[0].y-25)*0.08;
+    if(ball.x<0||ball.x>320){ score++; ball={x:160,y:200,dx:3*(Math.random()>0.5?1:-1),dy:2,r:5}; if(score>5) return winLevel(); }
+    ctx.fillStyle="#0f0"; ctx.fillRect(10,player.y,6,player.h); ctx.fillRect(304,enemies[0].y,6,enemies[0].h); ctx.fillStyle="#fff"; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(160,0); ctx.lineTo(160,400); ctx.strokeStyle="#333"; ctx.stroke(); ctx.setLineDash([]); ctx.fillRect(ball.x,ball.y,6,6);
+  }
+  else if(mode.type==='invaders'){
+    let moveDown=false; enemies.forEach(e=>{ if(!e.alive) return; e.x+=e.dir; if(e.x<5||e.x>290) moveDown=true; }); if(moveDown) enemies.forEach(e=>{ e.dir*=-1; e.y+=12; });
+    if(Math.random()<0.03) bullets.push({x:player.x+10,y:player.y,dy:-6,player:true});
+    bullets=bullets.filter(b=>{ b.y+=b.dy; return b.y>-10&&b.y<410; });
+    bullets.forEach((b,i)=>{ enemies.forEach(e=>{ if(e.alive && b.player && b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){ e.alive=false; bullets.splice(i,1); score+=20; }}); });
+    if(enemies.every(e=>!e.alive)) return winLevel();
+    // player cannon
+    ctx.fillStyle="#0f0"; ctx.fillRect(player.x,player.y,22,10); ctx.fillRect(player.x+8,player.y-6,6,6);
+    enemies.forEach(e=>{ if(e.alive){ ctx.fillStyle=e.y<80?"#f00":"#0ff"; ctx.fillRect(e.x,e.y,e.w,e.h); ctx.fillRect(e.x+2,e.y+e.h,4,3); ctx.fillRect(e.x+12,e.y+e.h,4,3); }});
+    ctx.fillStyle="#ff0"; bullets.forEach(b=>ctx.fillRect(b.x,b.y,2,8));
+  }
+  else if(mode.type==='asteroids'){
+    if(keys.left) player.angle-=0.1; if(keys.right) player.angle+=0.1;
+    if(keys.fire){ player.x+=Math.cos(player.angle)*3; player.y+=Math.sin(player.angle)*3; }
+    player.x=(player.x+320)%320; player.y=(player.y+400)%400;
+    enemies.forEach(a=>{ a.x+=a.dx; a.y+=a.dy; a.x=(a.x+320)%320; a.y=(a.y+400)%400;
+      let dx=player.x-a.x, dy=player.y-a.y; if(Math.sqrt(dx*dx+dy*dy)<20) return gameOver();
+      bullets.forEach((b,i)=>{ if(Math.sqrt((b.x-a.x)**2+(b.y-a.y)**2)<20){ enemies.splice(enemies.indexOf(a),1); bullets.splice(i,1); score+=50; if(enemies.length===0) winLevel(); }});
+    });
+    bullets=bullets.filter(b=>{ b.x+=b.dx; b.y+=b.dy; b.life--; return b.life>0; });
+    drawShip(player.x,player.y,player.angle);
+    ctx.strokeStyle="#fff"; enemies.forEach(a=>{ ctx.beginPath(); ctx.arc(a.x,a.y,a.w,0,Math.PI*2); ctx.stroke(); });
+    ctx.fillStyle="#ff0"; bullets.forEach(b=>{ ctx.beginPath(); ctx.arc(b.x,b.y,2,0,Math.PI*2); ctx.fill(); });
+  }
+  else if(mode.type==='pacman'){
+    // laberinto simple
+    ctx.fillStyle="#00f"; ctx.strokeRect(10,10,300,300);
+    bullets.forEach(p=>{ if(!p.eaten){ ctx.fillStyle="#ff0"; ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2); ctx.fill(); let dx=player.x-p.x, dy=player.y-p.y; if(Math.sqrt(dx*dx+dy*dy)<14){ p.eaten=true; score+=10; } }});
+    if(bullets.every(p=>p.eaten)) return winLevel();
+    enemies.forEach(e=>{ e.x+=(player.x-e.x)*0.01; e.y+=(player.y-e.y)*0.01; if(Math.abs(player.x-e.x)<14&&Math.abs(player.y-e.y)<14) return gameOver(); ctx.fillStyle=e.color; ctx.beginPath(); ctx.arc(e.x,e.y,8,0,Math.PI*2); ctx.fill(); ctx.fillRect(e.x-8,e.y+4,16,6); });
+    ctx.fillStyle="#ff0"; ctx.beginPath(); ctx.arc(player.x,player.y,10,0.2,Math.PI*1.8); ctx.lineTo(player.x,player.y); ctx.fill();
+  }
+  else if(mode.type==='frogger'){
+    enemies.forEach(e=>{ e.x+=e.dir*e.speed; if(e.x>340) e.x=-60; if(e.x<-60) e.x=340; if(e.x<player.x+player.w&&e.x+e.w>player.x&&e.y<player.y+player.h&&e.y+e.h>player.y) return gameOver(); ctx.fillStyle=e.dir>0?"#f00":"#00f"; ctx.fillRect(e.x,e.y,e.w,e.h); });
+    ctx.fillStyle="#0f0"; ctx.fillRect(player.x,player.y,player.w,player.h); ctx.fillRect(player.x+4,player.y-4,8,4); // rana
+    if(player.y<20) return winLevel();
+  }
+  else {
+    if(Math.random()<0.05) enemies.push({x:Math.random()*300,y:-20,w:18,h:18,dy:2+nivel*0.2});
+    enemies.forEach(e=>{ e.y+=e.dy; if(e.x<player.x+player.w&&e.x+e.w>player.x&&e.y<player.y+player.h&&e.y+e.h>player.y) return gameOver(); });
+    enemies=enemies.filter(e=>e.y<420); score++; if(score%500===0) nivel++;
     ctx.fillStyle="#0f0"; ctx.fillRect(player.x,player.y,player.w,player.h); ctx.fillStyle="#f00"; enemies.forEach(e=>ctx.fillRect(e.x,e.y,e.w,e.h));
   }
+
   document.getElementById('t2').innerText=`SCORE ${score}`;
   requestAnimationFrame(loop);
 }
-function winLevel(){ running=false; coins+=30; localStorage.setItem('coins',coins); if(typeof show_12010451==='function'){ show_12010451().then(()=>{ nivel++; running=true; loop(); }).catch(()=>{ nivel++; running=true; loop(); }); } else { nivel++; running=true; loop(); } }
-function gameOver(){ running=false; document.getElementById('overTitle').innerText=mode.name; document.getElementById('overMsg').innerText=`SCORE ${score} LEVEL ${nivel}`; document.getElementById('over').classList.add('show'); }
 
-document.getElementById('left').ontouchstart=e=>{ if(player) player.x=Math.max(0,player.x-20); e.preventDefault(); };
-document.getElementById('right').ontouchstart=e=>{ if(player) player.x=Math.min(300,player.x+20); e.preventDefault(); };
-document.getElementById('fire').ontouchstart=e=>{ if(mode && ['invaders','galaga'].includes(mode.type)) bullets.push({x:player.x+8,y:player.y,dy:-5}); e.preventDefault(); };
-document.getElementById('left').onmousedown=()=>{ if(player) player.x=Math.max(0,player.x-20); };
-document.getElementById('right').onmousedown=()=>{ if(player) player.x=Math.min(300,player.x+20); };
-document.getElementById('fire').onmousedown=()=>{ if(mode) bullets.push({x:player.x+8,y:player.y,dy:-5}); };
+function winLevel(){ running=false; coins+=40; localStorage.setItem('coins',coins); if(typeof show_12010451==='function'){ show_12010451().then(()=>{ nivel++; running=true; loop(); }).catch(()=>{ nivel++; running=true; loop(); }); } else { nivel++; running=true; loop(); } }
+function gameOver(){ running=false; document.getElementById('overTitle').innerText=mode.name; document.getElementById('overMsg').innerText=`SCORE ${score}`; document.getElementById('over').classList.add('show'); }
+
+let keys={};
+document.getElementById('left').ontouchstart=e=>{ keys.left=true; if(player) player.x=Math.max(0,player.x-18); e.preventDefault(); };
+document.getElementById('left').ontouchend=()=>keys.left=false;
+document.getElementById('right').ontouchstart=e=>{ keys.right=true; if(player) player.x=Math.min(302,player.x+18); e.preventDefault(); };
+document.getElementById('right').ontouchend=()=>keys.right=false;
+document.getElementById('fire').ontouchstart=e=>{
+  keys.fire=true;
+  if(mode.type==='asteroids'){ bullets.push({x:player.x,y:player.y,dx:Math.cos(player.angle)*5,dy:Math.sin(player.angle)*5,life:60}); }
+  else if(mode.type==='invaders'){ bullets.push({x:player.x+10,y:player.y,dy:-6,player:true}); }
+  else if(mode.type==='pacman'){ /* mueve */ }
+  else { if(player.y!==undefined) player.y=Math.max(20,player.y-20); }
+  e.preventDefault();
+};
+document.getElementById('fire').ontouchend=()=>keys.fire=false;
+document.getElementById('left').onmousedown=()=>{ if(player) player.x=Math.max(0,player.x-18); };
+document.getElementById('right').onmousedown=()=>{ if(player) player.x=Math.min(302,player.x+18); };
+document.getElementById('fire').onmousedown=()=>{
+  if(mode.type==='asteroids'){ bullets.push({x:player.x,y:player.y,dx:Math.cos(player.angle)*5,dy:Math.sin(player.angle)*5,life:60}); }
+  else if(mode.type==='invaders'){ bullets.push({x:player.x+10,y:player.y,dy:-6,player:true}); }
+};
 document.getElementById('btnRevive').onclick=()=>{ if(typeof show_12010449==='function'){ show_12010449().then(()=>{ document.getElementById('over').classList.remove('show'); running=true; loop(); }); } };
 
 renderMenu();
