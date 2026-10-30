@@ -1,180 +1,129 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>ATARI 40 REALES</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DALEPLAY1 - MINAS PRO</title>
 <script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
-<script src="//libtl.com/sdk.js" data-zone="12010451" data-sdk="show_12010451"></script>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
- body{margin:0;background:#000;color:#0f0;font-family:'Press Start 2P',monospace}
- #menu{padding:8px} #grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:560px;margin:0 auto}
- .card{background:#111;border:2px solid #222;padding:8px;text-align:center}
- .card b{font-size:6px;display:block;margin-top:4px;line-height:8px}
- canvas{display:none;margin:0 auto;border:4px solid #333;background:#000}
- #top{display:none;justify-content:space-between;padding:6px;background:#111;font-size:7px}
- #controls{display:none;justify-content:center;gap:6px;margin:6px}
- .ctrl{width:70px;height:70px;background:#222;border:3px solid #444;color:#0f0;font-family:'Press Start 2P';font-size:10px}
- #over{position:fixed;inset:0;background:#000;display:none;flex-direction:column;justify-content:center;align-items:center;z-index:99;border:5px solid #0f0}
- #over.show{display:flex}
- button.action{padding:10px;width:90%;max-width:320px;background:#0f0;color:#000;font-family:'Press Start 2P';font-size:8px;margin:6px;border:0}
+body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff}
+.header{background:#7fff00;color:#000;padding:14px;font-weight:900;font-size:20px}
+.panel{display:flex;justify-content:space-around;margin:8px}
+.cont{color:#7fff00;border:2px solid #7fff00;border-radius:10px;padding:8px 12px;font-weight:bold;font-size:14px}
+.dif{margin:8px;display:flex;gap:6px;justify-content:center}
+.dif button{flex:1;max-width:110px;padding:10px;border-radius:10px;border:2px solid #7fff00;background:#152e18;color:#7fff00;font-weight:900;cursor:pointer}
+.dif button.active{background:#7fff00;color:#000}
+.grid{width:95%;max-width:360px;margin:10px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.box{height:60px;background:#152e18;border:2px solid #7fff00;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900}
+.box.revealed{background:#0a2a0f}
+.box.mina{background:#4a1111;border-color:red}
+.btn{margin:7px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;display:block;cursor:pointer}
+#btnRetirar{background:#7fff00;color:#000;display:none;font-size:18px}
+#btnNuevo{background:#fff;color:#000}
+#btnCompartir{background:#25D366;color:#000}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:99}
+.caja{background:#112d18;border:3px solid #7fff00;padding:22px;border-radius:18px;margin:20px;min-width:280px}
 </style>
 </head>
 <body>
-<div id="menu">
-  <h2 style="text-align:center;font-size:10px;color:#ff0">40 ATARI - CADA UNO ES LO QUE DICE</h2>
-  <div id="grid"></div>
+<div class="header">DALEPLAY1 - MINAS</div>
+<div class="panel">
+<div class="cont" id="ci">Intentos: 2</div>
+<div class="cont" id="saldo">$5.000</div>
+<div class="cont" id="multi">x1.00</div>
 </div>
-<div id="top"><span id="t1"></span><span id="t2"></span><button onclick="goMenu()" style="background:#222;border:2px solid #0f0;color:#0f0;font-family:'Press Start 2P';font-size:6px">MENU</button></div>
-<canvas id="game" width="320" height="420"></canvas>
-<div id="controls"><button class="ctrl" id="left">◀</button><button class="ctrl" id="fire">OK/FIRE</button><button class="ctrl" id="right">▶</button></div>
-<div id="over"><h2 id="oT" style="font-size:10px"></h2><p id="oM" style="font-size:7px"></p><button class="action" id="btnR">REVIVIR AD 12010449</button><button class="action" style="background:#222;color:#0f0;border:2px solid #0f0" onclick="goMenu()">MENU 40</button></div>
+
+<div class="dif">
+<button id="d3" onclick="setDif(3)">3 MINAS<br>FACIL</button>
+<button id="d5" class="active" onclick="setDif(5)">5 MINAS<br>MEDIO</button>
+<button id="d10" onclick="setDif(10)">10 MINAS<br>PRO x5</button>
+</div>
+
+<div class="grid" id="g"></div>
+
+<button id="btnRetirar" class="btn" onclick="retirar()">💰 RETIRAR $0</button>
+<button id="btnNuevo" class="btn" onclick="crear()">🎮 NUEVO JUEGO - $500</button>
+<button id="btnCompartir" class="btn" onclick="compartir()">📤 COMPARTE 0/3 PARA 2 INTENTOS</button>
+
+<div id="modal"><div class="caja"><h1 id="mtit" style="color:#7fff00">GANASTE</h1><p id="mtext"></p><p>Código: <b id="cod"></b></p><button onclick="document.getElementById('modal').style.display='none';crear()" style="background:#7fff00;padding:14px;width:100%;border-radius:10px;font-weight:900">SEGUIR JUGANDO</button></div></div>
 
 <script>
-const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
-let mode=null, running=false, score=0, player={}, bullets=[], enemies=[], ball={}, level=1;
+show_12010449({type:'inApp',inAppSettings:{frequency:2,capping:0.1,interval:30,timeout:5,everyPage:false}});
+let intentos=2, compartidos=parseInt(localStorage.getItem('daleplay_compartidos')||'0');
+let saldo=parseInt(localStorage.getItem('daleplay_saldo')||'5000');
+let minas=5, posicionesMinas=[], destapadas=0, juegoActivo=false, apuesta=500, g=document.getElementById('g');
 
-const G=[
- {id:1,n:"BREAKOUT",i:"🧱",t:"breakout"}, {id:2,n:"PONG",i:"🏓",t:"pong"}, {id:3,n:"SPACE INVADERS",i:"👾",t:"invaders"}, {id:4,n:"ASTEROIDS",i:"☄️",t:"asteroids"},
- {id:5,n:"MISSILE COMMAND",i:"🚀",t:"missile"}, {id:6,n:"PAC-MAN",i:"🟡",t:"pacman"}, {id:7,n:"FROGGER",i:"🐸",t:"frogger"}, {id:8,n:"RIVER RAID",i:"✈️",t:"river"},
- {id:9,n:"SEAQUEST",i:"🦈",t:"seaquest"}, {id:10,n:"ENDURO",i:"🏎️",t:"enduro"}, {id:11,n:"FREEWAY",i:"🐔",t:"freeway"}, {id:12,n:"KABOOM!",i:"💣",t:"kaboom"},
- {id:13,n:"BOXING",i:"🥊",t:"boxing"}, {id:14,n:"BOWLING",i:"🎳",t:"bowling"}, {id:15,n:"SKIING",i:"🎿",t:"skiing"}, {id:16,n:"TENNIS",i:"🎾",t:"tennis"},
- {id:17,n:"FISHING DERBY",i:"🎣",t:"fishing"}, {id:18,n:"CIRCUS ATARI",i:"🤹",t:"circus"}, {id:19,n:"Q*BERT",i:"🔶",t:"qbert"}, {id:20,n:"PITFALL!",i:"🕳️",t:"pitfall"},
- {id:21,n:"MOON PATROL",i:"🌙",t:"moon"}, {id:22,n:"BURGERTIME",i:"🍔",t:"burger"}, {id:23,n:"JOUST",i:"🦅",t:"joust"}, {id:24,n:"HERO",i:"🦸",t:"hero"},
- {id:25,n:"COMBAT TANKS",i:"🪖",t:"combat"}, {id:26,n:"BERZERK",i:"🤖",t:"berzerk"}, {id:27,n:"YARS REVENGE",i:"🪰",t:"yars"}, {id:28,n:"GALAGA",i:"👽",t:"galaga"},
- {id:29,n:"DEFENDER",i:"🛸",t:"defender"}, {id:30,n:"CENTIPEDE",i:"🐛",t:"centi"}, {id:31,n:"DIG DUG",i:"⛏️",t:"dig"}, {id:32,n:"KEYSTONE KAPERS",i:"👮",t:"key"},
- {id:33,n:"BARNSTORMING",i:"🛩️",t:"barn"}, {id:34,n:"LASER BLAST",i:"🔫",t:"laser"}, {id:35,n:"DEMON ATTACK",i:"👹",t:"demon"}, {id:36,n:"BOSS RUSH",i:"👑",t:"boss"},
- {id:37,n:"DODGE",i:"💀",t:"dodge"}, {id:38,n:"JUNGLE HUNT",i:"🌴",t:"jungle"}, {id:39,n:"ICE HOCKEY",i:"🏒",t:"hockey"}, {id:40,n:"SKY DIVER",i:"🪂",t:"sky"},
-];
-
-function render(){ let h=''; G.forEach(g=>h+=`<div class="card" onclick="start(${g.id})"><div style="font-size:20px">${g.i}</div><b>${g.n}</b></div>`); document.getElementById('grid').innerHTML=h; }
-function goMenu(){ running=false; mode=null; document.getElementById('menu').style.display='block'; document.getElementById('top').style.display='none'; canvas.style.display='none'; document.getElementById('controls').style.display='none'; document.getElementById('over').classList.remove('show'); }
-
-function start(id){
- let g=G.find(x=>x.id===id); mode=g; score=0; level=1; bullets=[]; enemies=[]; ball={};
- document.getElementById('menu').style.display='none'; document.getElementById('top').style.display='flex'; canvas.style.display='block'; document.getElementById('controls').style.display='flex';
- document.getElementById('t1').innerText=g.n;
- if(g.t==='breakout'){ player={x:125,w:70}; ball={x:160,y:200,dx:3,dy:-3}; enemies=[]; for(let r=0;r<5;r++) for(let c=0;c<8;c++) enemies.push({x:c*38+4,y:r*16+30,alive:true,col:['#f00','#fa0','#ff0','#0f0','#0ff'][r]}); }
- else if(g.t==='pong'){ player={y:170,h:60}; ball={x:160,y:200,dx:3,dy:2}; enemies=[{y:170}]; }
- else if(g.t==='invaders'||g.t==='galaga'||g.t==='demon'){ player={x:145,y:380}; enemies=[]; for(let r=0;r<5;r++) for(let c=0;c<8;c++) enemies.push({x:c*30+20,y:r*20+20,w:18,h:12,alive:true,dir:1}); }
- else if(g.t==='asteroids'){ player={x:160,y:210,a:-1.57}; enemies=[]; for(let i=0;i<6;i++) enemies.push({x:Math.random()*320,y:Math.random()*120,r:20,dx:(Math.random()-0.5)*2,dy:Math.random()*1}); }
- else if(g.t==='missile'){ player={x:160,y:200}; enemies=[]; enemies.cities=[{x:30},{x:90},{x:210},{x:270}]; }
- else if(g.t==='pacman'){ player={x:160,y:320}; bullets=[]; for(let i=0;i<60;i++) bullets.push({x:(i%10)*30+10,y:Math.floor(i/10)*28+30,e:false}); enemies=[{x:80,y:60,c:'#f00'},{x:240,y:60,c:'#0ff'}]; }
- else if(g.t==='frogger'||g.t==='freeway'){ player={x:152,y:390,w:14,h:14}; enemies=[]; for(let r=0;r<5;r++) for(let c=0;c<2;c++) enemies.push({x:c*200+Math.random()*60,y:60+r*50,w:56,h:22,dir:r%2?1:-1,sp:1.2+r*0.3}); }
- else if(g.t==='river'||g.t==='barn'||g.t==='defender'){ player={x:150,y:320,w:22,h:28}; enemies=[]; }
- else if(g.t==='seaquest'||g.t==='fishing'){ player={x:60,y:200,w:34,h:14}; enemies=[]; }
- else if(g.t==='enduro'){ player={x:140,w:40}; enemies=[]; }
- else if(g.t==='boxing'){ player={x:80,y:200,w:20,h:30}; enemies=[{x:220,y:200,w:20,h:30}]; }
- else if(g.t==='bowling'){ player={x:20,y:200}; ball={x:40,y:200,dx:0,dy:0,rolling:false}; enemies=[]; for(let i=0;i<6;i++) enemies.push({x:280-i*6,y:180+i*12,w:8,h:20,alive:true}); }
- else if(g.t==='qbert'){ player={x:160,y:50,cx:3,cy:0}; enemies=[]; for(let r=0;r<6;r++) for(let c=0;c<=r;c++) enemies.push({x:80+c*30-r*15,y:60+r*26,alive:false}); }
- else if(g.t==='skiing'){ player={x:150,y:100,w:14,h:20}; enemies=[]; for(let i=0;i<15;i++) enemies.push({x:Math.random()*280+20,y:i*80+200,w:20,h:20}); }
- else { player={x:145,y:350,w:20,h:20}; enemies=[]; }
- running=true; loop();
+function setDif(n){
+ minas=n; document.querySelectorAll('.dif button').forEach(b=>b.classList.remove('active'));
+ document.getElementById('d'+n).classList.add('active');
+ crear();
 }
 
-function loop(){
- if(!running) return;
- ctx.fillStyle="#000"; ctx.fillRect(0,0,320,420);
-
- if(mode.t==='breakout'){
-  ball.x+=ball.dx; ball.y+=ball.dy; if(ball.x<0||ball.x>314) ball.dx*=-1; if(ball.y<0) ball.dy*=-1;
-  if(ball.y>380&&ball.x>player.x&&ball.x<player.x+player.w) ball.dy=-3;
-  enemies.forEach(b=>{ if(b.alive&&ball.x>b.x&&ball.x<b.x+36&&ball.y>b.y&&ball.y<b.y+12){ b.alive=false; ball.dy*=-1; score+=10; }});
-  if(ball.y>425) return gameOver(); if(enemies.every(b=>!b.alive)) return win();
-  ctx.fillStyle="#fff"; ctx.fillRect(player.x,395,player.w,10); ctx.beginPath(); ctx.arc(ball.x,ball.y,5,0,6.28); ctx.fill(); enemies.forEach(b=>{ if(b.alive){ ctx.fillStyle=b.col; ctx.fillRect(b.x,b.y,34,10);} });
- }
- else if(mode.t==='pong'){
-  ball.x+=ball.dx; ball.y+=ball.dy; if(ball.y<0||ball.y>415) ball.dy*=-1;
-  if(ball.x<20&&ball.y>player.y&&ball.y<player.y+60) ball.dx=3; if(ball.x>296&&ball.y>enemies[0].y&&ball.y<enemies[0].y+60) ball.dx=-3;
-  enemies[0].y+=(ball.y-enemies[0].y)*0.07; if(ball.x<0||ball.x>320){ score++; ball={x:160,y:200,dx:3*(Math.random()>0.5?1:-1),dy:2}; }
-  ctx.fillStyle="#fff"; ctx.fillRect(10,player.y,8,60); ctx.fillRect(302,enemies[0].y,8,60); ctx.fillRect(ball.x,ball.y,8,8);
- }
- else if(mode.t==='invaders'){
-  let down=false; enemies.forEach(e=>{ if(!e.alive) return; e.x+=e.dir; if(e.x<10||e.x>290) down=true; }); if(down) enemies.forEach(e=>{ e.dir*=-1; e.y+=10; });
-  if(Math.random()<0.04) bullets.push({x:player.x+12,y:380,dy:-6}); bullets=bullets.filter(b=>{ b.y+=b.dy; return b.y>-10; });
-  bullets.forEach((b,i)=>{ enemies.forEach(e=>{ if(e.alive&&b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){ e.alive=false; bullets.splice(i,1); score+=20; }}); });
-  if(enemies.every(e=>!e.alive)) return win();
-  ctx.fillStyle="#0f0"; ctx.fillRect(player.x,390,30,12); ctx.fillRect(player.x+11,380,8,10); enemies.forEach(e=>{ if(e.alive){ ctx.fillStyle="#fff"; ctx.fillRect(e.x,e.y,e.w,e.h);} }); ctx.fillStyle="#ff0"; bullets.forEach(b=>ctx.fillRect(b.x,b.y,3,10));
- }
- else if(mode.t==='asteroids'){
-  bullets=bullets.filter(b=>{ b.x+=b.dx; b.y+=b.dy; b.l--; return b.l>0; });
-  enemies.forEach(a=>{ a.x+=a.dx; a.y+=a.dy; if(a.x<0) a.x=320; if(a.x>320) a.x=0; if(a.y>420) a.y=0;
-   if(Math.hypot(player.x-a.x,player.y-a.y)<22) return gameOver();
-   bullets.forEach((b,i)=>{ if(Math.hypot(b.x-a.x,b.y-a.y)<a.r){ enemies.splice(enemies.indexOf(a),1); bullets.splice(i,1); score+=50; if(!enemies.length) win(); }});
-  });
-  ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(player.a); ctx.strokeStyle="#fff"; ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(-10,-9); ctx.lineTo(-6,0); ctx.lineTo(-10,9); ctx.closePath(); ctx.stroke(); ctx.restore();
-  ctx.strokeStyle="#fff"; enemies.forEach(a=>{ ctx.beginPath(); ctx.arc(a.x,a.y,a.r,0,6.28); ctx.stroke(); }); ctx.fillStyle="#fff"; bullets.forEach(b=>{ ctx.beginPath(); ctx.arc(b.x,b.y,2,0,6.28); ctx.fill(); });
- }
- else if(mode.t==='missile'){
-  if(Math.random()<0.02) enemies.push({x:Math.random()*300,y:0,tx:enemies.cities[Math.floor(Math.random()*4)].x+10,ty:360,sp:0.9});
-  enemies.forEach((m,i)=>{ if(m.tx==undefined) return; let ang=Math.atan2(m.ty-m.y,m.tx-m.x); m.x+=Math.cos(ang)*m.sp; m.y+=Math.sin(ang)*m.sp; if(m.y>355) enemies.splice(i,1);
-   ctx.strokeStyle="#f00"; ctx.beginPath(); ctx.moveTo(m.x,m.y); ctx.lineTo(m.x-Math.cos(ang)*10,m.y-Math.sin(ang)*10); ctx.stroke(); ctx.fillRect(m.x-2,m.y-2,4,4);
-  });
-  ctx.fillStyle="#0f0"; enemies.cities.forEach(c=>{ ctx.fillRect(c.x,360,24,16); ctx.fillRect(c.x+6,350,12,8); });
-  ctx.strokeStyle="#0ff"; ctx.strokeRect(player.x-12,player.y-12,24,24); ctx.beginPath(); ctx.moveTo(player.x,player.y-12); ctx.lineTo(player.x,player.y+12); ctx.moveTo(player.x-12,player.y); ctx.lineTo(player.x+12,player.y); ctx.stroke(); score++;
- }
- else if(mode.t==='pacman'){
-  bullets.forEach(p=>{ if(!p.e){ ctx.fillStyle="#ffb8ae"; ctx.fillRect(p.x,p.y,4,4); if(Math.hypot(player.x-p.x,player.y-p.y)<12){ p.e=true; score+=10; } }});
-  if(bullets.every(p=>p.e)) return win();
-  enemies.forEach(e=>{ e.x+=(player.x-e.x)*0.01; e.y+=(player.y-e.y)*0.01; if(Math.hypot(player.x-e.x,player.y-e.y)<12) return gameOver(); ctx.fillStyle=e.c; ctx.beginPath(); ctx.arc(e.x,e.y,10,0,6.28); ctx.fill(); });
-  ctx.fillStyle="#ff0"; ctx.beginPath(); ctx.arc(player.x,player.y,11,0.25,5.9); ctx.lineTo(player.x,player.y); ctx.fill();
- }
- else if(mode.t==='frogger'){
-  enemies.forEach(e=>{ e.x+=e.dir*e.sp; if(e.x>340) e.x=-60; if(e.x<-60) e.x=340; if(e.x<player.x+14&&e.x+e.w>player.x&&e.y<player.y+14&&e.y+e.h>player.y) return gameOver(); ctx.fillStyle="#f80"; ctx.fillRect(e.x,e.y,e.w,e.h); });
-  ctx.fillStyle="#0f0"; ctx.fillRect(player.x,player.y,14,10); ctx.fillRect(player.x+2,player.y-6,10,6); if(player.y<30) return win();
- }
- else if(mode.t==='river'){
-  if(Math.random()<0.05) enemies.push({x:70+Math.random()*120,y:-20,w:20,h:20,dy:2.5}); enemies.forEach(e=>{ e.y+=e.dy; if(e.x<player.x+22&&e.x+e.w>player.x&&e.y<player.y+28&&e.y+e.h>player.y) return gameOver(); }); enemies=enemies.filter(e=>e.y<430); score++;
-  ctx.fillStyle="#00f"; ctx.fillRect(0,0,70,420); ctx.fillRect(250,0,70,420); ctx.fillStyle="#ff0"; ctx.fillRect(player.x,player.y,22,12); ctx.fillRect(player.x+5,player.y-16,12,16); ctx.fillStyle="#f00"; enemies.forEach(e=>ctx.fillRect(e.x,e.y,e.w,e.h));
- }
- else if(mode.t==='boxing'){
-  ctx.fillStyle="#d2a679"; ctx.fillRect(0,300,320,120); ctx.fillStyle="#fff"; ctx.fillRect(player.x,player.y,player.w,player.h); ctx.fillRect(player.x+4,player.y-8,12,8); ctx.fillStyle="#f00"; ctx.fillRect(enemies[0].x,enemies[0].y,enemies[0].w,enemies[0].h); enemies[0].x+=(player.x-enemies[0].x)*0.02; if(Math.abs(player.x-enemies[0].x)<25&&Math.abs(player.y-enemies[0].y)<25) score++;
- }
- else if(mode.t==='bowling'){
-  if(ball.rolling){ ball.x+=ball.dx; if(ball.x>300){ ball.rolling=false; ball.x=40; } enemies.forEach(e=>{ if(e.alive&&Math.hypot(ball.x-e.x,ball.y-e.y)<18){ e.alive=false; score+=10; }}); if(enemies.every(e=>!e.alive)) win(); }
-  ctx.fillStyle="#d2a679"; ctx.fillRect(0,150,320,120); ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(ball.x,ball.y,8,0,6.28); ctx.fill(); ctx.fillStyle="#fff"; enemies.forEach(e=>{ if(e.alive){ ctx.fillRect(e.x,e.y,6,20); ctx.beginPath(); ctx.arc(e.x+3,e.y,3,0,6.28); ctx.fill(); }});
- }
- else if(mode.t==='skiing'){
-  if(Math.random()<0.06) enemies.push({x:Math.random()*280+20,y:-20,w:14,h:30,dy:3}); enemies.forEach(e=>{ e.y+=e.dy; if(e.x<player.x+14&&e.x+e.w>player.x&&e.y<player.y+20&&e.y+e.h>player.y) return gameOver(); }); enemies=enemies.filter(e=>e.y<430); score++;
-  ctx.fillStyle="#fff"; ctx.fillRect(0,0,320,420); ctx.fillStyle="#00f"; ctx.fillRect(player.x,player.y,14,6); ctx.fillRect(player.x+2,player.y+6,4,14); ctx.fillRect(player.x+8,player.y+6,4,14); ctx.fillStyle="#f00"; enemies.forEach(e=>{ ctx.fillRect(e.x,e.y,4,30); ctx.fillRect(e.x+10,e.y,4,30); });
- }
- else if(mode.t==='freeway'){
-  enemies.forEach(e=>{ e.x+=e.dir*e.sp; if(e.x>340) e.x=-60; if(e.x<-60) e.x=340; if(e.x<player.x+14&&e.x+e.w>player.x&&e.y<player.y+14&&e.y+e.h>player.y) player.y=390; ctx.fillStyle="#f00"; ctx.fillRect(e.x,e.y,e.w,e.h); });
-  ctx.fillStyle="#ff0"; ctx.beginPath(); ctx.arc(player.x+7,player.y+7,7,0,6.28); ctx.fill(); ctx.fillRect(player.x,player.y+7,14,6); if(player.y<20) return win();
- }
- else if(mode.t==='seaquest'){
-  if(Math.random()<0.05) enemies.push({x:320,y:Math.random()*300+40,w:24,h:10,dx:-2}); enemies.forEach(e=>{ e.x+=e.dx; if(e.x<player.x+34&&e.x+e.w>player.x&&e.y<player.y+14&&e.y+e.h>player.y) return gameOver(); }); enemies=enemies.filter(e=>e.x>-30); score++;
-  ctx.fillStyle="#00a"; ctx.fillRect(0,0,320,420); ctx.fillStyle="#ff0"; ctx.fillRect(player.x,player.y,34,10); ctx.fillRect(player.x+20,player.y-6,12,8); ctx.fillStyle="#f80"; enemies.forEach(e=>{ ctx.fillRect(e.x,e.y,e.w,e.h); });
- }
- else { // fallback con color por juego para que no sea igual
-  if(Math.random()<0.05) enemies.push({x:Math.random()*300,y:-20,w:16,h:16,dy:2}); enemies.forEach(e=>{ e.y+=e.dy; if(e.x<player.x+20&&e.x+e.w>player.x&&e.y<player.y+20&&e.y+e.h>player.y) return gameOver(); }); enemies=enemies.filter(e=>e.y<430); score++;
-  ctx.fillStyle=['#0f0','#ff0','#0ff','#f0f','#fa0'][mode.id%5]; ctx.fillRect(player.x,player.y,20,20); ctx.fillStyle="#f00"; enemies.forEach(e=>ctx.fillRect(e.x,e.y,e.w,e.h));
- }
-
- document.getElementById('t2').innerText=`SCORE ${score}`; requestAnimationFrame(loop);
+function crear(){
+ if(intentos<=0){alert('Sin intentos, comparte');return}
+ if(saldo<apuesta){alert('Saldo insuficiente, comparte para ganar intentos');return}
+ intentos--; saldo-=apuesta; guardar();
+ destapadas=0; juegoActivo=true; posicionesMinas=[];
+ g.innerHTML=''; 
+ while(posicionesMinas.length<minas){let r=Math.floor(Math.random()*25); if(!posicionesMinas.includes(r)) posicionesMinas.push(r);}
+ for(let i=0;i<25;i++){let d=document.createElement('div');d.className='box';d.innerText='?';d.onclick=()=>jugar(i,d);g.appendChild(d);}
+ actualizarUI();
 }
-function win(){ running=false; if(typeof show_12010451==='function'){ show_12010451().then(()=>{ running=true; loop(); }).catch(()=>{ running=true; loop(); }); } else { running=true; loop(); } }
-function gameOver(){ running=false; document.getElementById('oT').innerText=mode.n; document.getElementById('oM').innerText=`SCORE ${score}`; document.getElementById('over').classList.add('show'); }
 
-document.getElementById('left').ontouchstart=e=>{ if(player) player.x=Math.max(0,player.x-20); if(mode.t==='asteroids') player.a-=0.3; if(mode.t==='frogger'||mode.t==='freeway'||mode.t==='qbert') player.y=Math.max(20,player.y-0); e.preventDefault(); };
-document.getElementById('right').ontouchstart=e=>{ if(player) player.x=Math.min(298,player.x+20); if(mode.t==='asteroids') player.a+=0.3; e.preventDefault(); };
-document.getElementById('fire').ontouchstart=e=>{
- if(mode.t==='invaders'||mode.t==='galaga'||mode.t==='laser') bullets.push({x:player.x+12,y:380,dy:-6});
- else if(mode.t==='asteroids') bullets.push({x:player.x,y:player.y,dx:Math.cos(player.a)*6,dy:Math.sin(player.a)*6,l:70});
- else if(mode.t==='missile'){ player.x=Math.random()*280+20; player.y=Math.random()*180+60; }
- else if(mode.t==='frogger'||mode.t==='freeway'||mode.t==='qbert'){ player.y-=24; }
- else if(mode.t==='bowling'){ ball.dx=6; ball.rolling=true; }
- else if(mode.t==='boxing'){ player.x+=12; }
- e.preventDefault();
-};
-document.getElementById('left').onmousedown=()=>{ if(player) player.x=Math.max(0,player.x-20); };
-document.getElementById('right').onmousedown=()=>{ if(player) player.x=Math.min(298,player.x+20); };
-document.getElementById('fire').onmousedown=()=>{ if(mode.t==='invaders') bullets.push({x:player.x+12,y:380,dy:-6}); if(mode.t==='asteroids') bullets.push({x:player.x,y:player.y,dx:Math.cos(player.a)*6,dy:Math.sin(player.a)*6,l:70}); };
-document.getElementById('btnR').onclick=()=>{ if(typeof show_12010449==='function'){ show_12010449().then(()=>{ document.getElementById('over').classList.remove('show'); running=true; loop(); }); } };
+function jugar(i,d){
+ if(!juegoActivo || d.classList.contains('revealed')) return;
+ d.classList.add('revealed'); show_12010449();
+ if(posicionesMinas.includes(i)){
+   d.innerText='💣'; d.classList.add('mina'); juegoActivo=false; revelarTodo();
+   document.getElementById('mtit').innerText='💥 BOOM'; document.getElementById('mtext').innerText='Perdiste $'+apuesta;
+   document.getElementById('cod').innerText='DP-'+Math.floor(Math.random()*90000+10000);
+   setTimeout(()=>document.getElementById('modal').style.display='flex',400);
+ }else{
+   destapadas++; d.innerText='💎';
+   let factor = 1 + destapadas * (minas*0.08); // más minas = paga más
+   let multi = factor.toFixed(2);
+   let ganancia = Math.floor(apuesta * factor);
+   document.getElementById('multi').innerText='x'+multi;
+   document.getElementById('btnRetirar').innerText='💰 RETIRAR $'+ganancia;
+   document.getElementById('btnRetirar').style.display='block';
+   if(destapadas===(25-minas)){
+     retirar();
+   }
+ }
+}
 
-render();
+function revelarTodo(){
+ document.querySelectorAll('.box').forEach((b,idx)=>{if(posicionesMinas.includes(idx)){b.innerText='💣'; b.classList.add('mina')} b.classList.add('revealed');});
+}
+
+function retirar(){
+ if(!juegoActivo || destapadas==0) return;
+ let multi = parseFloat(document.getElementById('multi').innerText.replace('x',''));
+ let ganancia = Math.floor(apuesta * multi);
+ saldo+=ganancia; juegoActivo=false; guardar();
+ document.getElementById('mtit').innerText='💰 GANASTE'; document.getElementById('mtext').innerText='Retiraste $'+ganancia+' con '+destapadas+' diamantes!';
+ document.getElementById('cod').innerText='DP-'+Math.floor(Math.random()*90000+10000);
+ document.getElementById('btnRetirar').style.display='none';
+ document.getElementById('modal').style.display='flex';
+ show_12010449('pop');
+}
+
+function compartir(){
+ window.open('https://wa.me/?text='+encodeURIComponent('🔥 Estoy jugando MINAS en DALEPLAY1 https://t.me/Daleplay1bot/daleplay1'),'_blank');
+ compartidos++; localStorage.setItem('daleplay_compartidos',compartidos);
+ if(compartidos<3){show_12010449();}
+ else{intentos+=2; saldo+=1000; compartidos=0; localStorage.setItem('daleplay_compartidos','0'); show_12010449('pop'); alert('¡+2 intentos y $1000!');}
+ guardar(); actualizarUI();
+}
+
+function guardar(){localStorage.setItem('daleplay_saldo',saldo); localStorage.setItem('daleplay_compartidos',compartidos);}
+function actualizarUI(){
+ document.getElementById('ci').innerText='Intentos: '+intentos;
+ document.getElementById('saldo').innerText='$'+saldo.toLocaleString();
+ document.getElementById('multi').innerText='x1.00';
+ document.getElementById('btnCompartir').innerText='📤 COMPARTE '+compartidos+'/3 PARA 2 INTENTOS + $1000';
+}
+actualizarUI(); crear();
 </script>
 </body>
 </html>
