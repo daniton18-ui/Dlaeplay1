@@ -1,129 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DALEPLAY1 - MINAS PRO</title>
-<script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
-body{margin:0;background:#071a0a;font-family:Arial;text-align:center;color:#fff}
-.header{background:#7fff00;color:#000;padding:14px;font-weight:900;font-size:20px}
-.panel{display:flex;justify-content:space-around;margin:8px}
-.cont{color:#7fff00;border:2px solid #7fff00;border-radius:10px;padding:8px 12px;font-weight:bold;font-size:14px}
-.dif{margin:8px;display:flex;gap:6px;justify-content:center}
-.dif button{flex:1;max-width:110px;padding:10px;border-radius:10px;border:2px solid #7fff00;background:#152e18;color:#7fff00;font-weight:900;cursor:pointer}
-.dif button.active{background:#7fff00;color:#000}
-.grid{width:95%;max-width:360px;margin:10px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.box{height:60px;background:#152e18;border:2px solid #7fff00;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900}
-.box.revealed{background:#0a2a0f}
-.box.mina{background:#4a1111;border-color:red}
-.btn{margin:7px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:12px;font-weight:900;display:block;cursor:pointer}
-#btnRetirar{background:#7fff00;color:#000;display:none;font-size:18px}
-#btnNuevo{background:#fff;color:#000}
-#btnCompartir{background:#25D366;color:#000}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:99}
-.caja{background:#112d18;border:3px solid #7fff00;padding:22px;border-radius:18px;margin:20px;min-width:280px}
+#btnLike{
+  background:#7fff00;color:#000;width:90%;max-width:360px;
+  padding:28px;font-size:32px;font-weight:900;border:0;border-radius:20px;
+  display:block;margin:20px auto;
+}
+#contador{text-align:center;font-weight:800;font-size:18px;font-family:Arial}
 </style>
-</head>
-<body>
-<div class="header">DALEPLAY1 - MINAS</div>
-<div class="panel">
-<div class="cont" id="ci">Intentos: 2</div>
-<div class="cont" id="saldo">$5.000</div>
-<div class="cont" id="multi">x1.00</div>
-</div>
 
-<div class="dif">
-<button id="d3" onclick="setDif(3)">3 MINAS<br>FACIL</button>
-<button id="d5" class="active" onclick="setDif(5)">5 MINAS<br>MEDIO</button>
-<button id="d10" onclick="setDif(10)">10 MINAS<br>PRO x5</button>
-</div>
-
-<div class="grid" id="g"></div>
-
-<button id="btnRetirar" class="btn" onclick="retirar()">💰 RETIRAR $0</button>
-<button id="btnNuevo" class="btn" onclick="crear()">🎮 NUEVO JUEGO - $500</button>
-<button id="btnCompartir" class="btn" onclick="compartir()">📤 COMPARTE 0/3 PARA 2 INTENTOS</button>
-
-<div id="modal"><div class="caja"><h1 id="mtit" style="color:#7fff00">GANASTE</h1><p id="mtext"></p><p>Código: <b id="cod"></b></p><button onclick="document.getElementById('modal').style.display='none';crear()" style="background:#7fff00;padding:14px;width:100%;border-radius:10px;font-weight:900">SEGUIR JUGANDO</button></div></div>
+<button id="btnLike" onclick="darLike()">👍 ME GUSTA <span id="numLikes">...</span></button>
+<div id="contador">👥 Global: <span id="numVisitas">...</span> personas</div>
 
 <script>
-show_12010449({type:'inApp',inAppSettings:{frequency:2,capping:0.1,interval:30,timeout:5,everyPage:false}});
-let intentos=2, compartidos=parseInt(localStorage.getItem('daleplay_compartidos')||'0');
-let saldo=parseInt(localStorage.getItem('daleplay_saldo')||'5000');
-let minas=5, posicionesMinas=[], destapadas=0, juegoActivo=false, apuesta=500, g=document.getElementById('g');
+const NAMESPACE = "daleplay1-oficial-2026";
 
-function setDif(n){
- minas=n; document.querySelectorAll('.dif button').forEach(b=>b.classList.remove('active'));
- document.getElementById('d'+n).classList.add('active');
- crear();
-}
+// VISITAS GLOBAL
+fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/visitas`)
+.then(r=>r.json()).then(d=>{
+  document.getElementById('numVisitas').innerText = d.value;
+});
 
-function crear(){
- if(intentos<=0){alert('Sin intentos, comparte');return}
- if(saldo<apuesta){alert('Saldo insuficiente, comparte para ganar intentos');return}
- intentos--; saldo-=apuesta; guardar();
- destapadas=0; juegoActivo=true; posicionesMinas=[];
- g.innerHTML=''; 
- while(posicionesMinas.length<minas){let r=Math.floor(Math.random()*25); if(!posicionesMinas.includes(r)) posicionesMinas.push(r);}
- for(let i=0;i<25;i++){let d=document.createElement('div');d.className='box';d.innerText='?';d.onclick=()=>jugar(i,d);g.appendChild(d);}
- actualizarUI();
-}
+// LIKES GLOBAL
+fetch(`https://api.countapi.xyz/get/${NAMESPACE}/likes`)
+.then(r=>r.json()).then(d=>{
+  document.getElementById('numLikes').innerText = d.value || 0;
+}).catch(()=>{
+  document.getElementById('numLikes').innerText = 0;
+});
 
-function jugar(i,d){
- if(!juegoActivo || d.classList.contains('revealed')) return;
- d.classList.add('revealed'); show_12010449();
- if(posicionesMinas.includes(i)){
-   d.innerText='💣'; d.classList.add('mina'); juegoActivo=false; revelarTodo();
-   document.getElementById('mtit').innerText='💥 BOOM'; document.getElementById('mtext').innerText='Perdiste $'+apuesta;
-   document.getElementById('cod').innerText='DP-'+Math.floor(Math.random()*90000+10000);
-   setTimeout(()=>document.getElementById('modal').style.display='flex',400);
- }else{
-   destapadas++; d.innerText='💎';
-   let factor = 1 + destapadas * (minas*0.08); // más minas = paga más
-   let multi = factor.toFixed(2);
-   let ganancia = Math.floor(apuesta * factor);
-   document.getElementById('multi').innerText='x'+multi;
-   document.getElementById('btnRetirar').innerText='💰 RETIRAR $'+ganancia;
-   document.getElementById('btnRetirar').style.display='block';
-   if(destapadas===(25-minas)){
-     retirar();
-   }
- }
+function darLike(){
+  if(localStorage.getItem('ya_like')) return alert('Ya diste like 👍');
+  fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/likes`)
+  .then(r=>r.json()).then(d=>{
+    document.getElementById('numLikes').innerText = d.value;
+    localStorage.setItem('ya_like','1');
+  });
+  if(navigator.vibrate) navigator.vibrate(50);
 }
-
-function revelarTodo(){
- document.querySelectorAll('.box').forEach((b,idx)=>{if(posicionesMinas.includes(idx)){b.innerText='💣'; b.classList.add('mina')} b.classList.add('revealed');});
-}
-
-function retirar(){
- if(!juegoActivo || destapadas==0) return;
- let multi = parseFloat(document.getElementById('multi').innerText.replace('x',''));
- let ganancia = Math.floor(apuesta * multi);
- saldo+=ganancia; juegoActivo=false; guardar();
- document.getElementById('mtit').innerText='💰 GANASTE'; document.getElementById('mtext').innerText='Retiraste $'+ganancia+' con '+destapadas+' diamantes!';
- document.getElementById('cod').innerText='DP-'+Math.floor(Math.random()*90000+10000);
- document.getElementById('btnRetirar').style.display='none';
- document.getElementById('modal').style.display='flex';
- show_12010449('pop');
-}
-
-function compartir(){
- window.open('https://wa.me/?text='+encodeURIComponent('🔥 Estoy jugando MINAS en DALEPLAY1 https://t.me/Daleplay1bot/daleplay1'),'_blank');
- compartidos++; localStorage.setItem('daleplay_compartidos',compartidos);
- if(compartidos<3){show_12010449();}
- else{intentos+=2; saldo+=1000; compartidos=0; localStorage.setItem('daleplay_compartidos','0'); show_12010449('pop'); alert('¡+2 intentos y $1000!');}
- guardar(); actualizarUI();
-}
-
-function guardar(){localStorage.setItem('daleplay_saldo',saldo); localStorage.setItem('daleplay_compartidos',compartidos);}
-function actualizarUI(){
- document.getElementById('ci').innerText='Intentos: '+intentos;
- document.getElementById('saldo').innerText='$'+saldo.toLocaleString();
- document.getElementById('multi').innerText='x1.00';
- document.getElementById('btnCompartir').innerText='📤 COMPARTE '+compartidos+'/3 PARA 2 INTENTOS + $1000';
-}
-actualizarUI(); crear();
 </script>
-</body>
-</html>
