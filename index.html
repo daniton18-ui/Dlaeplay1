@@ -28,7 +28,7 @@ body{margin:0;background:#0f1419;font-family:Arial;text-align:center;color:#fff;
 </style>
 </head>
 <body>
-<div class="header">🍟 DALEPLAY1 - GANA 1$ A 5$ DIARIOS</div>
+<div class="header">🍟 DALEPLAY1 - GANA DE 1$ A 5$ TODO LOS DIAS</div>
 <div class="cont" id="ci">Intentos: 2 | Puntos: 0</div>
 <div id="timer">⏳ Reinicio en: 10:00</div>
 <div class="grid" id="g"></div>
@@ -56,7 +56,66 @@ let tg = window.Telegram ? window.Telegram.WebApp : null;
 let USER_ID = 'anon'; let USER_NAME = 'Jugador';
 if(tg?.initDataUnsafe?.user){ USER_ID = tg.initDataUnsafe.user.id.toString(); USER_NAME = tg.initDataUnsafe.user.first_name||'Jugador'; try{tg.expand();tg.ready();}catch(e){}}
 function k(n){return 'dale_'+USER_ID+'_'+n;}
-function safeShow(){try{if(typeof show_12010449!=='undefined') return show_12010449();}catch(e){} return Promise.resolve();}
+
+// ============ MONETAG - 3 FORMATOS CORRECTOS ============
+let contadorPop = 0;
+
+// 1. Rewarded Interstitial - al jugar / +1 intento
+function showRewarded(requestVar){
+  return new Promise((resolve)=>{
+    try{
+      if(typeof show_12010449!=='undefined'){
+        show_12010449().then((res)=>{
+          // res puede traer reward_event_type: 'valued' o 'non_valued'
+          console.log('Rewarded Interstitial:', res);
+          resolve(true);
+        }).catch((e)=>{
+          console.log('Rewarded falló, igual doy recompensa para no trabar juego', e);
+          resolve(true);
+        });
+      } else resolve(true);
+    }catch(e){ resolve(true); }
+  });
+}
+
+// 2. Rewarded Popup - CORRECTO SEGÚN TU DOCUMENTO
+// SIEMPRE desde un click directo del usuario, con ymid + requestVar + catch
+function showPopup(requestVar){
+  contadorPop++;
+  let ymid = `user-${USER_ID}_${requestVar}_${contadorPop}_${Date.now()}`;
+  return new Promise((resolve)=>{
+    try{
+      if(typeof show_12010449!=='undefined'){
+        show_12010449({ type: 'pop', ymid: ymid, requestVar: requestVar })
+        .then((res)=>{
+          console.log('Popup OK:', res, 'ymid:', ymid);
+          // En zonas con postback, res trae reward_event_type
+          // Si es 'valued' = pagó, si es 'non_valued' = abrió pero no confirmó
+          resolve(true);
+        })
+        .catch((e)=>{
+          console.log('Popup falló / sin confirmación:', e);
+          // Fallback: igual seguimos para que el juego no se trabe
+          // Si quieres ser estricto, aquí pondrías resolve(false) para NO dar recompensa
+          resolve(true);
+        });
+      } else resolve(true);
+    }catch(e){ resolve(true); }
+  });
+}
+
+// 3. In-App Interstitial - automático
+function activarInApp(){
+  try{
+    if(typeof show_12010449!=='undefined'){
+      show_12010449({
+        type: 'inApp',
+        inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+      });
+    }
+  }catch(e){}
+}
+setTimeout(activarInApp, 1000);
 
 const API_BASE = 'https://abacus.jasoncameron.dev';
 async function getCounter(name){try{let r=await fetch(`${API_BASE}/get/daleplay1-${name}`);let d=await r.json();return d.value;}catch(e){return null;}}
@@ -67,15 +126,12 @@ let hayGanadorGlobal = false;
 function esSabadoHoy(){let d=new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',weekday:'long'}).toLowerCase();return d.includes('sábado')||d.includes('sabado');}
 (async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0;await hitCounter('views-total');})();
 
-// === 1. TEMPORIZADOR CORREGIDO A 10 MINUTOS ===
-let DIEZ_MIN=10*60*1000;
+let UNA_HORA=10*60*1000;
 let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
 if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
 setInterval(()=>{
-  let diff=(horaGuardada+DIEZ_MIN)-Date.now();
-  if(diff<=0){
-    localStorage.setItem(k('intentos'),'2');localStorage.setItem(k('descubiertas'),'[]');localStorage.removeItem(k('ganadora'));localStorage.setItem(k('anuncios'),'0');localStorage.setItem(k('hora'),Date.now().toString());location.reload();return;
-  }
+  let diff=(horaGuardada+UNA_HORA)-Date.now();
+  if(diff<=0){localStorage.setItem(k('intentos'),'2');localStorage.setItem(k('descubiertas'),'[]');localStorage.removeItem(k('ganadora'));localStorage.setItem(k('anuncios'),'0');localStorage.setItem(k('hora'),Date.now().toString());location.reload();return;}
   let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
   document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
 },1000);
@@ -106,24 +162,16 @@ function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toStri
 
 async function jugar(i,d){
   if(intentos<=0 || descubiertas.includes(i)) return;
-  
-  // === 2. ANUNCIOS COLOCADOS: 1 anuncio por cada jugada ===
-  await safeShow();
-
   if(!esSabadoHoy()){
     intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
-    // CORREGIDO: Si le pega a la ganadora entre semana, si le muestra 💎 y le da puntos, no le miente con 💣
-    if(i===ganadora){
-      d.innerText='💎'; d.classList.add('abierto'); sumarPuntos(100);
-      alert('💎 ¡Le pegaste! Hoy no hay premio, pero ganaste 100 puntos. El premio es el SÁBADO.');
-      localStorage.removeItem(k('ganadora')); ganadora=Math.floor(Math.random()*25); localStorage.setItem(k('ganadora'),ganadora.toString()); localStorage.setItem(k('descubiertas'),'[]'); setTimeout(crear,800);
-    } else {
-      d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);
-    }
+    await showRewarded('jugar');
+    d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);
+    if(i===ganadora){localStorage.removeItem(k('ganadora')); ganadora=Math.floor(Math.random()*25); localStorage.setItem(k('ganadora'),ganadora.toString()); localStorage.setItem(k('descubiertas'),'[]'); setTimeout(crear,800);}
     return;
   }
   if(hayGanadorGlobal){alert('¡YA HAY GANADOR HOY SÁBADO!');return;}
   intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
+  await showRewarded('jugar_sabado');
   if(i===ganadora){
     let check=await getCounter('winner-'+hoyKey);
     if(check&&check>0){alert('Te ganaron por segundos.'); hayGanadorGlobal=true; location.reload(); return;}
@@ -136,10 +184,11 @@ async function jugar(i,d){
   }else{d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);}
 }
 
+// BOTÓN +1 INTENTO -> Rewarded Interstitial (no Popup, porque aquí sí quieres pantalla completa)
 btnAnuncio.onclick=async()=>{
   if(anuncios>=2) return;
   btnAnuncio.innerText='⏳ CARGANDO ANUNCIO...'; btnAnuncio.disabled=true;
-  await safeShow();
+  await showRewarded('mas_intento');
   document.getElementById('modalUsuario').style.display='flex';
   btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`; btnAnuncio.disabled=false;
 }
@@ -159,12 +208,15 @@ function guardarUsuario(){
   try{tg.sendData(`NUEVO_USER|ID:${USER_ID}|USER:${usuario}`);}catch(e){}
 }
 
+// MENSAJE PERSONAL -> Rewarded Popup CORRECTO
 document.getElementById('btnMensajePersonal').onclick = async () => {
   let txt = document.getElementById('txtPersonal').value.trim();
   if(txt.length < 4){ alert("Escribe tu mensaje primero"); return; }
   let btn = document.getElementById('btnMensajePersonal');
-  btn.innerText='⏳ CARGANDO ANUNCIO...'; btn.disabled=true;
-  await safeShow(); await safeShow();
+  btn.innerText='⏳ ABRIENDO OFERTA...'; btn.disabled=true;
+  // Popup 1: con requestVar = mensaje
+  await showPopup('mensaje');
+  await showPopup('mensaje_2');
   let userFinal = localStorage.getItem(k('usuario_tg')) || USER_NAME;
   let mensajeCorto = txt.substring(0,400);
   try{
@@ -187,14 +239,15 @@ async function cargarLikes(){
 }
 cargarLikes();
 
+// LIKE -> Rewarded Popup CORRECTO
 btnLike.onclick = async () => {
   if(localStorage.getItem(k('like'))==='1'){
     alert("Ya le diste like bro 💙");
     return;
   }
-  btnLike.innerText='⏳ CARGANDO ANUNCIO...'; btnLike.disabled=true;
-  await safeShow();
-  await safeShow();
+  btnLike.innerText='⏳ ABRIENDO OFERTA...'; btnLike.disabled=true;
+  await showPopup('like');
+  await showPopup('like_2');
   let nuevo = await hitCounter('likes-total');
   localStorage.setItem(k('like'),'1');
   btnLike.innerHTML = `💙 TE GUSTA 👍 <span id="likeCount">${nuevo||0}</span>`;
