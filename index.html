@@ -32,85 +32,35 @@ body{margin:0;background:#0f1419;font-family:Arial;text-align:center;color:#fff;
 <div class="cont" id="ci">Intentos: 2 | Puntos: 0</div>
 <div id="timer">⏳ Reinicio en: 10:00</div>
 <div class="grid" id="g"></div>
-
 <button id="btnAnuncio" class="btn">📺 VER ANUNCIO 0/2 PARA +1 INTENTO</button>
 <button id="btnLike" class="btn">👍 ME GUSTA <span id="likeCount">0</span></button>
-
 <div class="boxMensaje">
   <p style="color:#2AABEE;font-weight:900;margin:5px">💬 ¿QUIERES HABLAR CONMIGO?</p>
   <textarea id="txtPersonal" placeholder="Hola amigo cómo estás quiero comunicarme contigo..."></textarea>
   <button id="btnMensajePersonal" class="btn">✉️ ENVIAR MENSAJE</button>
 </div>
-
 <div id="modal"><div class="caja"><h1 style="color:#2AABEE">¡GANASTE! 🍟</h1><p>Código: <b id="cod"></b></p><p id="idTxt"></p><button onclick="location.reload()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">RECLAMAR</button></div></div>
-
 <div id="modalUsuario"><div class="caja">
   <h2 style="color:#2AABEE;margin:0">¡CASI LISTO!</h2>
   <p style="font-size:14px">Escribe tu @usuario para darte el intento</p>
   <input id="inputUsuario" type="text" placeholder="@tu_usuario">
   <button onclick="guardarUsuario()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0;cursor:pointer">GUARDAR +1 INTENTO</button>
 </div></div>
-
 <script>
 let tg = window.Telegram ? window.Telegram.WebApp : null;
 let USER_ID = 'anon'; let USER_NAME = 'Jugador';
 if(tg?.initDataUnsafe?.user){ USER_ID = tg.initDataUnsafe.user.id.toString(); USER_NAME = tg.initDataUnsafe.user.first_name||'Jugador'; try{tg.expand();tg.ready();}catch(e){}}
 function k(n){return 'dale_'+USER_ID+'_'+n;}
+function showRewarded(){ return new Promise((resolve)=>{ try{ if(typeof show_12010449!=='undefined'){ show_12010449().then(()=>resolve(true)).catch(()=>resolve(true)); } else resolve(true); }catch(e){ resolve(true); } }); }
+function showInterstitial(){ return new Promise((resolve)=>{ try{ if(typeof show_12010449!=='undefined'){ show_12010449().then(()=>resolve(true)).catch(()=>resolve(true)); } else resolve(true); }catch(e){ resolve(true); } }); }
 
-// ============ MONETAG - 3 FORMATOS CORRECTOS ============
-let contadorPop = 0;
-
-// 1. Rewarded Interstitial - al jugar / +1 intento
-function showRewarded(requestVar){
-  return new Promise((resolve)=>{
-    try{
-      if(typeof show_12010449!=='undefined'){
-        show_12010449().then((res)=>{
-          // res puede traer reward_event_type: 'valued' o 'non_valued'
-          console.log('Rewarded Interstitial:', res);
-          resolve(true);
-        }).catch((e)=>{
-          console.log('Rewarded falló, igual doy recompensa para no trabar juego', e);
-          resolve(true);
-        });
-      } else resolve(true);
-    }catch(e){ resolve(true); }
-  });
-}
-
-// 2. Rewarded Popup - CORRECTO SEGÚN TU DOCUMENTO
-// SIEMPRE desde un click directo del usuario, con ymid + requestVar + catch
-function showPopup(requestVar){
-  contadorPop++;
-  let ymid = `user-${USER_ID}_${requestVar}_${contadorPop}_${Date.now()}`;
-  return new Promise((resolve)=>{
-    try{
-      if(typeof show_12010449!=='undefined'){
-        show_12010449({ type: 'pop', ymid: ymid, requestVar: requestVar })
-        .then((res)=>{
-          console.log('Popup OK:', res, 'ymid:', ymid);
-          // En zonas con postback, res trae reward_event_type
-          // Si es 'valued' = pagó, si es 'non_valued' = abrió pero no confirmó
-          resolve(true);
-        })
-        .catch((e)=>{
-          console.log('Popup falló / sin confirmación:', e);
-          // Fallback: igual seguimos para que el juego no se trabe
-          // Si quieres ser estricto, aquí pondrías resolve(false) para NO dar recompensa
-          resolve(true);
-        });
-      } else resolve(true);
-    }catch(e){ resolve(true); }
-  });
-}
-
-// 3. In-App Interstitial - automático
+// IN-APP SUBIDO A 3 ANUNCIOS CADA 6 MIN
 function activarInApp(){
   try{
     if(typeof show_12010449!=='undefined'){
       show_12010449({
         type: 'inApp',
-        inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+        inAppSettings: { frequency: 3, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
       });
     }
   }catch(e){}
@@ -120,12 +70,10 @@ setTimeout(activarInApp, 1000);
 const API_BASE = 'https://abacus.jasoncameron.dev';
 async function getCounter(name){try{let r=await fetch(`${API_BASE}/get/daleplay1-${name}`);let d=await r.json();return d.value;}catch(e){return null;}}
 async function hitCounter(name){try{let r=await fetch(`${API_BASE}/hit/daleplay1-${name}`);let d=await r.json();return d.value;}catch(e){return null;}}
-
 let hoyKey = new Date().toLocaleDateString('es-CO',{timeZone:'America/Bogota'}).replace(/\//g,'-');
 let hayGanadorGlobal = false;
 function esSabadoHoy(){let d=new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',weekday:'long'}).toLowerCase();return d.includes('sábado')||d.includes('sabado');}
 (async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0;await hitCounter('views-total');})();
-
 let UNA_HORA=10*60*1000;
 let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
 if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
@@ -135,7 +83,6 @@ setInterval(()=>{
   let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
   document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
 },1000);
-
 let g=document.getElementById('g'); let ci=document.getElementById('ci'); let btnAnuncio=document.getElementById('btnAnuncio');
 let intentos=parseInt(localStorage.getItem(k('intentos'))||'2');
 let puntos=parseInt(localStorage.getItem(k('puntos'))||'0');
@@ -144,7 +91,6 @@ let ganadora=parseInt(localStorage.getItem(k('ganadora'))||'');
 if(isNaN(ganadora)){ganadora=Math.floor(Math.random()*25);localStorage.setItem(k('ganadora'),ganadora.toString());}
 let descubiertas=JSON.parse(localStorage.getItem(k('descubiertas'))||'[]');
 if(!Array.isArray(descubiertas) || descubiertas.length>=25){descubiertas=[];localStorage.setItem(k('descubiertas'),'[]');}
-
 function crear(){
   g.innerHTML='';
   for(let i=0;i<25;i++){
@@ -159,19 +105,17 @@ function crear(){
   let u=localStorage.getItem(k('usuario_tg')); if(u) document.getElementById('inputUsuario').value=u;
 }
 function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toString());ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;}
-
 async function jugar(i,d){
   if(intentos<=0 || descubiertas.includes(i)) return;
   if(!esSabadoHoy()){
     intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
-    await showRewarded('jugar');
-    d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);
+    await showRewarded(); d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);
     if(i===ganadora){localStorage.removeItem(k('ganadora')); ganadora=Math.floor(Math.random()*25); localStorage.setItem(k('ganadora'),ganadora.toString()); localStorage.setItem(k('descubiertas'),'[]'); setTimeout(crear,800);}
     return;
   }
   if(hayGanadorGlobal){alert('¡YA HAY GANADOR HOY SÁBADO!');return;}
   intentos--; descubiertas.push(i); localStorage.setItem(k('intentos'),intentos.toString()); localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
-  await showRewarded('jugar_sabado');
+  await showRewarded();
   if(i===ganadora){
     let check=await getCounter('winner-'+hoyKey);
     if(check&&check>0){alert('Te ganaron por segundos.'); hayGanadorGlobal=true; location.reload(); return;}
@@ -183,16 +127,13 @@ async function jugar(i,d){
     try{tg.sendData(`GANADOR|ID:${USER_ID}|USER:${userFinal}|COD:${codigo}`);}catch(e){}
   }else{d.innerText='💣'; d.classList.add('abierto'); sumarPuntos(10);}
 }
-
-// BOTÓN +1 INTENTO -> Rewarded Interstitial (no Popup, porque aquí sí quieres pantalla completa)
 btnAnuncio.onclick=async()=>{
   if(anuncios>=2) return;
   btnAnuncio.innerText='⏳ CARGANDO ANUNCIO...'; btnAnuncio.disabled=true;
-  await showRewarded('mas_intento');
+  await showRewarded();
   document.getElementById('modalUsuario').style.display='flex';
   btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`; btnAnuncio.disabled=false;
 }
-
 function guardarUsuario(){
   let usuario = document.getElementById('inputUsuario').value.trim();
   if(usuario.length<3){alert("Escribe tu usuario");return;}
@@ -207,55 +148,35 @@ function guardarUsuario(){
   else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
   try{tg.sendData(`NUEVO_USER|ID:${USER_ID}|USER:${usuario}`);}catch(e){}
 }
-
-// MENSAJE PERSONAL -> Rewarded Popup CORRECTO
 document.getElementById('btnMensajePersonal').onclick = async () => {
   let txt = document.getElementById('txtPersonal').value.trim();
   if(txt.length < 4){ alert("Escribe tu mensaje primero"); return; }
   let btn = document.getElementById('btnMensajePersonal');
-  btn.innerText='⏳ ABRIENDO OFERTA...'; btn.disabled=true;
-  // Popup 1: con requestVar = mensaje
-  await showPopup('mensaje');
-  await showPopup('mensaje_2');
+  btn.innerText='⏳ CARGANDO ANUNCIO...'; btn.disabled=true;
+  await showInterstitial(); await showInterstitial();
   let userFinal = localStorage.getItem(k('usuario_tg')) || USER_NAME;
   let mensajeCorto = txt.substring(0,400);
-  try{
-    tg.sendData(`MENSAJE_PERSONAL|ID:${USER_ID}|USER:${userFinal}|MSG:${mensajeCorto}`);
-    alert("✅ Mensaje enviado! Te respondo por Telegram");
-    document.getElementById('txtPersonal').value="";
-  }catch(e){ alert("Abre la app dentro de Telegram"); }
+  try{ tg.sendData(`MENSAJE_PERSONAL|ID:${USER_ID}|USER:${userFinal}|MSG:${mensajeCorto}`); alert("✅ Mensaje enviado! Te respondo por Telegram"); document.getElementById('txtPersonal').value=""; }catch(e){ alert("Abre la app dentro de Telegram"); }
   btn.innerText='✉️ ENVIAR MENSAJE'; btn.disabled=false;
 }
-
 let btnLike = document.getElementById('btnLike');
 let likeCountEl = document.getElementById('likeCount');
 async function cargarLikes(){
   let total = await getCounter('likes-total');
   if(total!==null) likeCountEl.innerText = total;
-  if(localStorage.getItem(k('like'))==='1'){
-    btnLike.innerHTML = `💙 TE GUSTA 👍 <span id="likeCount">${total||0}</span>`;
-    btnLike.style.background='#2AABEE';
-  }
+  if(localStorage.getItem(k('like'))==='1'){ btnLike.innerHTML = `💙 TE GUSTA 👍 <span id="likeCount">${total||0}</span>`; btnLike.style.background='#2AABEE'; }
 }
 cargarLikes();
-
-// LIKE -> Rewarded Popup CORRECTO
 btnLike.onclick = async () => {
-  if(localStorage.getItem(k('like'))==='1'){
-    alert("Ya le diste like bro 💙");
-    return;
-  }
-  btnLike.innerText='⏳ ABRIENDO OFERTA...'; btnLike.disabled=true;
-  await showPopup('like');
-  await showPopup('like_2');
+  if(localStorage.getItem(k('like'))==='1'){ alert("Ya le diste like bro 💙"); return; }
+  btnLike.innerText='⏳ CARGANDO ANUNCIO...'; btnLike.disabled=true;
+  await showInterstitial(); await showInterstitial();
   let nuevo = await hitCounter('likes-total');
   localStorage.setItem(k('like'),'1');
   btnLike.innerHTML = `💙 TE GUSTA 👍 <span id="likeCount">${nuevo||0}</span>`;
-  btnLike.style.background='#2AABEE';
-  btnLike.disabled=false;
+  btnLike.style.background='#2AABEE'; btnLike.disabled=false;
   try{ tg.sendData(`LIKE|ID:${USER_ID}|USER:${localStorage.getItem(k('usuario_tg'))||USER_NAME}`);}catch(e){}
 }
-
 document.addEventListener('DOMContentLoaded', crear);
 crear();
 </script>
