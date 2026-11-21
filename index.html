@@ -3,8 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DALEPLAY TRABAJO - Gana $5</title>
+<title>DALEPLAY TRABAJO</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- ===== MONETAG - TUS 2 ZONAS REALES ===== -->
+<!-- 12010449 = Rewarded - para +50 monedas -->
+<!-- 12010451 = In-App - para Entrar a Trabajar -->
+<script src="https://alwingulla.com/88/tag.min.js" data-zone="12010449" async data-cfasync="false"></script>
+<script src="https://alwingulla.com/88/tag.min.js" data-zone="12010451" async data-cfasync="false"></script>
+
 <style>
 *{box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
 body{margin:0;background:#f2f4f8;color:#111}
@@ -47,19 +54,18 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
 </head>
 <body>
 <div class="topbar">
-  <div class="logo">DALEPLAY <span>TRABAJO</span><small>GANA $5 DÓLARES</small></div>
+  <div class="logo">DALEPLAY <span>TRABAJO</span><small>GANA POR VER ANUNCIOS</small></div>
   <div class="pill">● En línea</div>
 </div>
 
 <div class="container">
 
-<!-- ===== LOGIN TELEGRAM ===== -->
+<!-- ===== LOGIN ===== -->
 <div id="pantallaAuth">
   <div class="card" style="text-align:center;padding:24px">
     <div style="font-size:44px">🎮</div>
     <h1 style="margin:8px 0 4px">Bienvenido a DALEPLAY</h1>
-    <p style="color:#666;font-size:14px" id="textoBienvenida">Conectando con tu Telegram...</p>
-    <p style="font-size:13px;color:#888">1 moneda = $1 peso<br><b>Retiro mínimo: 20.000 monedas = $5 dólares = $20.000 COP</b><br>30 anuncios al día • 2 min entre cada uno • 50 monedas por anuncio</p>
+    <p style="font-size:13px;color:#888">Gana monedas viendo anuncios y retíralas por Nequi.</p>
   </div>
   <div class="card">
     <h3 style="margin:0">Tu cuenta de Telegram</h3>
@@ -68,32 +74,50 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
     <input id="authUsuario" placeholder="@tu_usuario" readonly style="background:#eef2f7">
     <label style="font-size:13px;font-weight:700">Contraseña (mínimo 4 números)</label>
     <input id="authClave" type="password" placeholder="Contraseña">
-    <button class="btn btn-gold" onclick="entrarTelegram()">ENTRAR A TRABAJAR →</button>
-    <p style="font-size:12px;color:#999;text-align:center;margin-top:10px">Si es la primera vez, se crea tu cuenta sola con tu @ de Telegram + 50 monedas de regalo.</p>
+    <button class="btn btn-gold" onclick="entrarConAnuncio()">ENTRAR A TRABAJAR →</button>
+    <p style="font-size:12px;color:#999;text-align:center">Al entrar verás un anuncio corto.</p>
+  </div>
+</div>
+
+<!-- ===== ANUNCIO AL ENTRAR - ZONA 12010451 IN-APP ===== -->
+<div id="pantallaAnuncioEntrada" class="oculto">
+  <div class="card">
+    <div class="adBox">
+      <div style="font-size:40px">📺</div>
+      <h2 style="margin:8px 0">CARGANDO TU CUENTA...</h2>
+      <p id="textoAnuncioEntrada" style="color:#a8b0c0">Mira este anuncio corto para entrar - 15 seg</p>
+      <div class="progress"><div id="progAnuncioEntrada" style="width:0%"></div></div>
+      <p style="font-size:12px;color:#a8b0c0">Mira el anuncio completo para entrar.</p>
+    </div>
+    <br>
+    <button class="btn btn-gold" id="btnEntrarDespuesAnuncio" disabled onclick="terminarAnuncioEntrada()">ESPERA 15...</button>
   </div>
 </div>
 
 <!-- ===== DASHBOARD ===== -->
 <div id="pantallaHome" class="oculto">
-  <div class="flex"><div><b style="font-size:18px">Hola, <span id="holaUser">Usuario</span> 👋</b><br><span style="font-size:12px;color:#666">✅ Verificado con Telegram • Barranquilla</span></div><span class="badge">NIVEL 1 ⭐</span></div>
+  <div class="flex"><div><b style="font-size:18px">Hola, <span id="holaUser">Usuario</span> 👋</b><br><span style="font-size:12px;color:#666">✅ Verificado • Barranquilla</span></div><span class="badge">NIVEL 1 ⭐</span></div>
   <br>
   <div class="card-dark">
     <div class="flex"><span style="color:#a8b0c0;font-size:13px">Saldo disponible</span><span style="background:#ffffff22;padding:4px 8px;border-radius:20px;font-size:12px">🪙 Monedas</span></div>
     <div class="big"><span id="saldoMonedas">0</span> <span class="gold" style="font-size:20px">monedas</span></div>
-    <div style="font-size:14px;color:#cbd5e1">= <b style="color:#fff" id="saldoPesos">$0 COP</b> • <span id="saldoDolares">$0</span> dólares</div>
+    <div style="font-size:14px;color:#cbd5e1">= <b style="color:#fff" id="saldoPesos">$0 COP</b></div>
     <div class="barra"><div id="barraProgreso"></div></div>
-    <div class="flex" style="font-size:12px;color:#a8b0c0"><span id="textoProgreso">0 / 20.000 para retirar $5</span><span id="porcProgreso">0%</span></div>
+    <div class="flex" style="font-size:12px;color:#a8b0c0"><span id="textoProgreso">0 / 20.000 para retirar</span><span id="porcProgreso">0%</span></div>
     <br>
     <div class="row">
       <button class="btn btn-gold" onclick="verAnuncio()">▶ VER ANUNCIO +50</button>
-      <button class="btn" style="background:#fff;color:#111" onclick="irRetiro()">💸 RETIRAR $5</button>
+      <button class="btn" style="background:#fff;color:#111" onclick="irRetiro()">💸 RETIRAR</button>
     </div>
-    <div class="timerBox" id="infoLimite">Llevas <b id="contadorHoy">0 / 30</b> anuncios hoy • Siguiente en 2 min • Te faltan <b id="faltanDias">14</b> días para cobrar</div>
+    <div class="timerBox" id="infoLimite">Llevas <b id="contadorHoy">0 / 30</b> anuncios hoy</div>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <b>🎁 Sigue viendo anuncios para ganar</b>
+    <p style="font-size:13px;color:#888;margin:4px 0">Tu saldo se actualiza solo. Cuando llegues a la meta, te avisamos para retirar.</p>
   </div>
 
   <div class="card">
-    <div class="flex"><b>¿Cómo ganar?</b><span class="badge">REGLAS</span></div>
-    <p style="font-size:13px;color:#555;line-height:1.6">✅ 1 anuncio = <b>50 monedas</b><br>✅ Máximo <b>30 anuncios al día</b><br>✅ Espera <b>2 minutos</b> entre cada anuncio<br>✅ Retiro mínimo <b>$5 dólares (20.000 monedas)</b><br>❌ NO hagas clic en el anuncio, solo míralo<br>❌ NO uses VPN, solo Colombia</p>
     <button class="btn btn-dark" onclick="irTrivia()">🎯 JUGAR TRIVIA +50 POR ACIERTO</button>
   </div>
 
@@ -120,25 +144,25 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
 <!-- ===== RETIRO ===== -->
 <div id="pantallaRetiro" class="oculto">
   <div class="card">
-    <h2 style="margin:0">💸 Retirar $5 dólares</h2>
-    <p style="color:#666;font-size:14px">Te pagamos viernes 7pm por Nequi. Mínimo $5 dólares.</p>
-    <div class="card-dark" style="text-align:center"><div style="color:#a8b0c0">Vas a retirar</div><div class="big"><span id="retiroMonto">0</span> <span class="gold" style="font-size:18px">monedas</span></div><div>= $<span id="retiroPesos">0</span> COP = <b>$<span id="retiroDolares">0</span> dólares</b></div></div>
+    <h2 style="margin:0">💸 Retirar por Nequi</h2>
+    <p style="color:#666;font-size:14px">Te pagamos viernes 7pm por Nequi.</p>
+    <div class="card-dark" style="text-align:center"><div style="color:#a8b0c0">Vas a retirar</div><div class="big"><span id="retiroMonto">0</span> <span class="gold" style="font-size:18px">monedas</span></div><div>= $<span id="retiroPesos">0</span> COP</div></div>
     <br>
     <label style="font-size:13px;font-weight:700">Número Nequi (10 dígitos)</label>
     <input id="inputNequi" placeholder="Ej: 3001234567" type="tel">
     <div id="alertaRetiro" style="background:#fffbeb;border:1px solid #fde68a;padding:12px;border-radius:12px;font-size:13px"></div>
     <br>
-    <button class="btn btn-green" onclick="solicitarRetiro()">SOLICITAR RETIRO DE $5 →</button>
+    <button class="btn btn-green" onclick="solicitarRetiro()">SOLICITAR RETIRO →</button>
     <button class="btn btn-outline" style="margin-top:8px" onclick="irHome()">Cancelar</button>
   </div>
 </div>
 
-<!-- ===== ANUNCIO ===== -->
+<!-- ===== ANUNCIO NORMAL - ZONA 12010449 REWARDED ===== -->
 <div id="pantallaAnuncio" class="oculto">
   <div class="card">
-    <div class="adBox"><div style="font-size:40px">📺</div><h2 style="margin:8px 0">ANUNCIO</h2><p id="textoAnuncio" style="color:#a8b0c0">Cargando anuncio...</p><div class="progress"><div id="progAnuncio" style="width:0%"></div></div><p style="font-size:12px;color:#a8b0c0">Mira el anuncio completo. NO hagas clic.<br>Al terminar ganas +50 monedas.</p><p style="font-size:12px;color:#f5b301" id="contadorAnunciosHoy">Anuncio 0 / 30 hoy</p></div>
+    <div class="adBox"><div style="font-size:40px">📺</div><h2 style="margin:8px 0">ANUNCIO</h2><p id="textoAnuncio" style="color:#a8b0c0">Cargando anuncio...</p><div class="progress"><div id="progAnuncio" style="width:0%"></div></div><p style="font-size:12px;color:#a8b0c0">Mira el anuncio completo. Al terminar ganas +50 monedas.</p><p style="font-size:12px;color:#f5b301" id="contadorAnunciosHoy">Anuncio 0 / 30 hoy</p></div>
     <br><button class="btn btn-gold" id="btnCerrarAnuncio" disabled onclick="cerrarAnuncio()">ESPERA...</button>
-    <div class="timerBox" id="timerSiguiente">Después de este, espera 2 minutos para el siguiente.</div>
+    <div class="timerBox">Después de este, espera 2 minutos para el siguiente.</div>
   </div>
 </div>
 
@@ -155,16 +179,18 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
 let tg = window.Telegram?.WebApp;
 if(tg){ tg.ready(); tg.expand(); tg.setHeaderColor('#ffffff'); tg.setBackgroundColor('#f2f4f8'); }
 
-// ===== CONFIGURACIÓN DE TU NEGOCIO - NO CAMBIAR SIN PENSAR =====
+// ===== CONFIG PRIVADA - SOLO TÚ LA SABES =====
 const MONEDAS_POR_ANUNCIO = 50;
 const MONEDAS_POR_TRIVIA = 50;
 const MAX_ANUNCIOS_DIA = 30;
-const ESPERA_MS = 120000; // 2 minutos = 120.000 ms
-const MINIMO_RETIRO = 20000; // 20.000 monedas = $5 dólares = $20.000 COP
-const TASA_DOLAR = 4000;
+const ESPERA_MS = 120000; // 2 minutos
+const MINIMO_RETIRO = 20000;
+const ZONA_ENTRAR = 12010451; // In-App - al entrar
+const ZONA_RECOMPENSA = 12010449; // Rewarded - +50 monedas
 
 let usuarioActual=null, monedas=0, historial=[];
 let ultimoAnuncio = parseInt(localStorage.getItem('ultimo_anuncio')||"0");
+let usuarioPendiente=null, clavePendiente=null;
 let preguntas=[
   {q:"¿Qué equipo de fútbol es de Barranquilla?", ops:["Junior de Barranquilla","América de Cali","Millonarios","Atlético Nacional"], r:0},
   {q:"¿Cuánto dura un partido de fútbol?", ops:["60 min","80 min","90 min","120 min"], r:2},
@@ -185,15 +211,12 @@ window.onload=()=>{
   let tgUser = getTelegramUser();
   if(tgUser){
     document.getElementById('authUsuario').value = tgUser;
-    document.getElementById('textoBienvenida').innerText = "Detectamos tu Telegram: "+tgUser+" ✅";
     let u=JSON.parse(localStorage.getItem('daleplay_tg_final')||"{}");
     if(u[tgUser] && u[tgUser].clave) document.getElementById('authClave').value = u[tgUser].clave;
   } else {
-    document.getElementById('textoBienvenida').innerText = "Abre esto desde el Bot de Telegram para que te detecte solo.";
     document.getElementById('authUsuario').readOnly = false;
   }
 };
-
 function getLimiteHoy(){
   let hoy = new Date().toDateString();
   let g = JSON.parse(localStorage.getItem('limite_monetag') || '{"fecha":"","count":0}');
@@ -209,78 +232,108 @@ function guardar(){
 function actualizarUI(){
   document.getElementById('saldoMonedas').innerText=monedas.toLocaleString();
   document.getElementById('saldoPesos').innerText="$"+monedas.toLocaleString()+" COP";
-  document.getElementById('saldoDolares').innerText="$"+(monedas/TASA_DOLAR).toFixed(2);
   document.getElementById('monedasTrivia').innerText=monedas;
   document.getElementById('retiroMonto').innerText=monedas.toLocaleString();
   document.getElementById('retiroPesos').innerText=monedas.toLocaleString();
-  document.getElementById('retiroDolares').innerText=(monedas/TASA_DOLAR).toFixed(2);
   let porc=Math.min(100, Math.round(monedas/MINIMO_RETIRO*100));
   document.getElementById('barraProgreso').style.width=porc+"%";
-  document.getElementById('textoProgreso').innerText=monedas.toLocaleString()+" / "+MINIMO_RETIRO.toLocaleString()+" para retirar $5";
+  document.getElementById('textoProgreso').innerText=monedas.toLocaleString()+" / "+MINIMO_RETIRO.toLocaleString()+" para retirar";
   document.getElementById('porcProgreso').innerText=porc+"%";
   let g = getLimiteHoy();
   document.getElementById('contadorHoy').innerText = g.count+" / "+MAX_ANUNCIOS_DIA;
-  let faltanMonedas = Math.max(0, MINIMO_RETIRO - monedas);
-  let dias = Math.ceil(faltanMonedas / (MAX_ANUNCIOS_DIA * MONEDAS_POR_ANUNCIO));
-  document.getElementById('faltanDias').innerText = dias;
   let h=document.getElementById('listaHistorial');
   if(historial.length===0){ h.innerHTML="<p style='color:#888;font-size:13px'>Aún no tienes movimientos. Ve tu primer anuncio.</p>"; }
   else{
     h.innerHTML=historial.slice(-5).reverse().map(x=>`<div class="hist"><div style="display:flex;gap:10px;align-items:center"><div class="icono ${x.tipo==='ganancia'?'verdeBg':'doradoBg'}">${x.tipo==='ganancia'?'🎁':'💸'}</div><div><b>${x.titulo}</b><br><span style="font-size:12px;color:#888">${x.fecha}</span></div></div><b>${x.monto}</b></div>`).join('');
   }
   let al=document.getElementById('alertaRetiro');
-  if(monedas<MINIMO_RETIRO) al.innerHTML="⚠️ Te faltan <b>"+(MINIMO_RETIRO-monedas).toLocaleString()+" monedas</b> para retirar. Mínimo $5 dólares = 20.000 monedas. Te faltan "+dias+" días si haces 30 anuncios diarios.";
-  else al.innerHTML="✅ ¡Ya puedes retirar! Tienes <b>$"+monedas.toLocaleString()+" COP = $"+(monedas/TASA_DOLAR).toFixed(2)+" dólares</b>. Te llega el viernes 7pm.";
+  if(monedas<MINIMO_RETIRO) al.innerHTML="⚠️ Te faltan <b>"+(MINIMO_RETIRO-monedas).toLocaleString()+" monedas</b> para retirar. Sigue viendo anuncios.";
+  else al.innerHTML="✅ ¡Ya puedes retirar! Tienes <b>$"+monedas.toLocaleString()+" COP</b>. Te llega el viernes 7pm.";
 }
-function entrarTelegram(){
+
+// ===== FUNCIÓN PARA LLAMAR A MONETAG =====
+function mostrarMonetag(zona){
+  // Monetag crea una función show_ + ID cuando carga el script
+  let fn = window['show_' + zona];
+  if(typeof fn === 'function'){ fn(); return true; }
+  // Si aún no cargó, intenta con el formato alternativo
+  if(window['show_' + zona]){ window['show_' + zona](); return true; }
+  console.log("Monetag zona " + zona + " aún no cargó, se sigue con el temporizador");
+  return false;
+}
+
+// ===== ENTRAR CON ANUNCIO - ZONA 12010451 IN-APP =====
+function entrarConAnuncio(){
   let user=document.getElementById('authUsuario').value.trim().toLowerCase();
   let clave=document.getElementById('authClave').value.trim();
   if(!user){ alert("No detectamos tu @ de Telegram. Abre la app desde el Bot."); return; }
   if(!clave || clave.length<4){ alert("Pon una contraseña de mínimo 4 números"); return; }
+  usuarioPendiente=user; clavePendiente=clave;
+  document.getElementById('pantallaAuth').classList.add('oculto');
+  document.getElementById('pantallaAnuncioEntrada').classList.remove('oculto');
+
+  // MUESTRA ANUNCIO IN-APP 12010451
+  mostrarMonetag(ZONA_ENTRAR);
+
+  let seg=15;
+  document.getElementById('textoAnuncioEntrada').innerText="Mira este anuncio corto para entrar - "+seg+" seg";
+  document.getElementById('btnEntrarDespuesAnuncio').disabled=true;
+  document.getElementById('btnEntrarDespuesAnuncio').innerText="ESPERA "+seg+"...";
+  let t=setInterval(()=>{
+    seg--;
+    document.getElementById('progAnuncioEntrada').style.width=((15-seg)/15*100)+"%";
+    document.getElementById('textoAnuncioEntrada').innerText="Mira este anuncio corto para entrar - "+Math.max(0,seg)+" seg";
+    if(seg<=0){ clearInterval(t); document.getElementById('btnEntrarDespuesAnuncio').disabled=false; document.getElementById('btnEntrarDespuesAnuncio').innerText="ENTRAR AHORA →"; }
+  },1000);
+}
+function terminarAnuncioEntrada(){
+  let user=usuarioPendiente; let clave=clavePendiente;
   let u=JSON.parse(localStorage.getItem('daleplay_tg_final')||"{}");
   if(!u[user]){
-    u[user]={usuario:user, clave, monedas:50, historial:[{titulo:"Bono por entrar desde Telegram", monto:"+50 monedas", fecha:"Ahora mismo", tipo:"ganancia"}], nequi:""};
-    localStorage.setItem('daleplay_tg_final', JSON.stringify(u));
-    if(tg) tg.showAlert("¡Bienvenido "+user+"! Te regalamos 50 monedas.");
+    u[user]={usuario:user, clave, monedas:50, historial:[{titulo:"Bono por entrar", monto:"+50 monedas", fecha:"Ahora mismo", tipo:"ganancia"}], nequi:""};
   } else {
-    if(u[user].clave!==clave){ alert("Contraseña incorrecta"); return; }
+    if(u[user].clave!==clave){ alert("Contraseña incorrecta"); document.getElementById('pantallaAnuncioEntrada').classList.add('oculto'); document.getElementById('pantallaAuth').classList.remove('oculto'); return; }
   }
-  usuarioActual=user; monedas=u[user].monedas||0; historial=u[user].historial||[];
+  u[user].monedas=(u[user].monedas||0)+5;
+  u[user].historial.push({titulo:"Anuncio al entrar", monto:"+5 monedas", fecha:"Hoy", tipo:"ganancia"});
+  localStorage.setItem('daleplay_tg_final', JSON.stringify(u));
+  usuarioActual=user; monedas=u[user].monedas; historial=u[user].historial;
   document.getElementById('holaUser').innerText=user;
-  document.getElementById('pantallaAuth').classList.add('oculto');
+  document.getElementById('pantallaAnuncioEntrada').classList.add('oculto');
   document.getElementById('pantallaHome').classList.remove('oculto');
   document.getElementById('navBottom').style.display="flex";
   if(u[user].nequi) document.getElementById('inputNequi').value=u[user].nequi;
   actualizarUI(); guardar();
-  if(tg) tg.HapticFeedback?.impactOccurred('medium');
+  if(tg) tg.showAlert("✅ Bienvenido! +5 monedas por el anuncio de entrada.");
 }
+
 function irHome(){ document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto')); document.getElementById('pantallaHome').classList.remove('oculto'); actualizarUI(); }
 function irTrivia(){ document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto')); document.getElementById('pantallaTrivia').classList.remove('oculto'); idx=0; vidas=3; mostrarPregunta(); }
 function irRetiro(){ document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto')); document.getElementById('pantallaRetiro').classList.remove('oculto'); actualizarUI(); }
 
-// ===== SISTEMA ANTI-BAN MONETAG: 30 AL DÍA, 2 MINUTOS =====
+// ===== ANUNCIOS NORMALES - ZONA 12010449 REWARDED - 30 AL DÍA, 2 MIN =====
 function puedeVerAnuncio(){
-  let g = getLimiteHoy();
-  if(g.count >= MAX_ANUNCIOS_DIA){
-    alert("⛔ Ya hiciste tus 30 anuncios de hoy.\n\nVuelve mañana para seguir ganando.\nEsto es para que Monetag no te banee y sí te paguemos tus $5 dólares.");
-    return false;
-  }
-  let ahora = Date.now();
-  if(ultimoAnuncio && (ahora - ultimoAnuncio < ESPERA_MS)){
-    let faltaSeg = Math.ceil((ESPERA_MS - (ahora - ultimoAnuncio))/1000);
-    let faltaMin = Math.floor(faltaSeg/60);
-    let faltaSeg2 = faltaSeg % 60;
-    alert("⏳ Espera "+faltaMin+":"+(faltaSeg2<10?"0"+faltaSeg2:faltaSeg2)+" para el siguiente anuncio.\n\nTienes que esperar 2 minutos entre cada anuncio, si no Monetag piensa que eres robot.");
+  let g=getLimiteHoy();
+  if(g.count>=MAX_ANUNCIOS_DIA){ alert("⛔ Ya completaste tus tareas de hoy. Vuelve mañana para seguir ganando."); return false; }
+  let ahora=Date.now();
+  if(ultimoAnuncio && (ahora-ultimoAnuncio<ESPERA_MS)){
+    let faltaSeg=Math.ceil((ESPERA_MS-(ahora-ultimoAnuncio))/1000);
+    let faltaMin=Math.floor(faltaSeg/60); let faltaSeg2=faltaSeg%60;
+    alert("⏳ Espera "+faltaMin+":"+(faltaSeg2<10?"0"+faltaSeg2:faltaSeg2)+" para el siguiente anuncio.");
     return false;
   }
   return true;
 }
 function verAnuncio(){
   if(!puedeVerAnuncio()) return;
-  let g = getLimiteHoy();
+  let g=getLimiteHoy();
   document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto'));
   document.getElementById('pantallaAnuncio').classList.remove('oculto');
-  document.getElementById('contadorAnunciosHoy').innerText = "Anuncio "+(g.count+1)+" / 30 hoy";
+  document.getElementById('contadorAnunciosHoy').innerText="Anuncio "+(g.count+1)+" / 30 hoy";
+
+  // MUESTRA ANUNCIO REWARDED 12010449 - ESTE ES EL QUE PAGA +50
+  mostrarMonetag(ZONA_RECOMPENSA);
+
   let seg=15;
   document.getElementById('textoAnuncio').innerText="Anuncio en curso... "+seg+" seg";
   document.getElementById('btnCerrarAnuncio').disabled=true;
@@ -293,18 +346,14 @@ function verAnuncio(){
   },1000);
 }
 function cerrarAnuncio(){
-  let hoy = new Date().toDateString();
-  let g = getLimiteHoy();
-  g.count += 1;
-  g.fecha = hoy;
+  let hoy=new Date().toDateString();
+  let g=getLimiteHoy(); g.count+=1; g.fecha=hoy;
   localStorage.setItem('limite_monetag', JSON.stringify(g));
-  ultimoAnuncio = Date.now();
-  localStorage.setItem('ultimo_anuncio', ultimoAnuncio);
-
-  monedas += MONEDAS_POR_ANUNCIO;
+  ultimoAnuncio=Date.now(); localStorage.setItem('ultimo_anuncio', ultimoAnuncio);
+  monedas+=MONEDAS_POR_ANUNCIO;
   historial.push({titulo:"Recompensa por anuncio ("+g.count+"/30 hoy)", monto:"+"+MONEDAS_POR_ANUNCIO+" monedas", fecha:"Hoy", tipo:"ganancia"});
   guardar(); actualizarUI();
-  let msg = "✅ +"+MONEDAS_POR_ANUNCIO+" monedas. Llevas "+g.count+"/30 anuncios hoy. El siguiente en 2 minutos.";
+  let msg="✅ +"+MONEDAS_POR_ANUNCIO+" monedas. Llevas "+g.count+"/30 anuncios hoy. El siguiente en 2 minutos.";
   if(tg) tg.showAlert(msg); else alert(msg);
   irHome();
 }
@@ -331,15 +380,15 @@ function confirmar(){
   guardar(); actualizarUI(); idx++; mostrarPregunta();
 }
 function solicitarRetiro(){
-  if(monedas<MINIMO_RETIRO){ alert("Te faltan "+(MINIMO_RETIRO-monedas).toLocaleString()+" monedas para retirar. Mínimo $5 dólares = 20.000 monedas."); return; }
+  if(monedas<MINIMO_RETIRO){ alert("Te faltan "+(MINIMO_RETIRO-monedas).toLocaleString()+" monedas para retirar."); return; }
   let nequi=document.getElementById('inputNequi').value.trim();
   if(nequi.length<10){ alert("Pon tu Nequi de 10 dígitos"); return; }
   historial.push({titulo:"Retiro a Nequi "+nequi, monto:"-$"+monedas.toLocaleString()+" COP", fecha:"Pendiente - Viernes 7pm", tipo:"retiro"});
-  if(tg) tg.sendData(JSON.stringify({accion:"retiro", usuario:usuarioActual, nequi, monto:monedas, dolares:5}));
-  alert("✅ Retiro pedido.\nUsuario: "+usuarioActual+"\nNequi: "+nequi+"\nMonto: $"+monedas.toLocaleString()+" COP = $5 dólares\nTe llega viernes 7pm.");
+  if(tg) tg.sendData(JSON.stringify({accion:"retiro", usuario:usuarioActual, nequi, monto:monedas}));
+  alert("✅ Retiro pedido.\nUsuario: "+usuarioActual+"\nNequi: "+nequi+"\nMonto: $"+monedas.toLocaleString()+" COP\nTe llega viernes 7pm.");
   monedas=0; guardar(); actualizarUI(); irHome();
 }
-function verPerfil(){ alert("Perfil "+usuarioActual+"\nMonedas: "+monedas.toLocaleString()+"\nDólares: $"+(monedas/TASA_DOLAR).toFixed(2)+"\nNequi: "+(document.getElementById('inputNequi').value||"No guardado")+"\nReglas: 30 anuncios al día, 2 min entre cada uno, 50 monedas por anuncio, mínimo $5."); }
+function verPerfil(){ alert("Perfil "+usuarioActual+"\nMonedas: "+monedas.toLocaleString()+"\nNequi: "+(document.getElementById('inputNequi').value||"No guardado")); }
 </script>
 </body>
 </html>
