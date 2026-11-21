@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DALEPLAY TRABAJO</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://alwingulla.com/88/tag.min.js" data-zone="12010449" async data-cfasync="false"></script>
-<script src="https://alwingulla.com/88/tag.min.js" data-zone="12010451" async data-cfasync="false"></script>
+<script src='//libtl.com/sdk.js' data-zone='12010449' data-sdk='show_12010449'></script>
+<script src='//libtl.com/sdk.js' data-zone='12010451' data-sdk='show_12010451'></script>
 <style>
 *{box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
 body{margin:0;background:#f2f4f8;color:#111}
@@ -71,7 +71,6 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
     <input id="authReferido" placeholder="@ de quien te invitó">
     <br>
     <button class="btn btn-gold" onclick="entrarConAnuncio()">ENTRAR A TRABAJAR →</button>
-    <p style="font-size:12px;color:#999;text-align:center">Al entrar verás anuncios reales de Monetag.</p>
   </div>
 </div>
 
@@ -86,6 +85,7 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
     <br>
     <button class="btn btn-gold" id="btnVerAnuncioEntrada" onclick="verAnuncioRealEntrada()">📺 VER ANUNCIO PARA ENTRAR</button>
     <button class="btn btn-green oculto" id="btnEntrarDespuesAnuncio" onclick="terminarAnuncioEntrada()">ENTRAR AHORA →</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="forzarEntrar()">Si no carga el anuncio, dale aquí para entrar →</button>
   </div>
 </div>
 
@@ -155,6 +155,7 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
     <br>
     <button class="btn btn-gold" id="btnVerAnuncioReal" onclick="verAnuncioRealGanar()">📺 VER ANUNCIO REAL +50</button>
     <button class="btn btn-green oculto" id="btnCerrarAnuncio" onclick="cerrarAnuncio()">RECLAMAR +50 MONEDAS</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="forzarReclamar()">Si no carga el anuncio, dale aquí para reclamar →</button>
     <div class="timerBox">Después de este, espera 2 minutos para el siguiente.</div>
   </div>
 </div>
@@ -181,6 +182,8 @@ let usuarioActual=null, monedas=0, historial=[];
 let ultimoAnuncio = parseInt(localStorage.getItem('ultimo_anuncio')||"0");
 let usuarioPendiente=null, referidoPendiente=null;
 let inAppYaActivado = false;
+let yaLiberoEntrada = false;
+let yaLiberoGanar = false;
 let preguntas=[
   {q:"¿Qué equipo de fútbol es de Barranquilla?", ops:["Junior de Barranquilla","América de Cali","Millonarios","Atlético Nacional"], r:0},
   {q:"¿Cuánto dura un partido de fútbol?", ops:["60 min","80 min","90 min","120 min"], r:2},
@@ -196,27 +199,16 @@ function getTelegramUser(){
   }
   return null;
 }
-
-// *** 1. IN-APP INTERSTITIAL - SALE SOLO, AUTOMÁTICO ***
+// 1. IN-APP INTERSTITIAL - SALE SOLO
 function activarInApp(){
   if(inAppYaActivado) return;
   inAppYaActivado = true;
   try{
-    // Código oficial que me mandaste:
-    // 2 anuncios en 0.1 horas (6 min), cada 30 seg, con 5 seg de espera
-    show_12010449({
-      type: 'inApp',
-      inAppSettings: {
-        frequency: 2,
-        capping: 0.1,
-        interval: 30,
-        timeout: 5,
-        everyPage: false
-      }
-    });
+    if(typeof show_12010449 === 'function'){
+      show_12010449({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+    }
   }catch(e){ console.log("InApp no disponible", e); }
 }
-
 window.onload=()=>{
   let tgUser = getTelegramUser();
   let params = new URLSearchParams(window.location.search);
@@ -227,7 +219,6 @@ window.onload=()=>{
   }
   if(tgUser){ document.getElementById('authUsuario').value = tgUser; }
   else { document.getElementById('authUsuario').readOnly = false; }
-  // Activamos el In-App apenas abre la app
   setTimeout(activarInApp, 1000);
 };
 function getLimiteHoy(){
@@ -272,6 +263,24 @@ function copiarReferido(){
   else { alert(texto); }
   if(tg) tg.showAlert("Link de referido copiado: " + link);
 }
+function liberarEntrada(mensaje){
+  if(yaLiberoEntrada) return;
+  yaLiberoEntrada = true;
+  document.getElementById('textoAnuncioEntrada').innerText = mensaje || "✅ ¡Viste el anuncio! Ya puedes entrar.";
+  document.getElementById('progAnuncioEntrada').style.width = "100%";
+  document.getElementById('btnVerAnuncioEntrada').classList.add('oculto');
+  document.getElementById('btnEntrarDespuesAnuncio').classList.remove('oculto');
+}
+function forzarEntrar(){ liberarEntrada("✅ Entrada liberada. Dale a ENTRAR."); }
+function liberarGanar(mensaje){
+  if(yaLiberoGanar) return;
+  yaLiberoGanar = true;
+  document.getElementById('textoAnuncio').innerText = mensaje || "✅ ¡Viste el anuncio! Reclama tus +50.";
+  document.getElementById('progAnuncio').style.width="100%";
+  document.getElementById('btnVerAnuncioReal').classList.add('oculto');
+  document.getElementById('btnCerrarAnuncio').classList.remove('oculto');
+}
+function forzarReclamar(){ liberarGanar("✅ Reclamo liberado. Dale a RECLAMAR."); }
 
 function entrarConAnuncio(){
   let user=document.getElementById('authUsuario').value.trim().toLowerCase();
@@ -281,31 +290,25 @@ function entrarConAnuncio(){
   if(referido && !referido.startsWith('@')) referido = '@'+referido;
   if(referido === user){ alert("No puedes referirte a ti mismo 😅"); return; }
   usuarioPendiente=user; referidoPendiente=referido||null;
+  yaLiberoEntrada = false;
   document.getElementById('pantallaAuth').classList.add('oculto');
   document.getElementById('pantallaAnuncioEntrada').classList.remove('oculto');
   document.getElementById('btnVerAnuncioEntrada').classList.remove('oculto');
   document.getElementById('btnVerAnuncioEntrada').innerText="📺 VER ANUNCIO PARA ENTRAR";
   document.getElementById('btnEntrarDespuesAnuncio').classList.add('oculto');
+  document.getElementById('textoAnuncioEntrada').innerText="Dale al botón para ver el anuncio real y entrar.";
+  document.getElementById('progAnuncioEntrada').style.width="0%";
 }
-
-// *** 2. REWARDED INTERSTITIAL - PARA ENTRAR - CÓDIGO OFICIAL ***
+// 2. REWARDED INTERSTITIAL - PARA ENTRAR
 function verAnuncioRealEntrada(){
   document.getElementById('textoAnuncioEntrada').innerText = "Cargando anuncio real para entrar... Espera que abra.";
   document.getElementById('btnVerAnuncioEntrada').innerText = "⏳ CARGANDO ANUNCIO...";
-  // Rewarded interstitial
-  show_12010451().then(() => {
-    // You need to add your user reward function here, which will be executed after the user watches the ad.
-    document.getElementById('textoAnuncioEntrada').innerText = "✅ ¡Viste el anuncio! Ya puedes entrar.";
-    document.getElementById('progAnuncioEntrada').style.width = "100%";
-    document.getElementById('btnVerAnuncioEntrada').classList.add('oculto');
-    document.getElementById('btnEntrarDespuesAnuncio').classList.remove('oculto');
-  }).catch(() => {
-    document.getElementById('textoAnuncioEntrada').innerText = "No había anuncio disponible. Puedes entrar.";
-    document.getElementById('btnVerAnuncioEntrada').classList.add('oculto');
-    document.getElementById('btnEntrarDespuesAnuncio').classList.remove('oculto');
-  });
+  setTimeout(()=>{ if(!yaLiberoEntrada){ liberarEntrada("No había anuncio disponible ahora. Puedes entrar igual."); } }, 7000);
+  if(typeof show_12010451 !== 'function'){ liberarEntrada("Monetag no cargó. Puedes entrar igual."); return; }
+  try{
+    show_12010451().then(() => { liberarEntrada("✅ ¡Viste el anuncio! Ya puedes entrar."); }).catch(() => { liberarEntrada("No había anuncio disponible. Puedes entrar igual."); });
+  }catch(e){ liberarEntrada("Error cargando anuncio. Puedes entrar igual."); }
 }
-
 function terminarAnuncioEntrada(){
   let user=usuarioPendiente; let referido=referidoPendiente;
   let u=JSON.parse(localStorage.getItem('daleplay_tg_final')||"{}");
@@ -355,6 +358,7 @@ function puedeVerAnuncio(){
 function verAnuncio(){
   if(!puedeVerAnuncio()) return;
   let g=getLimiteHoy();
+  yaLiberoGanar = false;
   document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto'));
   document.getElementById('pantallaAnuncio').classList.remove('oculto');
   document.getElementById('contadorAnunciosHoy').innerText="Anuncio "+(g.count+1)+" / 30 hoy";
@@ -364,25 +368,15 @@ function verAnuncio(){
   document.getElementById('textoAnuncio').innerText="Dale a VER ANUNCIO REAL para ganar +50.";
   document.getElementById('progAnuncio').style.width="0%";
 }
-
-// *** 3. REWARDED POPUP - PARA GANAR +50 - CÓDIGO OFICIAL ***
+// 3. REWARDED POPUP - PARA GANAR +50
 function verAnuncioRealGanar(){
   document.getElementById('textoAnuncio').innerText="Cargando anuncio real... Espera que abra.";
   document.getElementById('btnVerAnuncioReal').innerText="⏳ CARGANDO ANUNCIO...";
-  // Rewarded Popup
-  show_12010449('pop').then(() => {
-    // user watch ad till the end or close it in interstitial format
-    // your code to reward user for rewarded format
-    document.getElementById('textoAnuncio').innerText="✅ ¡Viste el anuncio! Reclama tus +50.";
-    document.getElementById('progAnuncio').style.width="100%";
-    document.getElementById('btnVerAnuncioReal').classList.add('oculto');
-    document.getElementById('btnCerrarAnuncio').classList.remove('oculto');
-  }).catch(e => {
-    // user get error during playing ad
-    document.getElementById('textoAnuncio').innerText="No había anuncio disponible. Puedes reclamar.";
-    document.getElementById('btnVerAnuncioReal').classList.add('oculto');
-    document.getElementById('btnCerrarAnuncio').classList.remove('oculto');
-  });
+  setTimeout(()=>{ if(!yaLiberoGanar){ liberarGanar("No había anuncio disponible ahora. Puedes reclamar igual."); } }, 7000);
+  if(typeof show_12010449 !== 'function'){ liberarGanar("Monetag no cargó. Puedes reclamar igual."); return; }
+  try{
+    show_12010449('pop').then(() => { liberarGanar("✅ ¡Viste el anuncio! Reclama tus +50."); }).catch(e => { liberarGanar("No había anuncio disponible. Puedes reclamar igual."); });
+  }catch(e){ liberarGanar("Error cargando anuncio. Puedes reclamar igual."); }
 }
 function cerrarAnuncio(){
   let hoy=new Date().toDateString();
