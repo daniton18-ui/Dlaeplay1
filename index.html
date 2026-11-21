@@ -1,203 +1,287 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DALEPLAY1</title>
+<title>DALEPLAY TRABAJO</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="//libtl.com/sdk.js" data-zone="12010449" data-sdk="show_12010449"></script>
 <style>
-body{margin:0;background:#0f1419;font-family:Arial;text-align:center;color:#fff;min-height:100vh}
-.header{background:#2AABEE;color:#fff;padding:14px;font-weight:900;font-size:20px}
-.cont{color:#2AABEE;background:#fff;border:2px solid #2AABEE;border-radius:12px;margin:10px;padding:10px;font-weight:bold}
-#timer{color:#333;background:#fff;border:1px dashed #2AABEE;border-radius:10px;margin:8px 12px;padding:8px;font-size:14px}
-.grid{width:95%;max-width:360px;margin:15px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;min-height:320px}
-.box{height:60px;background:#fff;border:2px solid #2AABEE;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;font-weight:900;color:#2AABEE;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
-.box.abierto{background:#e3f2fd;color:#888;border-color:#ccc}
-.btn{margin:8px auto;border:0;padding:14px;width:90%;max-width:360px;border-radius:25px;font-weight:900;display:block;cursor:pointer}
-#btnAnuncio{background:#2AABEE;color:#fff;font-size:16px}
-#btnLike{background:#1877F2;color:#fff;border:0;font-size:15px;box-shadow:0 3px 10px rgba(24,119,242,0.4)}
-#btnMensajePersonal{background:#fff;color:#0f1419;border:2px solid #2AABEE}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:99}
-.caja{background:#fff;border:3px solid #2AABEE;padding:22px;border-radius:18px;margin:20px;color:#000}
-#modalGanaste{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:none;align-items:center;justify-content:center;z-index:101}
-#modalGanaste .caja{width:88%;max-width:330px;text-align:center}
-#modalUsuario{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:100}
-#modalUsuario .caja{width:85%;max-width:320px}
-#modalUsuario input{width:90%;padding:12px;border-radius:10px;border:2px solid #2AABEE;background:#f5f5f5;color:#000;font-weight:700;text-align:center;margin:12px 0}
-.boxMensaje{width:90%;max-width:360px;margin:20px auto;background:#fff;border:2px solid #2AABEE;border-radius:16px;padding:12px}
-.boxMensaje textarea{width:92%;height:70px;border-radius:10px;padding:10px;background:#f5f5f5;color:#000;border:1px solid #2AABEE;resize:none;font-family:Arial}
+*{box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{margin:0;background:#f2f4f8;color:#111}
+.topbar{background:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e5e7eb}
+.logo{font-weight:900;font-size:22px}
+.logo span{color:#f5b301}
+.pill{font-size:12px;background:#e8f5e9;color:#1a9a3a;padding:6px 10px;border-radius:20px;font-weight:700}
+.container{padding:16px;max-width:480px;margin:0 auto;padding-bottom:90px}
+.card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:14px}
+.card-dark{background:#0f172a;color:#fff;border-radius:20px;padding:20px}
+.big{font-size:38px;font-weight:900;line-height:1;margin:6px 0}
+.gold{color:#f5b301}
+input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:15px;background:#f9fafb;margin:8px 0;outline:none}
+.btn{width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer}
+.btn-gold{background:#f5b301;color:#111}
+.btn-dark{background:#0f172a;color:#fff}
+.btn-green{background:#00c853;color:#fff}
+.btn-outline{background:#fff;border:1.5px solid #e5e7eb;color:#111}
+.btn:disabled{opacity:.6}
+.row{display:flex;gap:10px}.row .btn{flex:1}
+.oculto{display:none}
+.flex{display:flex;justify-content:space-between;align-items:center}
+.badge{background:#fef3c7;color:#92400e;padding:4px 8px;border-radius:20px;font-size:11px;font-weight:800}
+.barra{height:8px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:8px 0}
+.barra div{height:100%;background:#f5b301;width:0%}
+.hist{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f1f1f1}
+.icono{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.verdeBg{background:#e8f5e9}.doradoBg{background:#fef3c7}
+.bottomNav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5e7eb;display:flex;max-width:480px;margin:0 auto}
+.bottomNav button{flex:1;padding:12px 0;border:none;background:#fff;font-size:12px;color:#888}
+.bottomNav button.act{color:#0f172a;font-weight:800}
+.opcion{width:100%;text-align:left;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;background:#fff;margin:8px 0;font-size:15px;cursor:pointer}
+.opcion.sel{border-color:#f5b301;background:#fffbeb}
+.progress{height:10px;background:#e5e7eb;border-radius:20px;overflow:hidden}
+.progress div{height:100%;background:#f5b301}
+.adBox{background:#0f172a;color:#fff;border-radius:16px;padding:20px;text-align:center}
 </style>
 </head>
 <body>
-<div class="header">🍟 DALEPLAY1 - GANA DE 1$ A 5$ TODO LOS DIAS</div>
-<div class="cont" id="ci">Intentos: 2 | Puntos: 0</div>
-<div id="timer">⏳ Reinicio en: 10:00</div>
-<div class="grid" id="g"></div>
-<button id="btnAnuncio" class="btn">📺 VER ANUNCIO 0/2 PARA +1 INTENTO</button>
-<button id="btnLike" class="btn">👍 ME GUSTA <span id="likeCount">0</span></button>
-<div class="boxMensaje">
-  <p style="color:#2AABEE;font-weight:900;margin:5px">💬 ¿QUIERES HABLAR CONMIGO?</p>
-  <textarea id="txtPersonal" placeholder="Hola amigo cómo estás quiero comunicarme contigo..."></textarea>
-  <button id="btnMensajePersonal" class="btn">✉️ ENVIAR MENSAJE</button>
+<div class="topbar">
+  <div class="logo">DALEPLAY <span>TRABAJO</span></div>
+  <div class="pill">● En línea Telegram</div>
 </div>
 
-<div id="modal"><div class="caja"><h1 style="color:#2AABEE">¡GANASTE! 🍟</h1><p>Código: <b id="cod"></b></p><p id="idTxt"></p><button onclick="location.reload()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0">RECLAMAR</button></div></div>
+<div class="container">
 
-<div id="modalGanaste"><div class="caja">
-  <div style="font-size:50px">🎉💎🎉</div>
-  <h1 style="color:#2AABEE;margin:5px 0">¡GANASTE!</h1>
-  <p style="font-weight:700;margin:5px 0">¡Felicidades! Te ganaste un premio</p>
-  <p id="textoPremio" style="font-size:14px;color:#555">Para reclamar tu premio mira un anuncio y reclamalo</p>
-  <p id="codigoGanaste" style="display:none;background:#e3f2fd;padding:10px;border-radius:10px;font-weight:900">Código: <span id="codGanaste"></span></p>
-  <button id="btnReclamar" onclick="reclamarPremio()" style="background:#FFD600;color:#000;padding:15px;width:100%;border-radius:12px;font-weight:900;border:0;cursor:pointer;font-size:16px">📺 MIRA UN ANUNCIO PARA RECLAMAR PREMIO</button>
-  <button onclick="document.getElementById('modalGanaste').style.display='none'" style="background:#fff;color:#888;padding:10px;width:100%;border-radius:10px;font-weight:700;border:1px solid #ddd;margin-top:8px;cursor:pointer">Cerrar</button>
-</div></div>
+<!-- LOGIN TELEGRAM -->
+<div id="pantallaAuth">
+  <div class="card" style="text-align:center;padding:24px">
+    <div style="font-size:44px">🎮</div>
+    <h1 style="margin:8px 0 4px">Bienvenido a DALEPLAY</h1>
+    <p style="color:#666;font-size:14px" id="textoBienvenida">Conectando con tu Telegram...</p>
+    <p style="font-size:13px;color:#888">1 moneda = $1 peso • Retiro mínimo 5.000 monedas</p>
+  </div>
+  <div class="card">
+    <h3 style="margin:0">Tu cuenta de Telegram</h3>
+    <p style="font-size:13px;color:#888">Ya te detectamos. Solo pon tu clave para entrar seguro.</p>
+    <label style="font-size:13px;font-weight:700">Usuario de Telegram</label>
+    <input id="authUsuario" placeholder="@tu_usuario" readonly style="background:#eef2f7">
+    <label style="font-size:13px;font-weight:700">Crea tu contraseña (solo la primera vez)</label>
+    <input id="authClave" type="password" placeholder="Contraseña - mínimo 4 números">
+    <button class="btn btn-gold" onclick="entrarTelegram()">ENTRAR A TRABAJAR →</button>
+    <p style="font-size:12px;color:#999;text-align:center;margin-top:10px">Si es la primera vez, se crea tu cuenta sola con tu @ de Telegram.</p>
+  </div>
+</div>
 
-<div id="modalUsuario"><div class="caja">
-  <h2 style="color:#2AABEE;margin:0">¡CASI LISTO!</h2>
-  <p style="font-size:14px">Escribe tu @usuario para darte el intento</p>
-  <input id="inputUsuario" type="text" placeholder="@tu_usuario">
-  <button onclick="guardarUsuario()" style="background:#2AABEE;color:#fff;padding:14px;width:100%;border-radius:10px;font-weight:900;border:0;cursor:pointer">GUARDAR +1 INTENTO</button>
-</div></div>
+<!-- DASHBOARD -->
+<div id="pantallaHome" class="oculto">
+  <div class="flex"><div><b style="font-size:18px">Hola, <span id="holaUser">Usuario</span> 👋</b><br><span style="font-size:12px;color:#666">✅ Verificado con Telegram • Barranquilla</span></div><span class="badge">NIVEL 1 ⭐</span></div>
+  <br>
+  <div class="card-dark">
+    <div class="flex"><span style="color:#a8b0c0;font-size:13px">Saldo disponible</span><span style="background:#ffffff22;padding:4px 8px;border-radius:20px;font-size:12px">🪙 Monedas</span></div>
+    <div class="big"><span id="saldoMonedas">0</span> <span class="gold" style="font-size:20px">monedas</span></div>
+    <div style="font-size:14px;color:#cbd5e1">= <b style="color:#fff" id="saldoPesos">$0 COP</b> • Tú ganas 35% por anuncio</div>
+    <div class="barra"><div id="barraProgreso"></div></div>
+    <div class="flex" style="font-size:12px;color:#a8b0c0"><span id="textoProgreso">0 / 5.000 para retirar</span><span id="porcProgreso">0%</span></div>
+    <br>
+    <div class="row">
+      <button class="btn btn-gold" onclick="verAnuncio()">▶ VER ANUNCIO +10</button>
+      <button class="btn" style="background:#fff;color:#111" onclick="irRetiro()">💸 RETIRAR NEQUI</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="flex"><b>Historial reciente</b><span style="color:#f5b301;font-size:13px;font-weight:700">En vivo</span></div>
+    <div id="listaHistorial"></div>
+    <br><button class="btn btn-dark" onclick="irTrivia()">🎯 JUGAR TRIVIA +10 POR ACIERTO</button>
+  </div>
+</div>
+
+<!-- TRIVIA -->
+<div id="pantallaTrivia" class="oculto">
+  <div class="card">
+    <div class="flex"><b>🎯 Trivia DALEPLAY</b><span class="badge">Gana 10 por acierto</span></div>
+    <br>
+    <div class="flex" style="font-size:13px"><span>Pregunta <b id="numPreg">1 / 5</b></span><span>❤️ <span id="vidas">3</span> • 🪙 <span id="monedasTrivia">0</span></span></div>
+    <div class="progress" style="margin-top:8px"><div id="progTrivia" style="width:20%"></div></div>
+    <h2 id="preguntaTxt" style="font-size:19px">¿Qué equipo es de Barranquilla?</h2>
+    <div id="opcionesBox"></div>
+    <button class="btn btn-gold" onclick="confirmar()">CONFIRMAR RESPUESTA</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="irHome()">Volver al inicio</button>
+  </div>
+</div>
+
+<!-- RETIRO -->
+<div id="pantallaRetiro" class="oculto">
+  <div class="card">
+    <h2 style="margin:0">💸 Retirar por Nequi</h2>
+    <p style="color:#666;font-size:14px">Te pagamos viernes 7pm por Nequi.</p>
+    <div class="card-dark" style="text-align:center"><div style="color:#a8b0c0">Vas a retirar</div><div class="big"><span id="retiroMonto">0</span> <span class="gold" style="font-size:18px">monedas</span></div><div>= $<span id="retiroPesos">0</span> COP</div></div>
+    <br>
+    <label style="font-size:13px;font-weight:700">Número Nequi (10 dígitos)</label>
+    <input id="inputNequi" placeholder="Ej: 3001234567" type="tel">
+    <div id="alertaRetiro" style="background:#fffbeb;border:1px solid #fde68a;padding:12px;border-radius:12px;font-size:13px"></div>
+    <br>
+    <button class="btn btn-green" onclick="solicitarRetiro()">SOLICITAR RETIRO →</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="irHome()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ANUNCIO -->
+<div id="pantallaAnuncio" class="oculto">
+  <div class="card">
+    <div class="adBox"><div style="font-size:40px">📺</div><h2 style="margin:8px 0">ANUNCIO</h2><p id="textoAnuncio" style="color:#a8b0c0">Cargando anuncio... espera 3 segundos</p><div class="progress"><div id="progAnuncio" style="width:0%"></div></div><p style="font-size:12px;color:#a8b0c0">Al terminar ganas +10 monedas. El jefe gana $3.25, tú $1.75. Tú nunca ganas más que el jefe.</p></div>
+    <br><button class="btn btn-gold" id="btnCerrarAnuncio" disabled onclick="cerrarAnuncio()">ESPERA...</button>
+  </div>
+</div>
+
+</div>
+
+<div class="bottomNav" id="navBottom" style="display:none">
+  <button class="act" onclick="irHome()">🏠<br>Inicio</button>
+  <button onclick="irTrivia()">🏆<br>Retos</button>
+  <button onclick="irRetiro()">💸<br>Retiro</button>
+  <button onclick="verPerfil()">👤<br>Perfil</button>
+</div>
 
 <script>
-let tg = window.Telegram ? window.Telegram.WebApp : null;
-let USER_ID = 'anon'; let USER_NAME = 'Jugador';
-if(tg?.initDataUnsafe?.user){ USER_ID = tg.initDataUnsafe.user.id.toString(); USER_NAME = tg.initDataUnsafe.user.first_name||'Jugador'; try{tg.expand();tg.ready();}catch(e){}}
-function k(n){return 'dale_'+USER_ID+'_'+n;}
-function showRewarded(){ return new Promise((resolve)=>{ try{ if(typeof show_12010449!=='undefined'){ show_12010449().then(()=>resolve(true)).catch(()=>resolve(true)); } else resolve(true); }catch(e){ resolve(true); } }); }
-function showInterstitial(){ return new Promise((resolve)=>{ try{ if(typeof show_12010449!=='undefined'){ show_12010449().then(()=>resolve(true)).catch(()=>resolve(true)); } else resolve(true); }catch(e){ resolve(true); } }); }
-function activarInApp(){
-  try{ if(typeof show_12010449!=='undefined'){ show_12010449({ type: 'inApp', inAppSettings: { frequency: 3, capping: 0.1, interval: 30, timeout: 5, everyPage: false } }); } }catch(e){}
-}
+let tg = window.Telegram?.WebApp;
+if(tg){ tg.ready(); tg.expand(); tg.setHeaderColor('#ffffff'); tg.setBackgroundColor('#f2f4f8'); }
 
-// === ANUNCIO AL ABRIR LA APP - 3 SEGUNDOS - EL QUE MÁS PAGA ===
-let yaMostroAnuncioApertura = false;
-async function mostrarAnuncioApertura(){
-  if(yaMostroAnuncioApertura) return;
-  yaMostroAnuncioApertura = true;
-  let salio = await showRewarded();
-  if(!salio){ await showInterstitial(); }
-}
-window.addEventListener('load', () => {
-  setTimeout(mostrarAnuncioApertura, 3000);
-});
+let usuarioActual=null, monedas=0, historial=[];
+let preguntas=[
+  {q:"¿Qué equipo de fútbol es de Barranquilla?", ops:["Junior de Barranquilla","América de Cali","Millonarios","Atlético Nacional"], r:0},
+  {q:"¿Cuánto dura un partido de fútbol?", ops:["60 min","80 min","90 min","120 min"], r:2},
+  {q:"¿Para qué sirve el corrector?", ops:["Para tapar ojeras","Para peinar","Para pintar uñas","Para quitar maquillaje"], r:0},
+  {q:"¿Qué se pone al final para que el maquillaje dure?", ops:["Jabón","Fijador","Perfume","Crema de manos"], r:1},
+  {q:"¿Quién ganó el Mundial 2022?", ops:["Francia","Brasil","Argentina","Croacia"], r:2},
+];
+let idx=0, vidas=3, sel=-1;
 
-const API_BASE = 'https://abacus.jasoncameron.dev';
-async function getCounter(name){try{let r=await fetch(`${API_BASE}/get/daleplay1-${name}`);let d=await r.json();return d.value;}catch(e){return null;}}
-async function hitCounter(name){try{let r=await fetch(`${API_BASE}/hit/daleplay1-${name}`);let d=await r.json();return d.value;}catch(e){return null;}}
-let hoyKey = new Date().toLocaleDateString('es-CO',{timeZone:'America/Bogota'}).replace(/\//g,'-');
-let hayGanadorGlobal = false;
-function esSabadoHoy(){let d=new Date().toLocaleString('es-CO',{timeZone:'America/Bogota',weekday:'long'}).toLowerCase();return d.includes('sábado')||d.includes('sabado');}
-(async()=>{let w=await getCounter('winner-'+hoyKey);hayGanadorGlobal=w&&w>0;await hitCounter('views-total');})();
-let UNA_HORA=10*60*1000;
-let horaGuardada=parseInt(localStorage.getItem(k('hora'))||'0');
-if(!horaGuardada){horaGuardada=Date.now();localStorage.setItem(k('hora'),horaGuardada);}
-setInterval(()=>{
-  let diff=(horaGuardada+UNA_HORA)-Date.now();
-  if(diff<=0){localStorage.setItem(k('intentos'),'2');localStorage.setItem(k('descubiertas'),'[]');localStorage.removeItem(k('ganadora'));localStorage.setItem(k('anuncios'),'0');localStorage.setItem(k('hora'),Date.now().toString());location.reload();return;}
-  let m=Math.floor(diff/60000);let s=Math.floor((diff%60000)/1000);
-  document.getElementById('timer').innerText=`⏳ Reinicio en: ${m}:${s.toString().padStart(2,'0')}`;
-},1000);
-let g=document.getElementById('g'); let ci=document.getElementById('ci'); let btnAnuncio=document.getElementById('btnAnuncio');
-let intentos=parseInt(localStorage.getItem(k('intentos'))||'2');
-let puntos=parseInt(localStorage.getItem(k('puntos'))||'0');
-let anuncios=parseInt(localStorage.getItem(k('anuncios'))||'0');
-let ganadora=parseInt(localStorage.getItem(k('ganadora'))||'');
-if(isNaN(ganadora)){ganadora=Math.floor(Math.random()*25);localStorage.setItem(k('ganadora'),ganadora.toString());}
-let descubiertas=JSON.parse(localStorage.getItem(k('descubiertas'))||'[]');
-if(!Array.isArray(descubiertas) || descubiertas.length>=25){descubiertas=[];localStorage.setItem(k('descubiertas'),'[]');}
-function crear(){
-  g.innerHTML='';
-  for(let i=0;i<25;i++){
-    let d=document.createElement('div');d.className='box';
-    if(descubiertas.includes(i)){d.innerText='💎';d.classList.add('abierto');}
-    else{d.innerText='?';d.onclick=()=>jugar(i,d);}
-    g.appendChild(d);
+// Detectar usuario de Telegram automáticamente
+function getTelegramUser(){
+  if(tg && tg.initDataUnsafe && tg.initDataUnsafe.user){
+    let u = tg.initDataUnsafe.user;
+    return "@" + (u.username || ("user"+u.id));
   }
-  ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;
-  if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS';btnAnuncio.disabled=true;btnAnuncio.style.opacity='0.6';}
-  else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
-  let u=localStorage.getItem(k('usuario_tg')); if(u) document.getElementById('inputUsuario').value=u;
+  return null;
 }
-function sumarPuntos(c){puntos+=c;localStorage.setItem(k('puntos'),puntos.toString());ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;}
-async function jugar(i,d){
-  if(intentos<=0 || descubiertas.includes(i)) return;
-  intentos--; descubiertas.push(i);
-  localStorage.setItem(k('intentos'),intentos.toString());
-  localStorage.setItem(k('descubiertas'),JSON.stringify(descubiertas));
-  d.innerText='💎'; d.classList.add('abierto'); sumarPuntos(100);
-  document.getElementById('codigoGanaste').style.display='none';
-  document.getElementById('btnReclamar').innerText='📺 MIRA UN ANUNCIO PARA RECLAMAR PREMIO';
-  document.getElementById('btnReclamar').disabled=false;
-  document.getElementById('textoPremio').innerText='Para reclamar tu premio mira un anuncio y tales';
-  document.getElementById('modalGanaste').style.display='flex';
+window.onload=()=>{
+  let tgUser = getTelegramUser();
+  if(tgUser){
+    document.getElementById('authUsuario').value = tgUser;
+    document.getElementById('textoBienvenida').innerText = "Detectamos tu Telegram: "+tgUser+" ✅";
+    // Si ya tiene sesión, entra directo
+    let u=JSON.parse(localStorage.getItem('daleplay_tg')||"{}");
+    if(u[tgUser] && u[tgUser].clave){
+      document.getElementById('authClave').value = u[tgUser].clave;
+    }
+  } else {
+    document.getElementById('textoBienvenida').innerText = "Abre esto desde el Bot de Telegram para que te detecte solo. Si lo abres en el navegador, escribe tu @ manual.";
+    document.getElementById('authUsuario').readOnly = false;
+  }
+};
+
+function guardar(){
+  if(!usuarioActual) return;
+  let u=JSON.parse(localStorage.getItem('daleplay_tg')||"{}");
+  u[usuarioActual]={usuario:usuarioActual, clave:document.getElementById('authClave').value, monedas, historial, nequi:document.getElementById('inputNequi').value|| (u[usuarioActual]?.nequi||"")};
+  localStorage.setItem('daleplay_tg', JSON.stringify(u));
 }
-async function reclamarPremio(){
-  let btn=document.getElementById('btnReclamar');
-  btn.innerText='⏳ CARGANDO ANUNCIO...'; btn.disabled=true;
-  await showInterstitial();
-  await showRewarded();
-  let codigo='GANASTE-'+Math.floor(Math.random()*90000+10000);
-  document.getElementById('codGanaste').innerText=codigo;
-  document.getElementById('codigoGanaste').style.display='block';
-  document.getElementById('textoPremio').innerText='¡Listo! Guarda tu código y escríbeme para reclamar';
-  btn.innerText='✅ PREMIO RECLAMADO';
-  try{ tg.sendData(`GANASTE_CUADRITO|ID:${USER_ID}|USER:${localStorage.getItem(k('usuario_tg'))||USER_NAME}|COD:${codigo}`); }catch(e){}
+function actualizarUI(){
+  document.getElementById('saldoMonedas').innerText=monedas;
+  document.getElementById('saldoPesos').innerText="$"+monedas.toLocaleString()+" COP";
+  document.getElementById('monedasTrivia').innerText=monedas;
+  document.getElementById('retiroMonto').innerText=monedas;
+  document.getElementById('retiroPesos').innerText=monedas.toLocaleString();
+  let porc=Math.min(100, Math.round(monedas/5000*100));
+  document.getElementById('barraProgreso').style.width=porc+"%";
+  document.getElementById('textoProgreso').innerText=monedas+" / 5.000 para retirar";
+  document.getElementById('porcProgreso').innerText=porc+"%";
+  let h=document.getElementById('listaHistorial');
+  if(historial.length===0){ h.innerHTML="<p style='color:#888;font-size:13px'>Aún no tienes movimientos. Ve tu primer anuncio.</p>"; return; }
+  h.innerHTML=historial.slice(-4).reverse().map(x=>`<div class="hist"><div style="display:flex;gap:10px;align-items:center"><div class="icono ${x.tipo==='ganancia'?'verdeBg':'doradoBg'}">${x.tipo==='ganancia'?'🎁':'💸'}</div><div><b>${x.titulo}</b><br><span style="font-size:12px;color:#888">${x.fecha}</span></div></div><b>${x.monto}</b></div>`).join('');
+  let al=document.getElementById('alertaRetiro');
+  if(monedas<5000) al.innerHTML="⚠️ Te faltan <b>"+(5000-monedas)+" monedas</b> para retirar.";
+  else al.innerHTML="✅ ¡Ya puedes retirar! Tienes <b>$"+monedas.toLocaleString()+"</b>. Te llega el viernes 7pm.";
 }
-btnAnuncio.onclick=async()=>{
-  if(anuncios>=2) return;
-  btnAnuncio.innerText='⏳ CARGANDO ANUNCIO...'; btnAnuncio.disabled=true;
-  await showRewarded();
-  document.getElementById('modalUsuario').style.display='flex';
-  btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`; btnAnuncio.disabled=false;
+function entrarTelegram(){
+  let user=document.getElementById('authUsuario').value.trim().toLowerCase();
+  let clave=document.getElementById('authClave').value.trim();
+  if(!user){ alert("No detectamos tu @ de Telegram. Abre la app desde el Bot."); return; }
+  if(!clave || clave.length<4){ alert("Pon una contraseña de mínimo 4 números"); return; }
+  let u=JSON.parse(localStorage.getItem('daleplay_tg')||"{}");
+  if(!u[user]){
+    // Crear cuenta nueva automáticamente con Telegram
+    u[user]={usuario:user, clave, monedas:10, historial:[{titulo:"Bono por entrar desde Telegram", monto:"+10 monedas", fecha:"Ahora mismo", tipo:"ganancia"}], nequi:""};
+    localStorage.setItem('daleplay_tg', JSON.stringify(u));
+    if(tg) tg.showAlert("¡Bienvenido "+user+"! Te regalamos 10 monedas.");
+  } else {
+    if(u[user].clave!==clave){ alert("Contraseña incorrecta"); return; }
+  }
+  usuarioActual=user; monedas=u[user].monedas||0; historial=u[user].historial||[];
+  document.getElementById('holaUser').innerText=user;
+  document.getElementById('pantallaAuth').classList.add('oculto');
+  document.getElementById('pantallaHome').classList.remove('oculto');
+  document.getElementById('navBottom').style.display="flex";
+  if(u[user].nequi) document.getElementById('inputNequi').value=u[user].nequi;
+  actualizarUI(); guardar();
+  if(tg) tg.HapticFeedback?.impactOccurred('medium');
 }
-function guardarUsuario(){
-  let usuario = document.getElementById('inputUsuario').value.trim();
-  if(usuario.length<3){alert("Escribe tu usuario");return;}
-  if(!usuario.startsWith('@')) usuario='@'+usuario;
-  localStorage.setItem(k('usuario_tg'), usuario);
-  anuncios++; intentos++;
-  localStorage.setItem(k('anuncios'),anuncios.toString());
-  localStorage.setItem(k('intentos'),intentos.toString());
-  ci.innerText=`Intentos: ${intentos} | Puntos: ${puntos}`;
-  document.getElementById('modalUsuario').style.display='none';
-  if(anuncios>=2){btnAnuncio.innerText='✅ YA VISTE 2 ANUNCIOS';btnAnuncio.disabled=true;btnAnuncio.style.opacity='0.6';}
-  else{btnAnuncio.innerText=`📺 VER ANUNCIO ${anuncios}/2 PARA +1 INTENTO`;}
-  try{tg.sendData(`NUEVO_USER|ID:${USER_ID}|USER:${usuario}`);}catch(e){}
+function irHome(){ document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto')); document.getElementById('pantallaHome').classList.remove('oculto'); actualizarUI(); }
+function irTrivia(){ document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto')); document.getElementById('pantallaTrivia').classList.remove('oculto'); idx=0; vidas=3; mostrarPregunta(); }
+function irRetiro(){ document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto')); document.getElementById('pantallaRetiro').classList.remove('oculto'); actualizarUI(); }
+function verAnuncio(){
+  document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto'));
+  document.getElementById('pantallaAnuncio').classList.remove('oculto');
+  let seg=3, prog=0;
+  document.getElementById('btnCerrarAnuncio').disabled=true;
+  let t=setInterval(()=>{
+    seg--; prog+=33;
+    document.getElementById('progAnuncio').style.width=prog+"%";
+    document.getElementById('textoAnuncio').innerText="Anuncio en curso... quedan "+Math.max(0,seg)+" seg";
+    document.getElementById('btnCerrarAnuncio').innerText= seg>0 ? "ESPERA "+seg+"..." : "RECLAMAR +10 MONEDAS";
+    if(seg<=0){ clearInterval(t); document.getElementById('btnCerrarAnuncio').disabled=false; }
+  },1000);
 }
-document.getElementById('btnMensajePersonal').onclick = async () => {
-  let txt = document.getElementById('txtPersonal').value.trim();
-  if(txt.length < 4){ alert("Escribe tu mensaje primero"); return; }
-  let btn = document.getElementById('btnMensajePersonal');
-  btn.innerText='⏳ CARGANDO ANUNCIO...'; btn.disabled=true;
-  await showInterstitial(); await showInterstitial();
-  let userFinal = localStorage.getItem(k('usuario_tg')) || USER_NAME;
-  let mensajeCorto = txt.substring(0,400);
-  try{ tg.sendData(`MENSAJE_PERSONAL|ID:${USER_ID}|USER:${userFinal}|MSG:${mensajeCorto}`); alert("✅ Mensaje enviado! Te respondo por Telegram"); document.getElementById('txtPersonal').value=""; }catch(e){ alert("Abre la app dentro de Telegram"); }
-  btn.innerText='✉️ ENVIAR MENSAJE'; btn.disabled=false;
+function cerrarAnuncio(){
+  monedas+=10;
+  historial.push({titulo:"Recompensa por anuncio", monto:"+10 monedas", fecha:"Hoy", tipo:"ganancia"});
+  guardar(); actualizarUI();
+  if(tg) tg.showAlert("✅ +10 monedas. Ahora tienes "+monedas);
+  else alert("✅ +10 monedas. Ahora tienes "+monedas);
+  irHome();
 }
-let btnLike = document.getElementById('btnLike');
-let likeCountEl = document.getElementById('likeCount');
-async function cargarLikes(){
-  let total = await getCounter('likes-total');
-  if(total!==null) likeCountEl.innerText = total;
-  if(localStorage.getItem(k('like'))==='1'){ btnLike.innerHTML = `💙 TE GUSTA 👍 <span id="likeCount">${total||0}</span>`; btnLike.style.background='#2AABEE'; }
+function mostrarPregunta(){
+  if(idx>=preguntas.length || vidas<=0){ alert("Fin de trivia. Tienes "+monedas+" monedas."); irHome(); return; }
+  let p=preguntas[idx];
+  document.getElementById('numPreg').innerText=(idx+1)+" / "+preguntas.length;
+  document.getElementById('vidas').innerText=vidas;
+  document.getElementById('progTrivia').style.width=((idx)/preguntas.length*100)+"%";
+  document.getElementById('preguntaTxt').innerText=p.q;
+  sel=-1;
+  let box=document.getElementById('opcionesBox'); box.innerHTML="";
+  p.ops.forEach((op,i)=>{
+    let b=document.createElement('button'); b.className="opcion"; b.innerText=op;
+    b.onclick=()=>{ document.querySelectorAll('.opcion').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); sel=i; };
+    box.appendChild(b);
+  });
 }
-cargarLikes();
-btnLike.onclick = async () => {
-  if(localStorage.getItem(k('like'))==='1'){ alert("Ya le diste like bro 💙"); return; }
-  btnLike.innerText='⏳ CARGANDO ANUNCIO...'; btnLike.disabled=true;
-  await showInterstitial(); await showInterstitial();
-  let nuevo = await hitCounter('likes-total');
-  localStorage.setItem(k('like'),'1');
-  btnLike.innerHTML = `💙 TE GUSTA 👍 <span id="likeCount">${nuevo||0}</span>`;
-  btnLike.style.background='#2AABEE'; btnLike.disabled=false;
-  try{ tg.sendData(`LIKE|ID:${USER_ID}|USER:${localStorage.getItem(k('usuario_tg'))||USER_NAME}`);}catch(e){}
+function confirmar(){
+  if(sel===-1){ alert("Elige una respuesta"); return; }
+  let p=preguntas[idx];
+  if(sel===p.r){ monedas+=10; historial.push({titulo:"Trivia acertada", monto:"+10 monedas", fecha:"Ahora mismo", tipo:"ganancia"}); alert("✅ ¡Bien! +10 monedas"); }
+  else{ vidas--; alert("❌ Mal. Te quedan "+vidas+" vidas"); }
+  guardar(); actualizarUI(); idx++; mostrarPregunta();
 }
-document.addEventListener('DOMContentLoaded', crear);
-crear();
+function solicitarRetiro(){
+  if(monedas<5000){ alert("Te faltan "+(5000-monedas)+" monedas para retirar."); return; }
+  let nequi=document.getElementById('inputNequi').value.trim();
+  if(nequi.length<10){ alert("Pon tu Nequi de 10 dígitos"); return; }
+  historial.push({titulo:"Retiro a Nequi "+nequi, monto:"-$"+monedas.toLocaleString(), fecha:"Pendiente - Viernes 7pm", tipo:"retiro"});
+  // Esto le manda el aviso a tu Bot para que tú veas quién pidió retiro
+  if(tg) tg.sendData(JSON.stringify({accion:"retiro", usuario:usuarioActual, nequi, monto:monedas}));
+  alert("✅ Retiro pedido.\nUsuario: "+usuarioActual+"\nNequi: "+nequi+"\nMonto: $"+monedas+"\nTe llega viernes 7pm.");
+  monedas=0; guardar(); actualizarUI(); irHome();
+}
+function verPerfil(){ alert("Perfil "+usuarioActual+"\nMonedas: "+monedas+"\nNequi: "+(document.getElementById('inputNequi').value||"No guardado")+"\nRegla: Tú ganas 35%, el jefe 65%."); }
 </script>
 </body>
 </html>
