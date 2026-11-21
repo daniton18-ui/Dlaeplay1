@@ -5,13 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DALEPLAY TRABAJO</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<!-- ===== MONETAG - TUS 2 ZONAS REALES ===== -->
-<!-- 12010449 = Rewarded - para +50 monedas -->
-<!-- 12010451 = In-App - para Entrar a Trabajar -->
 <script src="https://alwingulla.com/88/tag.min.js" data-zone="12010449" async data-cfasync="false"></script>
 <script src="https://alwingulla.com/88/tag.min.js" data-zone="12010451" async data-cfasync="false"></script>
-
 <style>
 *{box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
 body{margin:0;background:#f2f4f8;color:#111}
@@ -50,6 +45,7 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
 .progress div{height:100%;background:#f5b301}
 .adBox{background:#0f172a;color:#fff;border-radius:16px;padding:20px;text-align:center}
 .timerBox{background:#fef3c7;border:1px solid #fde68a;padding:10px;border-radius:12px;font-size:13px;text-align:center;margin-top:10px}
+.refBox{background:#fffbeb;border:1.5px dashed #f5b301;padding:14px;border-radius:14px;text-align:center;margin-top:12px}
 </style>
 </head>
 <body>
@@ -60,7 +56,6 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
 
 <div class="container">
 
-<!-- ===== LOGIN ===== -->
 <div id="pantallaAuth">
   <div class="card" style="text-align:center;padding:24px">
     <div style="font-size:44px">🎮</div>
@@ -74,12 +69,15 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
     <input id="authUsuario" placeholder="@tu_usuario" readonly style="background:#eef2f7">
     <label style="font-size:13px;font-weight:700">Contraseña (mínimo 4 números)</label>
     <input id="authClave" type="password" placeholder="Contraseña">
+    <label style="font-size:13px;font-weight:700">Código de referido (opcional)</label>
+    <input id="authReferido" placeholder="@ de quien te invitó - Ej: @daniel.toncel">
+    <p style="font-size:12px;color:#888;margin:0">Si te invitó un amigo, pon su @ aquí. Él gana +25 monedas.</p>
+    <br>
     <button class="btn btn-gold" onclick="entrarConAnuncio()">ENTRAR A TRABAJAR →</button>
     <p style="font-size:12px;color:#999;text-align:center">Al entrar verás un anuncio corto.</p>
   </div>
 </div>
 
-<!-- ===== ANUNCIO AL ENTRAR - ZONA 12010451 IN-APP ===== -->
 <div id="pantallaAnuncioEntrada" class="oculto">
   <div class="card">
     <div class="adBox">
@@ -94,7 +92,6 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
   </div>
 </div>
 
-<!-- ===== DASHBOARD ===== -->
 <div id="pantallaHome" class="oculto">
   <div class="flex"><div><b style="font-size:18px">Hola, <span id="holaUser">Usuario</span> 👋</b><br><span style="font-size:12px;color:#666">✅ Verificado • Barranquilla</span></div><span class="badge">NIVEL 1 ⭐</span></div>
   <br>
@@ -112,6 +109,18 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
     <div class="timerBox" id="infoLimite">Llevas <b id="contadorHoy">0 / 30</b> anuncios hoy</div>
   </div>
 
+  <div class="card">
+    <div class="flex"><b>👥 Invita y gana +25</b><span class="badge" id="badgeReferidos">0 referidos</span></div>
+    <p style="font-size:13px;color:#666;margin:6px 0">Por cada amigo que se registre con tu @, <b>TÚ ganas +25 monedas</b>.</p>
+    <div class="refBox">
+      <div style="font-size:12px;color:#888">Tu código de referido es tu @:</div>
+      <b id="miCodigoRef" style="font-size:18px">@tu_usuario</b>
+      <br><br>
+      <button class="btn btn-dark" onclick="copiarReferido()">📋 COPIAR MI LINK DE REFERIDO</button>
+      <p style="font-size:12px;color:#888;margin:8px 0 0">Compártelo por WhatsApp, Telegram o TikTok.</p>
+    </div>
+  </div>
+
   <div class="card" style="text-align:center">
     <b>🎁 Sigue viendo anuncios para ganar</b>
     <p style="font-size:13px;color:#888;margin:4px 0">Tu saldo se actualiza solo. Cuando llegues a la meta, te avisamos para retirar.</p>
@@ -127,7 +136,6 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
   </div>
 </div>
 
-<!-- ===== TRIVIA ===== -->
 <div id="pantallaTrivia" class="oculto">
   <div class="card">
     <div class="flex"><b>🎯 Trivia DALEPLAY</b><span class="badge">Gana 50 por acierto</span></div>
@@ -141,7 +149,6 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
   </div>
 </div>
 
-<!-- ===== RETIRO ===== -->
 <div id="pantallaRetiro" class="oculto">
   <div class="card">
     <h2 style="margin:0">💸 Retirar por Nequi</h2>
@@ -157,7 +164,6 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
   </div>
 </div>
 
-<!-- ===== ANUNCIO NORMAL - ZONA 12010449 REWARDED ===== -->
 <div id="pantallaAnuncio" class="oculto">
   <div class="card">
     <div class="adBox"><div style="font-size:40px">📺</div><h2 style="margin:8px 0">ANUNCIO</h2><p id="textoAnuncio" style="color:#a8b0c0">Cargando anuncio...</p><div class="progress"><div id="progAnuncio" style="width:0%"></div></div><p style="font-size:12px;color:#a8b0c0">Mira el anuncio completo. Al terminar ganas +50 monedas.</p><p style="font-size:12px;color:#f5b301" id="contadorAnunciosHoy">Anuncio 0 / 30 hoy</p></div>
@@ -179,18 +185,18 @@ input{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;font
 let tg = window.Telegram?.WebApp;
 if(tg){ tg.ready(); tg.expand(); tg.setHeaderColor('#ffffff'); tg.setBackgroundColor('#f2f4f8'); }
 
-// ===== CONFIG PRIVADA - SOLO TÚ LA SABES =====
 const MONEDAS_POR_ANUNCIO = 50;
 const MONEDAS_POR_TRIVIA = 50;
+const MONEDAS_POR_REFERIDO = 25;
 const MAX_ANUNCIOS_DIA = 30;
-const ESPERA_MS = 120000; // 2 minutos
+const ESPERA_MS = 120000;
 const MINIMO_RETIRO = 20000;
-const ZONA_ENTRAR = 12010451; // In-App - al entrar
-const ZONA_RECOMPENSA = 12010449; // Rewarded - +50 monedas
+const ZONA_ENTRAR = 12010451;
+const ZONA_RECOMPENSA = 12010449;
 
 let usuarioActual=null, monedas=0, historial=[];
 let ultimoAnuncio = parseInt(localStorage.getItem('ultimo_anuncio')||"0");
-let usuarioPendiente=null, clavePendiente=null;
+let usuarioPendiente=null, clavePendiente=null, referidoPendiente=null;
 let preguntas=[
   {q:"¿Qué equipo de fútbol es de Barranquilla?", ops:["Junior de Barranquilla","América de Cali","Millonarios","Atlético Nacional"], r:0},
   {q:"¿Cuánto dura un partido de fútbol?", ops:["60 min","80 min","90 min","120 min"], r:2},
@@ -209,6 +215,12 @@ function getTelegramUser(){
 }
 window.onload=()=>{
   let tgUser = getTelegramUser();
+  let params = new URLSearchParams(window.location.search);
+  let refUrl = params.get('ref') || params.get('start');
+  if(refUrl){
+    let inputRef = document.getElementById('authReferido');
+    if(inputRef && !inputRef.value) inputRef.value = refUrl.startsWith('@') ? refUrl : '@'+refUrl;
+  }
   if(tgUser){
     document.getElementById('authUsuario').value = tgUser;
     let u=JSON.parse(localStorage.getItem('daleplay_tg_final')||"{}");
@@ -226,7 +238,7 @@ function getLimiteHoy(){
 function guardar(){
   if(!usuarioActual) return;
   let u=JSON.parse(localStorage.getItem('daleplay_tg_final')||"{}");
-  u[usuarioActual]={usuario:usuarioActual, clave:document.getElementById('authClave').value, monedas, historial, nequi:document.getElementById('inputNequi').value|| (u[usuarioActual]?.nequi||"")};
+  u[usuarioActual]={usuario:usuarioActual, clave:document.getElementById('authClave').value, monedas, historial, nequi:document.getElementById('inputNequi').value|| (u[usuarioActual]?.nequi||""), referidos: u[usuarioActual]?.referidos||0, referidoPor: u[usuarioActual]?.referidoPor||null};
   localStorage.setItem('daleplay_tg_final', JSON.stringify(u));
 }
 function actualizarUI(){
@@ -235,6 +247,10 @@ function actualizarUI(){
   document.getElementById('monedasTrivia').innerText=monedas;
   document.getElementById('retiroMonto').innerText=monedas.toLocaleString();
   document.getElementById('retiroPesos').innerText=monedas.toLocaleString();
+  document.getElementById('miCodigoRef').innerText = usuarioActual || "@tu_usuario";
+  let u=JSON.parse(localStorage.getItem('daleplay_tg_final')||"{}");
+  let misRef = u[usuarioActual]?.referidos || 0;
+  document.getElementById('badgeReferidos').innerText = misRef + " referidos";
   let porc=Math.min(100, Math.round(monedas/MINIMO_RETIRO*100));
   document.getElementById('barraProgreso').style.width=porc+"%";
   document.getElementById('textoProgreso').innerText=monedas.toLocaleString()+" / "+MINIMO_RETIRO.toLocaleString()+" para retirar";
@@ -250,47 +266,70 @@ function actualizarUI(){
   if(monedas<MINIMO_RETIRO) al.innerHTML="⚠️ Te faltan <b>"+(MINIMO_RETIRO-monedas).toLocaleString()+" monedas</b> para retirar. Sigue viendo anuncios.";
   else al.innerHTML="✅ ¡Ya puedes retirar! Tienes <b>$"+monedas.toLocaleString()+" COP</b>. Te llega el viernes 7pm.";
 }
-
-// ===== FUNCIÓN PARA LLAMAR A MONETAG =====
-function mostrarMonetag(zona){
-  // Monetag crea una función show_ + ID cuando carga el script
-  let fn = window['show_' + zona];
-  if(typeof fn === 'function'){ fn(); return true; }
-  // Si aún no cargó, intenta con el formato alternativo
-  if(window['show_' + zona]){ window['show_' + zona](); return true; }
-  console.log("Monetag zona " + zona + " aún no cargó, se sigue con el temporizador");
-  return false;
+function copiarReferido(){
+  let link = "https://t.me/daleplay1bot/app?start=" + (usuarioActual||"").replace('@','');
+  let texto = "🎮 Gana plata viendo anuncios en DALEPLAY 💸\nEntra aquí y pon mi código " + usuarioActual + " para que los dos ganemos:\n" + link;
+  if(navigator.clipboard){ navigator.clipboard.writeText(texto).then(()=>{ alert("✅ Link copiado. Pégalo en WhatsApp o Telegram."); }); }
+  else { alert(texto); }
+  if(tg) tg.showAlert("Link de referido copiado: " + link);
 }
-
-// ===== ENTRAR CON ANUNCIO - ZONA 12010451 IN-APP =====
+function mostrarMonetag(zona){
+  let fn = window['show_' + zona];
+  if(typeof fn === 'function'){
+    try{ let r = fn(); if(r && r.then) r.then(()=>{ console.log("Anuncio "+zona+" visto"); }).catch(()=>{}); }catch(e){ console.log("Error show_"+zona, e); }
+    return true;
+  }
+  let s = document.createElement('script');
+  s.src = "https://alwingulla.com/88/tag.min.js";
+  s.setAttribute('data-zone', zona);
+  s.setAttribute('data-cfasync', 'false');
+  s.async = true;
+  document.head.appendChild(s);
+  return true;
+}
 function entrarConAnuncio(){
   let user=document.getElementById('authUsuario').value.trim().toLowerCase();
   let clave=document.getElementById('authClave').value.trim();
+  let referido=document.getElementById('authReferido').value.trim().toLowerCase();
   if(!user){ alert("No detectamos tu @ de Telegram. Abre la app desde el Bot."); return; }
   if(!clave || clave.length<4){ alert("Pon una contraseña de mínimo 4 números"); return; }
-  usuarioPendiente=user; clavePendiente=clave;
-  document.getElementById('pantallaAuth').classList.add('oculto');
-  document.getElementById('pantallaAnuncioEntrada').classList.remove('oculto');
-
-  // MUESTRA ANUNCIO IN-APP 12010451
+  if(referido && !referido.startsWith('@')) referido = '@'+referido;
+  if(referido === user){ alert("No puedes referirte a ti mismo 😅"); return; }
+  usuarioPendiente=user; clavePendiente=clave; referidoPendiente=referido||null;
   mostrarMonetag(ZONA_ENTRAR);
-
-  let seg=15;
-  document.getElementById('textoAnuncioEntrada').innerText="Mira este anuncio corto para entrar - "+seg+" seg";
-  document.getElementById('btnEntrarDespuesAnuncio').disabled=true;
-  document.getElementById('btnEntrarDespuesAnuncio').innerText="ESPERA "+seg+"...";
-  let t=setInterval(()=>{
-    seg--;
-    document.getElementById('progAnuncioEntrada').style.width=((15-seg)/15*100)+"%";
-    document.getElementById('textoAnuncioEntrada').innerText="Mira este anuncio corto para entrar - "+Math.max(0,seg)+" seg";
-    if(seg<=0){ clearInterval(t); document.getElementById('btnEntrarDespuesAnuncio').disabled=false; document.getElementById('btnEntrarDespuesAnuncio').innerText="ENTRAR AHORA →"; }
-  },1000);
+  setTimeout(()=>{
+    document.getElementById('pantallaAuth').classList.add('oculto');
+    document.getElementById('pantallaAnuncioEntrada').classList.remove('oculto');
+    let seg=15;
+    document.getElementById('textoAnuncioEntrada').innerText="Mira este anuncio corto para entrar - "+seg+" seg";
+    document.getElementById('btnEntrarDespuesAnuncio').disabled=true;
+    document.getElementById('btnEntrarDespuesAnuncio').innerText="ESPERA "+seg+"...";
+    let t=setInterval(()=>{
+      seg--;
+      document.getElementById('progAnuncioEntrada').style.width=((15-seg)/15*100)+"%";
+      document.getElementById('textoAnuncioEntrada').innerText="Mira este anuncio corto para entrar - "+Math.max(0,seg)+" seg";
+      if(seg<=0){ clearInterval(t); document.getElementById('btnEntrarDespuesAnuncio').disabled=false; document.getElementById('btnEntrarDespuesAnuncio').innerText="ENTRAR AHORA →"; }
+    },1000);
+  }, 600);
 }
 function terminarAnuncioEntrada(){
-  let user=usuarioPendiente; let clave=clavePendiente;
+  let user=usuarioPendiente; let clave=clavePendiente; let referido=referidoPendiente;
   let u=JSON.parse(localStorage.getItem('daleplay_tg_final')||"{}");
-  if(!u[user]){
-    u[user]={usuario:user, clave, monedas:50, historial:[{titulo:"Bono por entrar", monto:"+50 monedas", fecha:"Ahora mismo", tipo:"ganancia"}], nequi:""};
+  let esNuevo = !u[user];
+  if(esNuevo){
+    u[user]={usuario:user, clave, monedas:50, historial:[{titulo:"Bono por entrar", monto:"+50 monedas", fecha:"Ahora mismo", tipo:"ganancia"}], nequi:"", referidos:0, referidoPor: referido||null};
+    if(referido && u[referido]){
+      u[referido].monedas = (u[referido].monedas||0) + MONEDAS_POR_REFERIDO;
+      u[referido].referidos = (u[referido].referidos||0) + 1;
+      u[referido].historial = u[referido].historial||[];
+      u[referido].historial.push({titulo:"Referido registrado: "+user, monto:"+"+MONEDAS_POR_REFERIDO+" monedas", fecha:"Ahora mismo", tipo:"ganancia"});
+      if(tg) tg.sendData(JSON.stringify({accion:"referido", referidor:referido, nuevo:user}));
+    } else if(referido){
+      let pendientes = JSON.parse(localStorage.getItem('referidos_pendientes')||"[]");
+      pendientes.push({referidor:referido, nuevo:user, fecha:new Date().toISOString()});
+      localStorage.setItem('referidos_pendientes', JSON.stringify(pendientes));
+      if(tg) tg.sendData(JSON.stringify({accion:"referido", referidor:referido, nuevo:user}));
+    }
   } else {
     if(u[user].clave!==clave){ alert("Contraseña incorrecta"); document.getElementById('pantallaAnuncioEntrada').classList.add('oculto'); document.getElementById('pantallaAuth').classList.remove('oculto'); return; }
   }
@@ -304,14 +343,15 @@ function terminarAnuncioEntrada(){
   document.getElementById('navBottom').style.display="flex";
   if(u[user].nequi) document.getElementById('inputNequi').value=u[user].nequi;
   actualizarUI(); guardar();
-  if(tg) tg.showAlert("✅ Bienvenido! +5 monedas por el anuncio de entrada.");
+  if(esNuevo && referido) {
+    if(tg) tg.showAlert("✅ Bienvenido! Tu amigo " + referido + " ganó +25 monedas por invitarte.");
+  } else {
+    if(tg) tg.showAlert("✅ Bienvenido! +5 monedas por el anuncio de entrada.");
+  }
 }
-
 function irHome(){ document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto')); document.getElementById('pantallaHome').classList.remove('oculto'); actualizarUI(); }
 function irTrivia(){ document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto')); document.getElementById('pantallaTrivia').classList.remove('oculto'); idx=0; vidas=3; mostrarPregunta(); }
 function irRetiro(){ document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto')); document.getElementById('pantallaRetiro').classList.remove('oculto'); actualizarUI(); }
-
-// ===== ANUNCIOS NORMALES - ZONA 12010449 REWARDED - 30 AL DÍA, 2 MIN =====
 function puedeVerAnuncio(){
   let g=getLimiteHoy();
   if(g.count>=MAX_ANUNCIOS_DIA){ alert("⛔ Ya completaste tus tareas de hoy. Vuelve mañana para seguir ganando."); return false; }
@@ -327,13 +367,10 @@ function puedeVerAnuncio(){
 function verAnuncio(){
   if(!puedeVerAnuncio()) return;
   let g=getLimiteHoy();
+  mostrarMonetag(ZONA_RECOMPENSA);
   document.querySelectorAll('#pantallaHome, #pantallaTrivia, #pantallaRetiro, #pantallaAnuncio').forEach(e=>e.classList.add('oculto'));
   document.getElementById('pantallaAnuncio').classList.remove('oculto');
   document.getElementById('contadorAnunciosHoy').innerText="Anuncio "+(g.count+1)+" / 30 hoy";
-
-  // MUESTRA ANUNCIO REWARDED 12010449 - ESTE ES EL QUE PAGA +50
-  mostrarMonetag(ZONA_RECOMPENSA);
-
   let seg=15;
   document.getElementById('textoAnuncio').innerText="Anuncio en curso... "+seg+" seg";
   document.getElementById('btnCerrarAnuncio').disabled=true;
